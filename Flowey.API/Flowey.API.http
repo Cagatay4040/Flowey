@@ -1,0 +1,6 @@
+@Flowey.API_HostAddress = http://localhost:5173
+
+GET {{Flowey.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
