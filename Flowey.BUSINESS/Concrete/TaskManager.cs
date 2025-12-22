@@ -97,6 +97,26 @@ namespace Flowey.BUSINESS.Concrete
             return new Result(ResultStatus.Error, Messages.TaskNotFound);
         }
 
+        public async Task<IResult> ChangeAssignTaskAsync(Guid taskId, Guid userId, Guid stepId)
+        {
+            var existingTask = await _taskRepository.GetByIdAsync(taskId);
+
+            if (existingTask == null)
+                return new Result(ResultStatus.Error, Messages.TaskNotFound);
+
+            var existingStep = await _stepRepository.GetByIdAsync(taskId);
+
+            if (existingStep == null)
+                return new Result(ResultStatus.Error, Messages.StepNotFound);
+
+            int effectedRow = await _taskRepository.ChangeAssignTaskAsync(taskId, userId, stepId);
+
+            if (effectedRow > 0)
+                return new Result(ResultStatus.Success, Messages.TaskAssignedSuccessfully);
+
+            return new Result(ResultStatus.Error, Messages.TaskAssignError);
+        }
+
         #endregion
 
         #region Delete Methods

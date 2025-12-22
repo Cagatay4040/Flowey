@@ -21,6 +21,8 @@ namespace Flowey.BUSINESS.Constants
         public const string TaskCreateError = "Could not create task";
         public const string TaskUpdateError = "Could not update task";
         public const string TaskDeleteError = "Could not delete task";
+        public const string TaskAssignedSuccessfully = "Task successfully assigned to the user";
+        public const string TaskAssignError = "Could not assign task";
 
         public const string ProjectAdded = "Project added successfully";
         public const string ProjectUpdated = "Project updated successfully";

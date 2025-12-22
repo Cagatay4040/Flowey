@@ -40,7 +40,17 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Update Methods
 
+        public async Task<int> ChangeAssignTaskAsync(Guid taskId, Guid userId, Guid stepId)
+        {
+            await _context.TaskHistories.AddAsync(new TaskHistory
+            {
+                TaskId = taskId,
+                UserId = userId,
+                StepId = stepId
+            });
 
+            return await _context.SaveChangesAsync();
+        }
 
         #endregion
 
