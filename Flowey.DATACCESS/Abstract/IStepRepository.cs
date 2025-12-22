@@ -26,7 +26,7 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Delete Methods
 
-
+        Task<int> SoftDeleteAndReOrderStepsAsync(Step step);
 
         #endregion
     }

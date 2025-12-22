@@ -55,7 +55,21 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Delete Methods
 
+        public async Task<int> SoftDeleteAndReOrderStepsAsync(Step step)
+        {
+            var stepsToReorder = await _context.Steps
+                .Where(s => s.ProjectId == step.ProjectId && s.Order > step.Order)
+                .ToListAsync();
 
+            foreach (var s in stepsToReorder)
+            {
+                s.Order -= 1;
+            }
+
+            _context.Steps.Remove(step);
+
+            return await _context.SaveChangesAsync();
+        }
 
         #endregion
     }

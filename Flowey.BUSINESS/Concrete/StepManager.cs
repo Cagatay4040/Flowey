@@ -155,7 +155,7 @@ namespace Flowey.BUSINESS.Concrete
             if (existingStep == null)
                 return new Result(ResultStatus.Error, Messages.StepNotFound);
 
-            int effectedRow = await _stepRepository.SoftDeleteAsync(existingStep);
+            int effectedRow = await _stepRepository.SoftDeleteAndReOrderStepsAsync(existingStep);
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.StepDeleted);
