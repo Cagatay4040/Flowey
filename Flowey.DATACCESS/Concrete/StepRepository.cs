@@ -19,11 +19,22 @@ namespace Flowey.DATACCESS.Concrete
 
         public async Task<List<Step>> GetProjectStepsAsync(Guid projectId)
         {
-            var data = await _context.ProjectSteps
+            var data = await _context.Steps
                 .AsNoTracking()
                 .Where(x => x.ProjectId == projectId)
-                .Select(x => x.Step)
+                .OrderBy(x => x.Order)
                 .ToListAsync();
+
+            return data;
+        }
+
+        public async Task<Step> GetProjectFirstStepAsync(Guid projectId)
+        {
+            var data = await _context.Steps
+                .AsNoTracking()
+                .Where(x => x.ProjectId == projectId)
+                .OrderBy(x => x.Order)
+                .FirstOrDefaultAsync();
 
             return data;
         }
@@ -32,30 +43,7 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Insert Methods
 
-        public async Task<int> AddStepToProjectAsync(Step step, Guid projectId)
-        {
-            await _context.Steps.AddAsync(step);
-            await _context.ProjectSteps.AddAsync(new ProjectStep
-            {
-                ProjectId = projectId,
-                StepId = step.Id
-            });
-            return await _context.SaveChangesAsync();
-        }
 
-        public async Task<int> AddRangeStepToProjectAsync(List<Step> steps, Guid projectId)
-        {
-            await _context.Steps.AddRangeAsync(steps);
-
-            var projectSteps = steps.Select(x => new ProjectStep
-            {
-                Step = x,
-                ProjectId = projectId
-            }).ToList();
-
-            await _context.ProjectSteps.AddRangeAsync(projectSteps);
-            return await _context.SaveChangesAsync();
-        }
 
         #endregion
 

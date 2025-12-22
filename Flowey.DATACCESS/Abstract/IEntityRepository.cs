@@ -13,8 +13,8 @@ namespace Flowey.DATACCESS.Abstract
         #region Add Methods
         Task<int> AddAsync(TEntity entity);
         int Add(TEntity entity);
-        int Add(IEnumerable<TEntity> entities);
-        Task<int> AddAsync(IEnumerable<TEntity> entities);
+        int AddRange(IEnumerable<TEntity> entities);
+        Task<int> AddRangeAsync(IEnumerable<TEntity> entities);
 
         #endregion
 

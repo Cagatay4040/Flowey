@@ -8,13 +8,13 @@ namespace Flowey.DATACCESS.Abstract
         #region Get Methods
 
         Task<List<Step>> GetProjectStepsAsync(Guid projectId);
+        Task<Step> GetProjectFirstStepAsync(Guid projectId);
 
         #endregion
 
         #region Insert Methods
 
-        Task<int> AddStepToProjectAsync(Step step, Guid projectId);
-        Task<int> AddRangeStepToProjectAsync(List<Step> steps, Guid projectId);
+
 
         #endregion
 

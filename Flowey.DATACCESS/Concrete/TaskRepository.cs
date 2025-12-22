@@ -23,14 +23,16 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Insert Methods
 
-        public async Task<int> AddAndAssignTaskAsync(Task task, Guid userId)
+        public async Task<int> AddAndAssignTaskAsync(Task task, Guid userId, Guid stepId)
         {
             await _context.Tasks.AddAsync(task);
-            await _context.UserTasks.AddAsync(new UserTask
+            await _context.TaskHistories.AddAsync(new TaskHistory
             {
                 TaskId = task.Id,
                 UserId = userId,
+                StepId = stepId
             });
+
             return await _context.SaveChangesAsync();
         }
 

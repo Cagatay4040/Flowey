@@ -14,7 +14,7 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Insert Methods
 
-        Task<int> AddAndAssignTaskAsync(Task task, Guid userId);
+        Task<int> AddAndAssignTaskAsync(Task task, Guid userId, Guid stepId);
 
         #endregion
 

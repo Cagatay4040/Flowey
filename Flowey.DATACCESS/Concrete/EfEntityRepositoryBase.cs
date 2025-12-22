@@ -35,7 +35,7 @@ namespace Flowey.DATACCESS.Concrete
             return dbContext.SaveChanges();
         }
 
-        public virtual async Task<int> AddAsync(IEnumerable<TEntity> entities)
+        public virtual async Task<int> AddRangeAsync(IEnumerable<TEntity> entities)
         {
             if (entities != null && !entities.Any())
                 return 0;
@@ -44,7 +44,7 @@ namespace Flowey.DATACCESS.Concrete
             return await dbContext.SaveChangesAsync();
         }
 
-        public virtual int Add(IEnumerable<TEntity> entities)
+        public virtual int AddRange(IEnumerable<TEntity> entities)
         {
             if (entities != null && !entities.Any())
                 return 0;
