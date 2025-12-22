@@ -9,8 +9,7 @@ namespace Flowey.BUSINESS.DTO.Comment
         public string Content { get; set; }
         public Guid TaskId { get; set; }
         public Guid UserId { get; set; }
-        public string UserName { get; set; } // User's name might be useful
+        public string UserName { get; set; }
         public DateTime CreatedDate { get; set; }
-        // Attachments?
     }
 }

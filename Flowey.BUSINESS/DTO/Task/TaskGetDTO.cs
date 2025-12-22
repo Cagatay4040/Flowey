@@ -8,6 +8,7 @@ namespace Flowey.BUSINESS.DTO.Task
 {
     public class TaskGetDTO
     {
+        public Guid Id { get; set; }
         public string Title { get; set; }
         public string TaskKey { get; set; }
         public string Description { get; set; }
