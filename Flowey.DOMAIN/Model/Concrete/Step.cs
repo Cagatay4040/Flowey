@@ -12,13 +12,14 @@ namespace Flowey.DOMAIN.Model.Concrete
     {
         public string Name { get; set; }
         public int Order { get; set; }
+        public Guid ProjectId { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public Guid CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? ModifiedBy { get; set; }
 
-        public virtual ICollection<ProjectStep> ProjectSteps { get; set; }
-        public virtual ICollection<TaskStep> TaskSteps { get; set; }
+        public virtual Project Project { get; set; }
+        public virtual ICollection<TaskHistory> TaskHistories { get; set; }
     }
 }

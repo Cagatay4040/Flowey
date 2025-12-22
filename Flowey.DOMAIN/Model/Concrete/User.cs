@@ -21,7 +21,7 @@ namespace Flowey.DOMAIN.Model.Concrete
         public DateTime? ModifiedDate { get; set; }
         public Guid? ModifiedBy { get; set; }
 
-        public virtual ICollection<UserTask> UserTasks { get; set; }
+        public virtual ICollection<TaskHistory> TaskHistories { get; set; }
         public virtual ICollection<ProjectUserRole> ProjectUserRoles { get; set; }
     }
 }

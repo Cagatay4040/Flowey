@@ -21,7 +21,6 @@ namespace Flowey.DOMAIN.Model.Concrete
         public Guid? ModifiedBy { get; set; }
 
         public virtual Project Project { get; set; }
-        public virtual ICollection<UserTask> UserTasks { get; set; }
-        public virtual ICollection<TaskStep> TaskSteps { get; set; }
+        public virtual ICollection<TaskHistory> TaskHistories { get; set; }
     }
 }
