@@ -5,7 +5,6 @@ using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 
 namespace Flowey.API.Filters
@@ -14,13 +13,13 @@ namespace Flowey.API.Filters
     {
         private readonly RoleType[] _allowedRoles;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IProjectService _projectService;
+        private readonly IPermissionService _permissionService;
 
-        public ProjectAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IProjectService projectService)
+        public ProjectAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService)
         {
             _allowedRoles = allowedRoles;
             _currentUserService = currentUserService;
-            _projectService = projectService;
+            _permissionService = permissionService;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -71,17 +70,14 @@ namespace Flowey.API.Filters
                 return;
             }
 
-            var projectUser = await _projectService.GetProjectUserAsync(projectId, userId);
+            bool hasPermission = await _permissionService.HasPermissionAsync(userId, projectId, _allowedRoles);
 
-            if (projectUser == null)
+            if (!hasPermission)
             {
-                context.Result = new UnauthorizedObjectResult(new Result(ResultStatus.Error, Messages.UserNotProjectMember));
-                return;
-            }
-
-            if (_allowedRoles.Any() && !_allowedRoles.Contains(projectUser.RoleId))
-            {
-                context.Result = new UnauthorizedObjectResult(new Result(ResultStatus.Error, Messages.InsufficientPermissions));
+                context.Result = new ObjectResult(new Result(ResultStatus.Error, Messages.InsufficientPermissions))
+                {
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
                 return;
             }
 
