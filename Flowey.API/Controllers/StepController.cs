@@ -1,5 +1,7 @@
-﻿using Flowey.BUSINESS.Abstract;
+﻿using Flowey.API.Attributes;
+using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Step;
+using Flowey.CORE.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +29,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddStep")]
+        [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> AddStep([FromBody] StepAddDTO step)
         {
             var result = await _stepService.AddStepAsync(step);
@@ -35,6 +38,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddSteps")]
+        [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> AddSteps([FromBody] List<StepAddDTO> steps)
         {
             var result = await _stepService.AddRangeStepAsync(steps);
@@ -43,6 +47,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateStep")]
+        [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> UpdateStep([FromBody] StepUpdateDTO step)
         {
             var result = await _stepService.UpdateStepAsync(step);
@@ -51,6 +56,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateSteps")]
+        [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> UpdateSteps([FromBody] List<StepUpdateDTO> steps)
         {
             var result = await _stepService.UpdateRangeStepAsync(steps);
@@ -59,6 +65,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpDelete("DeleteStep")]
+        [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> DeleteStep([FromBody] Guid stepId)
         {
             var result = await _stepService.SoftDeleteAsync(stepId);

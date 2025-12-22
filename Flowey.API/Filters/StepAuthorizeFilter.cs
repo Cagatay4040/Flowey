@@ -9,13 +9,13 @@ using System.Reflection;
 
 namespace Flowey.API.Filters
 {
-    public class ProjectAuthorizeFilter : IAsyncActionFilter
+    public class StepAuthorizeFilter : IAsyncActionFilter
     {
         private readonly RoleType[] _allowedRoles;
         private readonly ICurrentUserService _currentUserService;
         private readonly IPermissionService _permissionService;
 
-        public ProjectAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService)
+        public StepAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService, ITaskService taskService)
         {
             _allowedRoles = allowedRoles;
             _currentUserService = currentUserService;
@@ -33,12 +33,12 @@ namespace Flowey.API.Filters
             }
 
             var userId = Guid.Parse(userIdString);
-            Guid projectId = Guid.Empty;
+            Guid stepId = Guid.Empty;
             bool found = false;
 
-            if (context.ActionArguments.TryGetValue("projectId", out var idObj) && idObj is Guid directId)
+            if (context.ActionArguments.TryGetValue("stepId", out var idObj) && idObj is Guid directId)
             {
-                projectId = directId;
+                stepId = directId;
                 found = true;
             }
             else
@@ -49,14 +49,14 @@ namespace Flowey.API.Filters
 
                     var type = arg.GetType();
 
-                    var propInfo = type.GetProperty("ProjectId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    var propInfo = type.GetProperty("StepId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 
                     if (propInfo != null && propInfo.PropertyType == typeof(Guid))
                     {
                         var value = propInfo.GetValue(arg);
                         if (value is Guid guidValue && guidValue != Guid.Empty)
                         {
-                            projectId = guidValue;
+                            stepId = guidValue;
                             found = true;
                             break;
                         }
@@ -64,13 +64,13 @@ namespace Flowey.API.Filters
                 }
             }
 
-            if (!found || projectId == Guid.Empty)
+            if (!found || stepId == Guid.Empty)
             {
-                context.Result = new BadRequestObjectResult(new Result(ResultStatus.Error, Messages.ProjectIdMissing));
+                context.Result = new BadRequestObjectResult(new Result(ResultStatus.Error, Messages.StepIdMissing));
                 return;
             }
 
-            bool hasPermission = await _permissionService.HasProjectPermissionAsync(userId, projectId, _allowedRoles);
+            bool hasPermission = await _permissionService.HasStepPermissionAsync(userId, stepId, _allowedRoles);
 
             if (!hasPermission)
             {

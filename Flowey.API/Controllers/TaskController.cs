@@ -1,5 +1,7 @@
-﻿using Flowey.BUSINESS.Abstract;
+﻿using Flowey.API.Attributes;
+using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Task;
+using Flowey.CORE.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +21,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpGet("GetProjectTasks")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetProjectTasks([FromBody] Guid projectId)
         {
             var result = await _taskService.GetProjectTasksAsync(projectId);
@@ -27,6 +30,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddTask")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)
         {
             var result = await _taskService.AddAndAssignTaskAsync(task);
@@ -35,6 +39,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateTask")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateTask([FromBody] TaskUpdateDTO task)
         {
             var result = await _taskService.UpdateAsync(task);
@@ -43,6 +48,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpDelete("DeleteTask")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> DeleteTask([FromBody] Guid taskId)
         {
             var result = await _taskService.SoftDeleteAsync(taskId);
