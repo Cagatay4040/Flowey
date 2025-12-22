@@ -6,7 +6,7 @@ namespace Flowey.API.Attributes
 {
     public class TaskAuthorizeAttribute : TypeFilterAttribute
     {
-        public TaskAuthorizeAttribute(params RoleType[] roles) : base(typeof(ProjectAuthorizeFilter))
+        public TaskAuthorizeAttribute(params RoleType[] roles) : base(typeof(TaskAuthorizeFilter))
         {
             Arguments = new object[] { roles };
         }
