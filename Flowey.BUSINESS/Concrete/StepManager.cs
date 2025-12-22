@@ -33,7 +33,7 @@ namespace Flowey.BUSINESS.Concrete
         {
             var existingProject = await _projectRepository.AnyAsync(x => x.Id == projectId);
 
-            if (existingProject)
+            if (!existingProject)
                 return new DataResult<List<StepGetDTO>>(ResultStatus.Error, Messages.ProjectNotFound, new List<StepGetDTO>());
 
             var entityList = await _stepRepository.GetProjectStepsAsync(projectId);
@@ -98,7 +98,7 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> UpdateStepAsync(StepUpdateDTO dto)
         {
-            var existingStep = await _stepRepository.GetByIdAsync(dto.Id);
+            var existingStep = await _stepRepository.GetByIdAsync(dto.StepId);
 
             if (existingStep == null)
                 return new Result(ResultStatus.Error, Messages.StepNotFound);
@@ -118,7 +118,7 @@ namespace Flowey.BUSINESS.Concrete
             if (dtos == null || !dtos.Any())
                 return new Result(ResultStatus.Error, Messages.UpdateListEmpty);
 
-            var ids = dtos.Select(x => x.Id).ToList();
+            var ids = dtos.Select(x => x.StepId).ToList();
 
             var existingSteps = await _stepRepository.GetList(x => ids.Contains(x.Id));
 
@@ -129,7 +129,7 @@ namespace Flowey.BUSINESS.Concrete
 
             foreach (var existingStep in existingSteps)
             {
-                var matchingDto = dtos.First(x => x.Id == existingStep.Id);
+                var matchingDto = dtos.First(x => x.StepId == existingStep.Id);
                 _mapper.Map(matchingDto, existingStep);
             }
 

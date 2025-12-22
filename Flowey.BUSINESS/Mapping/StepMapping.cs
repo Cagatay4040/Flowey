@@ -19,8 +19,11 @@ namespace Flowey.BUSINESS.Mapping
             CreateMap<StepAddDTO, Step>();
             CreateMap<Step, StepAddDTO>();
 
-            CreateMap<StepUpdateDTO, Step>();
-            CreateMap<Step, StepUpdateDTO>();
+            CreateMap<StepUpdateDTO, Step>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.StepId));
+
+            CreateMap<Step, StepUpdateDTO>()
+                .ForMember(dest => dest.StepId, opt => opt.MapFrom(src => src.Id));
         }
     }
 }

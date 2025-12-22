@@ -6,6 +6,7 @@ using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Reflection;
+using System.Collections;
 
 namespace Flowey.API.Filters
 {
@@ -34,12 +35,11 @@ namespace Flowey.API.Filters
 
             var userId = Guid.Parse(userIdString);
             Guid stepId = Guid.Empty;
-            bool found = false;
+            Guid projectId = Guid.Empty;
 
             if (context.ActionArguments.TryGetValue("stepId", out var idObj) && idObj is Guid directId)
             {
                 stepId = directId;
-                found = true;
             }
             else
             {
@@ -47,30 +47,43 @@ namespace Flowey.API.Filters
                 {
                     if (arg == null) continue;
 
-                    var type = arg.GetType();
-
-                    var propInfo = type.GetProperty("StepId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-                    if (propInfo != null && propInfo.PropertyType == typeof(Guid))
+                    if (arg is IEnumerable listArg && !(arg is string))
                     {
-                        var value = propInfo.GetValue(arg);
-                        if (value is Guid guidValue && guidValue != Guid.Empty)
+                        foreach (var item in listArg)
                         {
-                            stepId = guidValue;
-                            found = true;
-                            break;
+                            if (item == null) continue;
+                            CheckProperties(item, ref stepId, ref projectId);
+
+                            if (stepId != Guid.Empty) break;
                         }
                     }
+                    else
+                    {
+                        CheckProperties(arg, ref stepId, ref projectId);
+                    }
+
+                    if (stepId != Guid.Empty) break;
                 }
             }
 
-            if (!found || stepId == Guid.Empty)
+            bool hasPermission = false;
+
+            if (stepId != Guid.Empty)
             {
-                context.Result = new BadRequestObjectResult(new Result(ResultStatus.Error, Messages.StepIdMissing));
+                hasPermission = await _permissionService.HasStepPermissionAsync(userId, stepId, _allowedRoles);
+            }
+            else if (projectId != Guid.Empty)
+            {
+                hasPermission = await _permissionService.HasProjectPermissionAsync(userId, projectId, _allowedRoles);
+            }
+            else
+            {
+                context.Result = new ObjectResult(new Result(ResultStatus.Error, Messages.ProjectIdOrStepIdMissing))
+                {
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
                 return;
             }
-
-            bool hasPermission = await _permissionService.HasStepPermissionAsync(userId, stepId, _allowedRoles);
 
             if (!hasPermission)
             {
@@ -82,6 +95,31 @@ namespace Flowey.API.Filters
             }
 
             await next();
+        }
+
+        void CheckProperties(object obj, ref Guid stepId, ref Guid projectId)
+        {
+            var type = obj.GetType();
+
+            if (stepId == Guid.Empty)
+            {
+                var stepProp = type.GetProperty("StepId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (stepProp != null && stepProp.PropertyType == typeof(Guid))
+                {
+                    var val = stepProp.GetValue(obj);
+                    if (val is Guid g && g != Guid.Empty) stepId = g;
+                }
+            }
+
+            if (projectId == Guid.Empty) 
+            {
+                var projProp = type.GetProperty("ProjectId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (projProp != null && projProp.PropertyType == typeof(Guid))
+                {
+                    var val = projProp.GetValue(obj);
+                    if (val is Guid g && g != Guid.Empty) projectId = g;
+                }
+            }
         }
     }
 }
