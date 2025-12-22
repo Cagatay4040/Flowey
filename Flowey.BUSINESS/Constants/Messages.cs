@@ -36,6 +36,7 @@ namespace Flowey.BUSINESS.Constants
         public const string ProjectUserNotFound = "User is not assigned to this project";
         public const string ProjectRemoveUser = "User removed from project";
         public const string ProjectRemoveUserError = "Could not remove user";
+        public const string ProjectStepsNotFound = "No steps found for this project.";
 
         public const string UserAdded = "User added successfully";
         public const string UserUpdated = "User updated successfully";
@@ -71,6 +72,8 @@ namespace Flowey.BUSINESS.Constants
 
         public const string UnauthorizedAccess = "Unauthorized";
         public const string ProjectIdMissing = "ProjectId could not be found in request parameters or body";
+        public const string TaskIdMissing = "TaskId could not be found in request parameters or body";
+        public const string StepIdMissing = "StepId could not be found in request parameters or body";
         public const string UserNotProjectMember = "You are not a member of this project";
         public const string InsufficientPermissions = "You do not have permission for this action";
     }

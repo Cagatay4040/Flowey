@@ -18,12 +18,14 @@ namespace Flowey.BUSINESS.Concrete
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
+        private readonly IStepRepository _stepRepository;
         private readonly IMapper _mapper;
 
-        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IMapper mapper)
+        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IMapper mapper)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
+            _stepRepository = stepRepository;
             _mapper = mapper;
         }
 
@@ -61,7 +63,12 @@ namespace Flowey.BUSINESS.Concrete
             var task = _mapper.Map<Task>(dto);
             task.TaskKey = newTaskKey;
 
-            int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
+            var firstStep = await _stepRepository.GetProjectFirstStepAsync(dto.ProjectId);
+
+            if(firstStep == null)
+                return new Result(ResultStatus.Error, Messages.ProjectStepsNotFound);
+
+            int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId, firstStep.Id);
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));

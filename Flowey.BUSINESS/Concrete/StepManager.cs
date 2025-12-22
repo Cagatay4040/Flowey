@@ -54,7 +54,7 @@ namespace Flowey.BUSINESS.Concrete
 
             var step = _mapper.Map<Step>(dto);
 
-            int effectedRow = await _stepRepository.AddStepToProjectAsync(step, dto.ProjectId);
+            int effectedRow = await _stepRepository.AddAsync(step);
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.StepAdded);
@@ -81,7 +81,7 @@ namespace Flowey.BUSINESS.Concrete
 
             var steps = _mapper.Map<List<Step>>(dtos);
 
-            int effectedRow = await _stepRepository.AddRangeStepToProjectAsync(steps, firstProjectId);
+            int effectedRow = await _stepRepository.AddRangeAsync(steps);
 
             if (effectedRow > 0)
             {
