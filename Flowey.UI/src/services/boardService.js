@@ -12,14 +12,14 @@ export const boardService = {
         await api.put('/Tasks', { id: taskId, stepId: targetStepId, order: newOrder });
     },
     createTask: async (task) => {
-        const response = await api.post('/Tasks', task);
+        const response = await api.post('/Task/AddTask', task);
         return response.data;
     },
     updateTask: async (task) => {
         await api.put('/Tasks', task);
     },
     deleteTask: async (id) => {
-        await api.delete(`/Tasks/${id}`);
+        await api.delete(`/Task/${id}`);
     },
     // Comments
     getComments: async (taskId) => {
