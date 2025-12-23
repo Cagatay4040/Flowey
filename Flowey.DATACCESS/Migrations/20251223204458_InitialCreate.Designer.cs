@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Flowey.DATACCESS.Migrations
 {
     [DbContext(typeof(FloweyDbContext))]
-    [Migration("20251222131424_TasKHistory_Table_Added")]
-    partial class TasKHistory_Table_Added
+    [Migration("20251223204458_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,7 +227,7 @@ namespace Flowey.DATACCESS.Migrations
                             Id = 1,
                             Code = "ADMIN",
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2025, 12, 22, 16, 14, 24, 730, DateTimeKind.Local).AddTicks(9799),
+                            CreatedDate = new DateTime(2025, 12, 23, 23, 44, 58, 569, DateTimeKind.Local).AddTicks(6334),
                             IsActive = true,
                             Name = "Admin"
                         },
@@ -236,7 +236,7 @@ namespace Flowey.DATACCESS.Migrations
                             Id = 2,
                             Code = "EDITOR",
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2025, 12, 22, 16, 14, 24, 730, DateTimeKind.Local).AddTicks(9807),
+                            CreatedDate = new DateTime(2025, 12, 23, 23, 44, 58, 569, DateTimeKind.Local).AddTicks(6342),
                             IsActive = true,
                             Name = "Editor"
                         },
@@ -245,7 +245,7 @@ namespace Flowey.DATACCESS.Migrations
                             Id = 3,
                             Code = "MEMBER",
                             CreatedBy = new Guid("00000000-0000-0000-0000-000000000000"),
-                            CreatedDate = new DateTime(2025, 12, 22, 16, 14, 24, 730, DateTimeKind.Local).AddTicks(9808),
+                            CreatedDate = new DateTime(2025, 12, 23, 23, 44, 58, 569, DateTimeKind.Local).AddTicks(6343),
                             IsActive = true,
                             Name = "Member"
                         });
@@ -295,11 +295,17 @@ namespace Flowey.DATACCESS.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AssigneeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CurrentStepId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -326,6 +332,10 @@ namespace Flowey.DATACCESS.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("CurrentStepId");
 
                     b.HasIndex("ProjectId");
 
@@ -356,34 +366,19 @@ namespace Flowey.DATACCESS.Migrations
                     b.Property<Guid>("StepId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("StepId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("TaskId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("TaskId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("UserId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("StepId");
 
-                    b.HasIndex("StepId1");
-
                     b.HasIndex("TaskId");
 
-                    b.HasIndex("TaskId1");
-
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("TaskHistories");
                 });
@@ -500,6 +495,16 @@ namespace Flowey.DATACCESS.Migrations
 
             modelBuilder.Entity("Flowey.DOMAIN.Model.Concrete.Task", b =>
                 {
+                    b.HasOne("Flowey.DOMAIN.Model.Concrete.User", "User")
+                        .WithMany("Tasks")
+                        .HasForeignKey("AssigneeId");
+
+                    b.HasOne("Flowey.DOMAIN.Model.Concrete.Step", "Step")
+                        .WithMany("Tasks")
+                        .HasForeignKey("CurrentStepId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Flowey.DOMAIN.Model.Concrete.Project", "Project")
                         .WithMany("Tasks")
                         .HasForeignKey("ProjectId")
@@ -507,37 +512,29 @@ namespace Flowey.DATACCESS.Migrations
                         .IsRequired();
 
                     b.Navigation("Project");
+
+                    b.Navigation("Step");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Flowey.DOMAIN.Model.Concrete.TaskHistory", b =>
                 {
                     b.HasOne("Flowey.DOMAIN.Model.Concrete.Step", "Step")
-                        .WithMany()
+                        .WithMany("TaskHistories")
                         .HasForeignKey("StepId")
                         .IsRequired();
 
-                    b.HasOne("Flowey.DOMAIN.Model.Concrete.Step", null)
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("StepId1");
-
                     b.HasOne("Flowey.DOMAIN.Model.Concrete.Task", "Task")
-                        .WithMany()
+                        .WithMany("TaskHistories")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Flowey.DOMAIN.Model.Concrete.Task", null)
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("TaskId1");
-
                     b.HasOne("Flowey.DOMAIN.Model.Concrete.User", "User")
-                        .WithMany()
+                        .WithMany("TaskHistories")
                         .HasForeignKey("UserId")
                         .IsRequired();
-
-                    b.HasOne("Flowey.DOMAIN.Model.Concrete.User", null)
-                        .WithMany("TaskHistories")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Step");
 
@@ -568,6 +565,8 @@ namespace Flowey.DATACCESS.Migrations
             modelBuilder.Entity("Flowey.DOMAIN.Model.Concrete.Step", b =>
                 {
                     b.Navigation("TaskHistories");
+
+                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Flowey.DOMAIN.Model.Concrete.Task", b =>
@@ -580,6 +579,8 @@ namespace Flowey.DATACCESS.Migrations
                     b.Navigation("ProjectUserRoles");
 
                     b.Navigation("TaskHistories");
+
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }

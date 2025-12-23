@@ -23,5 +23,6 @@ namespace Flowey.DOMAIN.Model.Concrete
 
         public virtual ICollection<TaskHistory> TaskHistories { get; set; }
         public virtual ICollection<ProjectUserRole> ProjectUserRoles { get; set; }
+        public virtual ICollection<Task> Tasks { get; set; }
     }
 }

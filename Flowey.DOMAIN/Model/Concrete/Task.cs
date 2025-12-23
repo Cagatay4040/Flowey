@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string TaskKey { get; set; }
         public string Description { get; set; }
         public Guid ProjectId { get; set; }
+        public Guid CurrentStepId { get; set; }
+        public Guid? AssigneeId { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public Guid CreatedBy { get; set; }
@@ -21,6 +24,12 @@ namespace Flowey.DOMAIN.Model.Concrete
         public Guid? ModifiedBy { get; set; }
 
         public virtual Project Project { get; set; }
+
+        [ForeignKey("CurrentStepId")]
+        public virtual Step Step { get; set; }
+
+        [ForeignKey("AssigneeId")]
+        public virtual User? User { get; set; }
         public virtual ICollection<TaskHistory> TaskHistories { get; set; }
     }
 }
