@@ -1,3 +1,4 @@
+using Flowey.BUSINESS.DTO.Role;
 using Flowey.CORE.Result.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ namespace Flowey.BUSINESS.Abstract
     {
         #region Get Methods
 
-
+        Task<IDataResult<RoleGetDTO>> GetUserRole(Guid projectId);
 
         #endregion
 
