@@ -39,6 +39,31 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
+        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<string> userEmails)
+        {
+            var query = _context.Steps
+                                .Where(s => s.ProjectId == projectId && s.IsActive)
+                                .OrderBy(s => s.Order)
+                                .AsQueryable();
+
+            if (userEmails != null && userEmails.Any())
+            {
+                query = query.Include(s => s.Tasks
+                     .Where(t => t.IsActive &&
+                                 t.User != null &&
+                                 userEmails.Contains(t.User.Email))
+                     .OrderBy(t => t.CreatedDate));
+            }
+            else
+            {
+                query = query.Include(s => s.Tasks
+                     .Where(t => t.IsActive)
+                     .OrderBy(t => t.CreatedDate));
+            }
+
+            return await query.ToListAsync();
+        }
+
         #endregion
 
         #region Insert Methods

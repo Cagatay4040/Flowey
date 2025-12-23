@@ -27,6 +27,12 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(FloweyDbContext).Assembly);
 
+            modelBuilder.Entity<Task>()
+               .HasOne(t => t.Step)
+               .WithMany(s => s.Tasks)
+               .HasForeignKey(t => t.CurrentStepId)
+               .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<TaskHistory>(entity =>
             {
                 entity.HasOne(th => th.Task)

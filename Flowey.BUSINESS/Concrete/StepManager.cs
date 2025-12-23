@@ -2,7 +2,6 @@ using AutoMapper;
 using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.Constants;
 using Flowey.BUSINESS.DTO.Step;
-using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -39,6 +38,15 @@ namespace Flowey.BUSINESS.Concrete
             var entityList = await _stepRepository.GetProjectStepsAsync(projectId);
             var data = _mapper.Map<List<StepGetDTO>>(entityList);
             return new DataResult<List<StepGetDTO>>(ResultStatus.Success, data);
+        }
+
+        public async Task<List<StepGetDTO>> GetBoardDataAsync(Guid projectId, List<string> emails)
+        {
+            var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(projectId, emails);
+
+            var stepDtos = _mapper.Map<List<StepGetDTO>>(steps);
+
+            return stepDtos;
         }
 
         #endregion

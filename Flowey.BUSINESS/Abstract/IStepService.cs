@@ -10,6 +10,7 @@ namespace Flowey.BUSINESS.Abstract
         #region Get Methods
 
         Task<IDataResult<List<StepGetDTO>>> GetProjectSteps(Guid projectId);
+        Task<List<StepGetDTO>> GetBoardDataAsync(Guid projectId, List<string> emails);
 
         #endregion
 

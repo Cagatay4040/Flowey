@@ -23,7 +23,7 @@ namespace Flowey.API.Controllers
         [HttpGet("GetProjectSteps")]
         public async Task<IActionResult> GetProjectSteps([FromQuery] Guid projectId)
         {
-            var result = await _stepService.GetProjectSteps(projectId);
+            var result = await _stepService.GetBoardDataAsync(projectId, new List<string>());
 
             return Ok(result);
         }

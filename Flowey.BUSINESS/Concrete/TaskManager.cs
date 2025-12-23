@@ -69,10 +69,12 @@ namespace Flowey.BUSINESS.Concrete
 
             var firstStep = await _stepRepository.GetProjectFirstStepAsync(dto.ProjectId);
 
+            task.CurrentStepId = firstStep.Id;
+
             if(firstStep == null)
                 return new Result(ResultStatus.Error, Messages.ProjectStepsNotFound);
 
-            int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId, firstStep.Id);
+            int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));

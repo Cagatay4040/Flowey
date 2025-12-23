@@ -9,6 +9,7 @@ namespace Flowey.DATACCESS.Abstract
 
         Task<List<Step>> GetProjectStepsAsync(Guid projectId);
         Task<Step> GetProjectFirstStepAsync(Guid projectId);
+        Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<string> userEmails);
 
         #endregion
 
