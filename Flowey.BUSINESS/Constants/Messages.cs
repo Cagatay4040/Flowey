@@ -75,6 +75,7 @@ namespace Flowey.BUSINESS.Constants
         public const string UnauthorizedAccess = "Unauthorized";
         public const string ProjectIdMissing = "ProjectId could not be found in request parameters or body";
         public const string ProjectIdOrStepIdMissing = "ProjectId or StepId could not be found in request parameters or body";
+        public const string ProjectIdOrTaskIdMissing = "ProjectId or TaskId could not be found in request parameters or body";
         public const string TaskIdMissing = "TaskId could not be found in request parameters or body";
         public const string StepIdMissing = "StepId could not be found in request parameters or body";
         public const string UserNotProjectMember = "You are not a member of this project";

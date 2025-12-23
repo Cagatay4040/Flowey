@@ -6,6 +6,7 @@ using Flowey.CORE.Result.Concrete;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Collections;
 using System.Reflection;
 
 namespace Flowey.API.Filters
@@ -35,6 +36,7 @@ namespace Flowey.API.Filters
 
             var userId = Guid.Parse(userIdString);
             Guid taskId = Guid.Empty;
+            Guid projectId = Guid.Empty;
             bool found = false;
 
             if (context.ActionArguments.TryGetValue("taskId", out var idObj) && idObj is Guid directId)
@@ -48,30 +50,43 @@ namespace Flowey.API.Filters
                 {
                     if (arg == null) continue;
 
-                    var type = arg.GetType();
-
-                    var propInfo = type.GetProperty("TaskId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
-
-                    if (propInfo != null && propInfo.PropertyType == typeof(Guid))
+                    if (arg is IEnumerable listArg && !(arg is string))
                     {
-                        var value = propInfo.GetValue(arg);
-                        if (value is Guid guidValue && guidValue != Guid.Empty)
+                        foreach (var item in listArg)
                         {
-                            taskId = guidValue;
-                            found = true;
-                            break;
+                            if (item == null) continue;
+                            CheckProperties(item, ref taskId, ref projectId);
+
+                            if (taskId != Guid.Empty) break;
                         }
                     }
+                    else
+                    {
+                        CheckProperties(arg, ref taskId, ref projectId);
+                    }
+
+                    if (taskId != Guid.Empty) break;
                 }
             }
 
-            if (!found || taskId == Guid.Empty)
+            bool hasPermission = false;
+
+            if (taskId != Guid.Empty)
             {
-                context.Result = new BadRequestObjectResult(new Result(ResultStatus.Error, Messages.TaskIdMissing));
+                hasPermission = await _permissionService.HasTaskPermissionAsync(userId, taskId, _allowedRoles);
+            }
+            else if (projectId != Guid.Empty)
+            {
+                hasPermission = await _permissionService.HasProjectPermissionAsync(userId, projectId, _allowedRoles);
+            }
+            else
+            {
+                context.Result = new ObjectResult(new Result(ResultStatus.Error, Messages.ProjectIdOrTaskIdMissing))
+                {
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
                 return;
             }
-
-            bool hasPermission = await _permissionService.HasTaskPermissionAsync(userId, taskId, _allowedRoles);
 
             if (!hasPermission)
             {
@@ -83,6 +98,31 @@ namespace Flowey.API.Filters
             }
 
             await next();
+        }
+
+        void CheckProperties(object obj, ref Guid stepId, ref Guid projectId)
+        {
+            var type = obj.GetType();
+
+            if (stepId == Guid.Empty)
+            {
+                var stepProp = type.GetProperty("TaskId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (stepProp != null && stepProp.PropertyType == typeof(Guid))
+                {
+                    var val = stepProp.GetValue(obj);
+                    if (val is Guid g && g != Guid.Empty) stepId = g;
+                }
+            }
+
+            if (projectId == Guid.Empty)
+            {
+                var projProp = type.GetProperty("ProjectId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (projProp != null && projProp.PropertyType == typeof(Guid))
+                {
+                    var val = projProp.GetValue(obj);
+                    if (val is Guid g && g != Guid.Empty) projectId = g;
+                }
+            }
         }
     }
 }

@@ -30,17 +30,17 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
             modelBuilder.Entity<TaskHistory>(entity =>
             {
                 entity.HasOne(th => th.Task)
-                      .WithMany() 
+                      .WithMany(t => t.TaskHistories) 
                       .HasForeignKey(th => th.TaskId)
                       .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(th => th.Step)
-                      .WithMany()
+                      .WithMany(s => s.TaskHistories)
                       .HasForeignKey(th => th.StepId)
                       .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(th => th.User)
-                      .WithMany()
+                      .WithMany(u => u.TaskHistories)
                       .HasForeignKey(th => th.UserId)
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });

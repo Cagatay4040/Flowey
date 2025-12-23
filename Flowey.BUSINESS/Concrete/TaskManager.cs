@@ -20,13 +20,15 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IProjectRepository _projectRepository;
         private readonly IStepRepository _stepRepository;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IMapper mapper)
+        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IMapper mapper, ICurrentUserService currentUserService)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _stepRepository = stepRepository;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         #region Get Methods
@@ -55,6 +57,8 @@ namespace Flowey.BUSINESS.Concrete
 
             if (project == null)
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);
+
+            dto.UserId = _currentUserService.GetUserId().Value;
 
             int currentCount = await _taskRepository.CountAsync(t => t.ProjectId == dto.ProjectId);
 
