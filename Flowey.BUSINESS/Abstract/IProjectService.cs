@@ -1,5 +1,6 @@
 using Flowey.BUSINESS.DTO.Project;
 using Flowey.BUSINESS.DTO.ProjectUser;
+using Flowey.BUSINESS.DTO.User;
 using Flowey.CORE.Result.Abstract;
 using System.Collections.Generic;
 
@@ -11,7 +12,8 @@ namespace Flowey.BUSINESS.Abstract
 
         Task<IDataResult<List<ProjectGetDTO>>> GetProjectsByLoginUserAsync();
         Task<IDataResult<List<ProjectGetDTO>>> GetMyProjectsAsync();
-        Task<ProjectUserGetDTO> GetProjectUserAsync(Guid projectId, Guid userId);
+        Task<IDataResult<UserSelectDTO>> GetProjectUserAsync(Guid projectId, Guid userId);
+        Task<IDataResult<List<UserSelectDTO>>> GetProjectUsersAsync(Guid projectId);
 
         #endregion
 

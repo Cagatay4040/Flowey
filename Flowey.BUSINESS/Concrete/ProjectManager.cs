@@ -3,6 +3,7 @@ using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.Constants;
 using Flowey.BUSINESS.DTO.Project;
 using Flowey.BUSINESS.DTO.ProjectUser;
+using Flowey.BUSINESS.DTO.User;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -44,11 +45,32 @@ namespace Flowey.BUSINESS.Concrete
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);
         }
 
-        public async Task<ProjectUserGetDTO> GetProjectUserAsync(Guid projectId, Guid userId)
+        public async Task<IDataResult<UserSelectDTO>> GetProjectUserAsync(Guid projectId, Guid userId)
         {
             var entity = await _projectRepository.GetProjectUserAsync(projectId, userId);
-            var data = _mapper.Map<ProjectUserGetDTO>(entity);
-            return data;
+
+            var data = new UserSelectDTO
+            {
+                Id = entity.User.Id,
+                FullName = $"{entity.User.Name} {entity.User.Surname}",
+                Email = entity.User.Email
+            };
+
+            return new DataResult<UserSelectDTO>(ResultStatus.Success, data);
+        }
+
+        public async Task<IDataResult<List<UserSelectDTO>>> GetProjectUsersAsync(Guid projectId)
+        {
+            var entities = await _projectRepository.GetProjectUsersAsync(projectId);
+
+            var data = entities.Select(role => new UserSelectDTO
+            {
+                Id = role.User.Id,
+                FullName = $"{role.User.Name} {role.User.Surname}",
+                Email = role.User.Email
+            }).ToList();
+
+            return new DataResult<List<UserSelectDTO>>(ResultStatus.Success, data);
         }
 
         #endregion

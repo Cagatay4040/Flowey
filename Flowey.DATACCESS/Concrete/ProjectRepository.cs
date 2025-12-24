@@ -22,7 +22,19 @@ namespace Flowey.DATACCESS.Concrete
         {
             var data = await _context.ProjectUserRoles
                 .AsNoTracking()
+                .Include(x => x.User)
                 .FirstOrDefaultAsync(x => x.ProjectId == projectId && x.UserId == userId);
+
+            return data;
+        }
+
+        public async Task<List<ProjectUserRole>> GetProjectUsersAsync(Guid projectId)
+        {
+            var data = await _context.ProjectUserRoles
+                .AsNoTracking()
+                .Include(x => x.User)
+                .Where(x => x.ProjectId == projectId)
+                .ToListAsync();
 
             return data;
         }

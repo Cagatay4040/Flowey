@@ -36,6 +36,14 @@ namespace Flowey.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("ProjectUsers")]
+        public async Task<IActionResult> ProjectUsers([FromQuery] Guid projectId)
+        {
+            var result = await _projectService.GetProjectUsersAsync(projectId);
+
+            return Ok(result);
+        }
+
         [HttpPost("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] ProjectAddDTO project)
         {

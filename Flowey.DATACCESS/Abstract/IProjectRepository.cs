@@ -9,6 +9,7 @@ namespace Flowey.DATACCESS.Abstract
 
         Task<List<Project>> GetProjectsByLoginUserAsync(Guid userId);
         Task<ProjectUserRole> GetProjectUserAsync(Guid projectId, Guid userId);
+        Task<List<ProjectUserRole>> GetProjectUsersAsync(Guid projectId);
         Task<bool> IsUserInProjectAsync(ProjectUserRole projectUserRole);
 
         #endregion
