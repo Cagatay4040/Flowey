@@ -20,7 +20,7 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Update Methods
 
-        Task<int> ChangeAssignTaskAsync(Guid taskId, Guid userId, Guid stepId);
+        Task<int> ChangeAssignTaskAsync(Task task, Guid userId);
 
         #endregion
 

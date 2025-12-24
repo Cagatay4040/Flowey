@@ -1,7 +1,7 @@
-using Flowey.CORE.DataAccess.Concrete;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
 using Flowey.DOMAIN.Model.Concrete;
+using Microsoft.EntityFrameworkCore;
 using Task = Flowey.DOMAIN.Model.Concrete.Task;
 
 namespace Flowey.DATACCESS.Concrete
@@ -40,13 +40,18 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Update Methods
 
-        public async Task<int> ChangeAssignTaskAsync(Guid taskId, Guid userId, Guid stepId)
+        public async Task<int> ChangeAssignTaskAsync(Task task, Guid userId)
         {
+            task.AssigneeId = userId;
+
+            _context.Tasks.Attach(task);
+            _context.Entry(task).State = EntityState.Modified;
+
             await _context.TaskHistories.AddAsync(new TaskHistory
             {
-                TaskId = taskId,
+                TaskId = task.Id,
                 UserId = userId,
-                StepId = stepId
+                StepId = task.CurrentStepId
             });
 
             return await _context.SaveChangesAsync();

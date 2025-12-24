@@ -103,19 +103,14 @@ namespace Flowey.BUSINESS.Concrete
             return new Result(ResultStatus.Error, Messages.TaskNotFound);
         }
 
-        public async Task<IResult> ChangeAssignTaskAsync(Guid taskId, Guid userId, Guid stepId)
+        public async Task<IResult> ChangeAssignTaskAsync(TaskAssignDTO dto)
         {
-            var existingTask = await _taskRepository.GetByIdAsync(taskId);
+            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            var existingStep = await _stepRepository.GetByIdAsync(taskId);
-
-            if (existingStep == null)
-                return new Result(ResultStatus.Error, Messages.StepNotFound);
-
-            int effectedRow = await _taskRepository.ChangeAssignTaskAsync(taskId, userId, stepId);
+            int effectedRow = await _taskRepository.ChangeAssignTaskAsync(existingTask, dto.UserId);
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.TaskAssignedSuccessfully);

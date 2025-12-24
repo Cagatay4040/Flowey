@@ -23,7 +23,7 @@ namespace Flowey.BUSINESS.Abstract
         #region Update Methods
 
         Task<IResult> UpdateAsync(TaskUpdateDTO dto);
-        Task<IResult> ChangeAssignTaskAsync(Guid taskId, Guid userId, Guid stepId);
+        Task<IResult> ChangeAssignTaskAsync(TaskAssignDTO dto);
 
         #endregion
 
