@@ -39,25 +39,23 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
-        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<string> userEmails)
+        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds)
         {
             var query = _context.Steps
-                                .Where(s => s.ProjectId == projectId && s.IsActive)
+                                .Where(s => s.ProjectId == projectId)
                                 .OrderBy(s => s.Order)
                                 .AsQueryable();
 
-            if (userEmails != null && userEmails.Any())
+            if (userIds != null && userIds.Any())
             {
                 query = query.Include(s => s.Tasks
-                     .Where(t => t.IsActive &&
-                                 t.User != null &&
-                                 userEmails.Contains(t.User.Email))
+                     .Where(t => t.User != null &&
+                                 userIds.Contains(t.User.Id))
                      .OrderBy(t => t.CreatedDate));
             }
             else
             {
                 query = query.Include(s => s.Tasks
-                     .Where(t => t.IsActive)
                      .OrderBy(t => t.CreatedDate));
             }
 

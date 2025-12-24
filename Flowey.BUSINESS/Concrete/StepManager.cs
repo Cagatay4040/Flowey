@@ -40,9 +40,9 @@ namespace Flowey.BUSINESS.Concrete
             return new DataResult<List<StepGetDTO>>(ResultStatus.Success, data);
         }
 
-        public async Task<List<StepGetDTO>> GetBoardDataAsync(Guid projectId, List<string> emails)
+        public async Task<List<StepGetDTO>> GetBoardDataAsync(Guid projectId, List<Guid> userIds)
         {
-            var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(projectId, emails);
+            var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(projectId, userIds);
 
             var stepDtos = _mapper.Map<List<StepGetDTO>>(steps);
 
