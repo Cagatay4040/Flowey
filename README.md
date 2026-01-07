@@ -12,3 +12,11 @@ Key Technical Features:
 - Data Access: Entity Framework Core with Repository Pattern.
 
 - Best Practices: Dependency Injection, AutoMapper, Custom Exception Handling, and Centralized Constant Management.
+
+## 🚧 Status & Roadmap
+The backend logic is **90% complete**.
+- [x] Database Design & Migrations
+- [x] CRUD Operations for Tasks/Boards
+- [x] User Authentication (JWT)
+- [ ] Unit Tests (In Progress)
+- [ ] Frontend Integration (Planned)
