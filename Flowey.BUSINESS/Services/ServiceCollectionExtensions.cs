@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Flowey.BUSINESS.Abstract;
+﻿using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.Concrete;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DATACCESS.Concrete;
 using Flowey.DATACCESS.Services;
 using Flowey.DOMAIN.Model.Concrete;
+using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Services
 {
@@ -43,6 +45,8 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddAutoMapper(typeof(ServiceCollectionExtensions));
 
             serviceCollection.AddScoped<IPasswordHasher<User>, BcryptPasswordHasher<User>>();
+
+            serviceCollection.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             return serviceCollection;
         }

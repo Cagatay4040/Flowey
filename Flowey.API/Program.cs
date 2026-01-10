@@ -1,6 +1,7 @@
 
 using Flowey.API.Extensions;
 using Flowey.BUSINESS.Services;
+using FluentValidation.AspNetCore;
 
 namespace Flowey.API
 {
@@ -51,8 +52,10 @@ namespace Flowey.API
                                .AllowAnyHeader();
                     });
             });
+
             builder.Services.ConfigureAuth(builder.Configuration);
             builder.Services.AddMyServices(builder.Configuration);
+            builder.Services.AddFluentValidationAutoValidation();
 
             var app = builder.Build();
 

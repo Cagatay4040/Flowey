@@ -23,7 +23,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var statusCode = exception switch
         {
             KeyNotFoundException => StatusCodes.Status404NotFound,
-            //FluentValidation.ValidationException => StatusCodes.Status400BadRequest,
+            FluentValidation.ValidationException => StatusCodes.Status400BadRequest,
             UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
             _ => StatusCodes.Status500InternalServerError
         };
