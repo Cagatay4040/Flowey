@@ -38,7 +38,7 @@ namespace Flowey.BUSINESS.Constants
         public const string ProjectUserNotFound = "User is not assigned to this project";
         public const string ProjectRemoveUser = "User removed from project";
         public const string ProjectRemoveUserError = "Could not remove user";
-        public const string ProjectStepsNotFound = "No steps found for this project.";
+        public const string ProjectStepsNotFound = "No steps found for this project";
 
         public const string UserAdded = "User added successfully";
         public const string UserUpdated = "User updated successfully";
@@ -53,7 +53,12 @@ namespace Flowey.BUSINESS.Constants
         public const string UserOldPasswordIncorrect = "The old password is incorrect";
         public const string UserPasswordUpdateFailed = "Could not change password";
         public const string InvalidCredentials = "Invalid email or password";
-        public const string LoginSuccessful = "Login successful.";
+        public const string LoginSuccessful = "Login successful";
+        public const string EmailRequired = "Email address is required";
+        public const string InvalidEmailFormat = "A valid email address is required";
+        public const string PasswordMinLength = "Password must be at least {MinLength} characters";
+        public const string PasswordsDoNotMatch = "Passwords do not match";
+        public const string NewPasswordCannotBeSame = "New password cannot be the same as the old password";
 
         public const string StepAdded = "Step added successfully";
         public const string StepUpdated = "Step updated successfully";
@@ -80,5 +85,9 @@ namespace Flowey.BUSINESS.Constants
         public const string StepIdMissing = "StepId could not be found in request parameters or body";
         public const string UserNotProjectMember = "You are not a member of this project";
         public const string InsufficientPermissions = "You do not have permission for this action";
+
+        public const string RequiredField = "{PropertyName} is required";
+        public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters";
+        public const string MinLengthError = "{PropertyName} must be at least {MinLength} characters";
     }
 }
