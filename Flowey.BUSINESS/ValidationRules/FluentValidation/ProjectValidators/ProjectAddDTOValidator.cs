@@ -1,5 +1,6 @@
 ﻿using Flowey.BUSINESS.Constants;
 using Flowey.BUSINESS.DTO.Project;
+using Flowey.BUSINESS.Extensions;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,13 @@ namespace Flowey.BUSINESS.ValidationRules.FluentValidation.ProjectValidators
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(100).WithMessage(Messages.MaxLengthExceeded);
+                .MaximumLength(100).WithMessage(Messages.MaxLengthExceeded)
+                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
 
             RuleFor(x => x.ProjectKey)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(30).WithMessage(Messages.MaxLengthExceeded);
+                .MaximumLength(30).WithMessage(Messages.MaxLengthExceeded)
+                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
         }
     }
 }

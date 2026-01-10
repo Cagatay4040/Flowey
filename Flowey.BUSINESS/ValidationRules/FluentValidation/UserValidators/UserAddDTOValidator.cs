@@ -1,5 +1,6 @@
 ﻿using Flowey.BUSINESS.Constants;
 using Flowey.BUSINESS.DTO.User;
+using Flowey.BUSINESS.Extensions;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -23,11 +24,13 @@ namespace Flowey.BUSINESS.ValidationRules.FluentValidation.UserValidators
 
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(50).WithMessage(Messages.MaxLengthExceeded);
+                .MaximumLength(50).WithMessage(Messages.MaxLengthExceeded)
+                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
 
             RuleFor(x => x.Surname)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(50).WithMessage(Messages.MaxLengthExceeded);
+                .MaximumLength(50).WithMessage(Messages.MaxLengthExceeded)
+                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
         }
     }
 }

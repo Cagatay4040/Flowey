@@ -1,5 +1,6 @@
 ﻿using Flowey.BUSINESS.Constants;
 using Flowey.BUSINESS.DTO.Step;
+using Flowey.BUSINESS.Extensions;
 using FluentValidation;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,8 @@ namespace Flowey.BUSINESS.ValidationRules.FluentValidation.StepValidators
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(50).WithMessage(Messages.MaxLengthExceeded);
+                .MaximumLength(50).WithMessage(Messages.MaxLengthExceeded)
+                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
         }
     }
 }
