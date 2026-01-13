@@ -23,6 +23,8 @@ namespace Flowey.BUSINESS.Constants
         public const string TaskDeleteError = "Could not delete task";
         public const string TaskAssignedSuccessfully = "Task successfully assigned to the user";
         public const string TaskAssignError = "Could not assign task";
+        public const string TaskStepUpdatedSuccessfully = "Task step successfully updated";
+        public const string TaskStepUpdateFailed = "Failed to update task step";
 
         public const string ProjectAdded = "Project added successfully";
         public const string ProjectUpdated = "Project updated successfully";

@@ -57,6 +57,23 @@ namespace Flowey.DATACCESS.Concrete
             return await _context.SaveChangesAsync();
         }
 
+        public async Task<int> ChangeStepTaskAsync(Task task, Guid newStepId)
+        {
+            task.CurrentStepId = newStepId;
+
+            _context.Tasks.Attach(task);
+            _context.Entry(task).State = EntityState.Modified;
+
+            await _context.TaskHistories.AddAsync(new TaskHistory
+            {
+                TaskId = task.Id,
+                UserId = task.AssigneeId.Value,
+                StepId = task.CurrentStepId
+            });
+
+            return await _context.SaveChangesAsync();
+        }
+
         #endregion
 
         #region Delete Methods

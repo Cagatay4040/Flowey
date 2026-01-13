@@ -47,6 +47,15 @@ namespace Flowey.API.Controllers
             return Ok(result);
         }
 
+        [HttpPost("ChangeStepTask")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
+        public async Task<IActionResult> ChangeStepTask([FromBody] TaskStepDTO task)
+        {
+            var result = await _taskService.ChangeStepTaskAsync(task);
+
+            return Ok(result);
+        }
+
         [HttpPut("UpdateTask")]
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateTask([FromBody] TaskUpdateDTO task)

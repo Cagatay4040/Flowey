@@ -24,6 +24,7 @@ namespace Flowey.BUSINESS.Abstract
 
         Task<IResult> UpdateAsync(TaskUpdateDTO dto);
         Task<IResult> ChangeAssignTaskAsync(TaskAssignDTO dto);
+        Task<IResult> ChangeStepTaskAsync(TaskStepDTO dto);
 
         #endregion
 
