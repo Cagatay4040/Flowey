@@ -90,5 +90,6 @@ namespace Flowey.BUSINESS.Constants
         public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters";
         public const string MinLengthError = "{PropertyName} must be at least {MinLength} characters";
         public const string HtmlTagsNotAllowed = "{PropertyName} cannot contain HTML tags";
+        public const string ValidationFailed = "Validation Failed";
     }
 }

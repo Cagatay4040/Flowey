@@ -1,7 +1,10 @@
 
 using Flowey.API.Extensions;
+using Flowey.BUSINESS.Constants;
 using Flowey.BUSINESS.Services;
+using Flowey.CORE.Result.Concrete;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Flowey.API
 {
@@ -12,8 +15,26 @@ namespace Flowey.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddControllers()
+                .ConfigureApiBehaviorOptions(options =>
+                {
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        var errors = context.ModelState
+                            .Where(x => x.Value.Errors.Count > 0)
+                            .SelectMany(x => x.Value.Errors.Select(e => new ValidationErrorDetail
+                            {
+                                Field = x.Key,
+                                Message = e.ErrorMessage
+                            }))
+                            .ToList();
 
-            builder.Services.AddControllers();
+                        var resultModel = new ValidationResult(Messages.ValidationFailed, errors);
+
+                        return new BadRequestObjectResult(resultModel);
+                    };
+                });
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
