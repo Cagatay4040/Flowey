@@ -34,6 +34,7 @@ namespace Flowey.DATACCESS.Concrete
                 .AsNoTracking()
                 .Include(x => x.User)
                 .Where(x => x.ProjectId == projectId)
+                .OrderBy(x => x.User.Email)
                 .ToListAsync();
 
             return data;
