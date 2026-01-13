@@ -42,6 +42,7 @@ namespace Flowey.DATACCESS.Concrete
         public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds)
         {
             var query = _context.Steps
+                                .AsNoTracking()
                                 .Where(s => s.ProjectId == projectId)
                                 .OrderBy(s => s.Order)
                                 .AsQueryable();
