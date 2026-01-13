@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { DndContext, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
+import { DndContext, useSensor, useSensors, PointerSensor, DragOverlay } from '@dnd-kit/core';
 import { boardService } from '../services/boardService';
 import { projectService } from '../services/projectService';
 import TaskColumn from '../components/board/TaskColumn';
+import TaskCard from '../components/board/TaskCard';
 import TaskModal from '../components/board/TaskModal';
 import CreateTaskModal from '../components/board/CreateTaskModal';
 
@@ -11,6 +12,7 @@ const ProjectBoard = () => {
     const { projectId } = useParams();
     const [steps, setSteps] = useState([]);
     const [activeTask, setActiveTask] = useState(null);
+    const [activeDragTaskId, setActiveDragTaskId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [projectUsers, setProjectUsers] = useState([]);
@@ -49,8 +51,13 @@ const ProjectBoard = () => {
         fetchProjectUsers();
     }, [projectId]);
 
+    const handleDragStart = (event) => {
+        setActiveDragTaskId(event.active.id);
+    };
+
     const handleDragEnd = async (event) => {
         const { active, over } = event;
+        setActiveDragTaskId(null);
 
         if (!over) return;
 
@@ -139,7 +146,18 @@ const ProjectBoard = () => {
         }
     };
 
+    const getDragTask = () => {
+        if (!activeDragTaskId || !steps) return null;
+        for (const step of steps) {
+            const task = step.tasks?.find(t => t.id === activeDragTaskId);
+            if (task) return task;
+        }
+        return null;
+    };
+
     if (loading) return <div>Loading board...</div>;
+
+    const dragTask = getDragTask();
 
     return (
         <div className="h-full flex flex-col">
@@ -156,7 +174,7 @@ const ProjectBoard = () => {
                 </button>
             </div>
 
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
                 <div className="flex h-full overflow-x-auto pb-4">
                     {(steps || []).sort((a, b) => a.order - b.order).map(step => (
                         <TaskColumn
@@ -169,6 +187,17 @@ const ProjectBoard = () => {
                         />
                     ))}
                 </div>
+                <DragOverlay>
+                    {dragTask ? (
+                        <TaskCard
+                            task={dragTask}
+                            users={projectUsers}
+                            isOverlay
+                            onAssignTask={() => { }}
+                            onClick={() => { }}
+                        />
+                    ) : null}
+                </DragOverlay>
             </DndContext>
 
             {activeTask && (
