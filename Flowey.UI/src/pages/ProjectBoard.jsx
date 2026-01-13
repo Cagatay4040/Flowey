@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DndContext, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { boardService } from '../services/boardService';
+import { projectService } from '../services/projectService';
 import TaskColumn from '../components/board/TaskColumn';
 import TaskModal from '../components/board/TaskModal';
 import CreateTaskModal from '../components/board/CreateTaskModal';
@@ -12,6 +13,7 @@ const ProjectBoard = () => {
     const [activeTask, setActiveTask] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [projectUsers, setProjectUsers] = useState([]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -33,8 +35,18 @@ const ProjectBoard = () => {
         }
     };
 
+    const fetchProjectUsers = async () => {
+        try {
+            const users = await projectService.getProjectUsers(projectId);
+            setProjectUsers(users || []);
+        } catch (error) {
+            console.error("Failed to fetch project users", error);
+        }
+    };
+
     useEffect(() => {
         fetchBoard();
+        fetchProjectUsers();
     }, [projectId]);
 
     const handleDragEnd = async (event) => {
@@ -66,7 +78,7 @@ const ProjectBoard = () => {
         setSteps(newSteps);
 
         try {
-            await boardService.moveTask(taskId, targetStepId, 0);
+            await boardService.moveTask(taskId, targetStepId);
         } catch (error) {
             console.error("Failed to move task", error);
             fetchBoard();
@@ -81,6 +93,22 @@ const ProjectBoard = () => {
             return step;
         });
         setSteps(newSteps);
+    };
+
+    const handleAssignTask = async (taskId, userId) => {
+        try {
+            await boardService.changeAssignTask(taskId, userId);
+            // Optimistic update
+            const newSteps = steps.map(step => ({
+                ...step,
+                tasks: step.tasks?.map(task =>
+                    task.id === taskId ? { ...task, assigneeId: userId } : task
+                )
+            }));
+            setSteps(newSteps);
+        } catch (error) {
+            console.error("Failed to assign task", error);
+        }
     };
 
     const handleCreateTask = async (taskData) => {
@@ -135,7 +163,9 @@ const ProjectBoard = () => {
                             key={step.id}
                             step={step}
                             tasks={step.tasks || []}
+                            users={projectUsers}
                             onTaskClick={setActiveTask}
+                            onAssignTask={handleAssignTask}
                         />
                     ))}
                 </div>

@@ -5,6 +5,12 @@ export const projectService = {
         const response = await api.get('/Project/UserProjects');
         return response.data.data || response.data;
     },
+    getProjectUsers: async (projectId) => {
+        const response = await api.get(`/Project/ProjectUsers`, {
+            params: { projectId }
+        });
+        return response.data.data || response.data;
+    },
     create: async (project) => {
         const response = await api.post('/Project/AddProject', project);
         return response.data;

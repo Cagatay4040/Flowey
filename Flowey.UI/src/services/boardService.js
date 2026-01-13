@@ -7,9 +7,12 @@ export const boardService = {
         });
         return response.data.data || response.data;
     },
-    // Tasks (Unchanged as user didn't ask to change TaskController)
-    moveTask: async (taskId, targetStepId, newOrder) => {
-        await api.put('/Tasks', { id: taskId, stepId: targetStepId, order: newOrder });
+
+    moveTask: async (taskId, targetStepId) => {
+        await api.post('/Task/ChangeStepTask', { taskId: taskId, newStepId: targetStepId });
+    },
+    changeAssignTask: async (taskId, userId) => {
+        await api.post('/Task/ChangeAssignTask', { taskId: taskId, userId: userId });
     },
     createTask: async (task) => {
         const response = await api.post('/Task/AddTask', task);
@@ -21,6 +24,7 @@ export const boardService = {
     deleteTask: async (id) => {
         await api.delete(`/Task/${id}`);
     },
+
     // Comments
     getComments: async (taskId) => {
         const response = await api.get(`/Comment/task/${taskId}`);

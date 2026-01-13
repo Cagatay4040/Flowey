@@ -2,7 +2,7 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import TaskCard from './TaskCard';
 
-const TaskColumn = ({ step, tasks, onTaskClick }) => {
+const TaskColumn = ({ step, tasks, users, onTaskClick, onAssignTask }) => {
     const { setNodeRef } = useDroppable({
         id: step.id,
         data: { step },
@@ -15,7 +15,13 @@ const TaskColumn = ({ step, tasks, onTaskClick }) => {
                 {(tasks || [])
                     .sort((a, b) => a.order - b.order)
                     .map((task) => (
-                        <TaskCard key={task.id} task={task} onClick={onTaskClick} />
+                        <TaskCard
+                            key={task.id}
+                            task={task}
+                            users={users}
+                            onClick={onTaskClick}
+                            onAssignTask={onAssignTask}
+                        />
                     ))}
             </div>
         </div>

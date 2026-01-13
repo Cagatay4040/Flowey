@@ -12,5 +12,6 @@ namespace Flowey.BUSINESS.DTO.Task
         public string Title { get; set; }
         public string TaskKey { get; set; }
         public string Description { get; set; }
+        public Guid? AssigneeId { get; set; }
     }
 }
