@@ -39,26 +39,24 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
-        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds)
+        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned)
         {
+            var targetUserIds = userIds ?? new List<Guid>();
+            bool hasUsers = targetUserIds.Any();
+
             var query = _context.Steps
                                 .AsNoTracking()
                                 .Where(s => s.ProjectId == projectId)
                                 .OrderBy(s => s.Order)
                                 .AsQueryable();
 
-            if (userIds != null && userIds.Any())
-            {
-                query = query.Include(s => s.Tasks
-                     .Where(t => t.User != null &&
-                                 userIds.Contains(t.User.Id))
-                     .OrderBy(t => t.CreatedDate));
-            }
-            else
-            {
-                query = query.Include(s => s.Tasks
-                     .OrderBy(t => t.CreatedDate));
-            }
+            query = query.Include(s => s.Tasks
+                         .Where(t =>
+                             (hasUsers && t.AssigneeId != null && targetUserIds.Contains(t.AssigneeId.Value))
+                             ||
+                             (includeUnassigned && t.AssigneeId == null)
+                         )
+                         .OrderBy(t => t.CreatedDate));
 
             return await query.ToListAsync();
         }
