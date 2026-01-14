@@ -11,6 +11,7 @@ namespace Flowey.BUSINESS.Abstract
 
         Task<IDataResult<TaskGetDTO>> GetByIdAsync(Guid id);
         Task<IDataResult<List<TaskGetDTO>>> GetProjectTasksAsync(Guid projectId);
+        Task<IDataResult<List<TaskHistoryGetDTO>>> GetTaskHistoryAsync(Guid taskId);
 
         #endregion
 

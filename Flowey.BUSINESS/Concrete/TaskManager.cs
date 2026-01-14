@@ -11,6 +11,7 @@ using Flowey.BUSINESS.DTO.Task;
 using AutoMapper;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Enums;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -19,14 +20,16 @@ namespace Flowey.BUSINESS.Concrete
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IStepRepository _stepRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
 
-        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IMapper mapper, ICurrentUserService currentUserService)
+        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _stepRepository = stepRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
         }
@@ -45,6 +48,94 @@ namespace Flowey.BUSINESS.Concrete
             var entityList = await _taskRepository.GetList(x => x.ProjectId == projectId);
             var data = _mapper.Map<List<TaskGetDTO>>(entityList);
             return new DataResult<List<TaskGetDTO>>(ResultStatus.Success, data);
+        }
+
+        public async Task<IDataResult<List<TaskHistoryGetDTO>>> GetTaskHistoryAsync(Guid taskId)
+        {
+            var entityList = await _taskRepository.GetTaskHistoryAsync(taskId);
+
+            var historyData = new List<TaskHistoryGetDTO>();
+
+            var actorIds = entityList.Select(x => x.CreatedBy).Distinct().ToList();
+
+            var actors = await _userRepository.GetUsersByIdListAsync(actorIds);
+
+            var actorDictionary = actors.ToDictionary(k => k.Id, v => $"{v.Name} {v.Surname}");
+
+            for (int i = 0; i < entityList.Count; i++)
+            {
+                var currentEntity = entityList[i];
+
+                string actorName = actorDictionary.ContainsKey(currentEntity.CreatedBy)
+                                        ? actorDictionary[currentEntity.CreatedBy]
+                                        : "Unknown User";
+
+                var changeDate = currentEntity.CreatedDate;
+
+                // --- CREATED ---
+                if (i == 0)
+                {
+                    historyData.Add(new TaskHistoryGetDTO
+                    {
+                        CreatedDate = changeDate,
+                        CreatedByUserName = actorName,
+                        ChangeType = HistoryChangeType.Created,
+                        PropertyName = "Task",
+                        DisplayMessage = TaskHistoryMessages.TaskCreated
+                    });
+                    continue;
+                }
+
+                var previousEntity = entityList[i - 1];
+
+                // --- STEP CHANGED ---
+                if (previousEntity.StepId != currentEntity.StepId)
+                {
+                    historyData.Add(new TaskHistoryGetDTO
+                    {
+                        CreatedDate = changeDate,
+                        CreatedByUserName = actorName,
+                        ChangeType = HistoryChangeType.StepChanged,
+                        PropertyName = "Step",
+                        OldValue = previousEntity.Step?.Name,
+                        NewValue = currentEntity.Step?.Name,
+                        DisplayMessage = string.Format(TaskHistoryMessages.StepChanged, previousEntity.Step?.Name, currentEntity.Step?.Name)
+                    });
+                }
+
+                // --- ASSIGNEE CHANGED ---
+                if (previousEntity.UserId != currentEntity.UserId)
+                {
+                    var oldUserName = previousEntity.User != null ? $"{previousEntity.User.Name} {previousEntity.User.Surname}" : "Unassigned";
+                    var newUserName = currentEntity.User != null ? $"{currentEntity.User.Name} {currentEntity.User.Surname}" : "Unassigned";
+
+                    historyData.Add(new TaskHistoryGetDTO
+                    {
+                        CreatedDate = changeDate,
+                        CreatedByUserName = actorName,
+                        ChangeType = HistoryChangeType.AssigneeChanged,
+                        PropertyName = "Assignee",
+                        OldValue = oldUserName,
+                        NewValue = newUserName,
+                        DisplayMessage = string.Format(TaskHistoryMessages.AssigneeChanged, oldUserName, newUserName)
+                    });
+                }
+
+                // --- UPDATED ---
+                if (previousEntity.StepId == currentEntity.StepId && previousEntity.UserId == currentEntity.UserId)
+                {
+                    historyData.Add(new TaskHistoryGetDTO
+                    {
+                        CreatedDate = changeDate,
+                        CreatedByUserName = actorName,
+                        ChangeType = HistoryChangeType.Updated,
+                        PropertyName = "Details",
+                        DisplayMessage = TaskHistoryMessages.TaskUpdated
+                    });
+                }
+            }
+
+            return new DataResult<List<TaskHistoryGetDTO>>(ResultStatus.Success, historyData);
         }
 
         #endregion

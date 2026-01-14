@@ -8,7 +8,7 @@ namespace Flowey.DATACCESS.Abstract
     {
         #region Get Methods
 
-
+        Task<List<TaskHistory>> GetTaskHistoryAsync(Guid taskId);
 
         #endregion
 

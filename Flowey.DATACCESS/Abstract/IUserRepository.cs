@@ -10,5 +10,28 @@ namespace Flowey.DATACCESS.Abstract
 {
     public interface IUserRepository : IEntityRepository<User>
     {
+        #region Get Methods
+
+        Task<List<User>> GetUsersByIdListAsync(List<Guid> userIds);
+
+        #endregion
+
+        #region Insert Methods
+
+
+
+        #endregion
+
+        #region Update Methods
+
+
+
+        #endregion
+
+        #region Delete Methods
+
+
+
+        #endregion
     }
 }

@@ -29,6 +29,15 @@ namespace Flowey.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("GetTaskHistory")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
+        public async Task<IActionResult> GetTaskHistory([FromQuery] Guid taskId)
+        {
+            var result = await _taskService.GetTaskHistoryAsync(taskId);
+
+            return Ok(result);
+        }
+
         [HttpPost("AddTask")]
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)

@@ -17,7 +17,19 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Get Methods
 
+        public async Task<List<TaskHistory>> GetTaskHistoryAsync(Guid taskId)
+        {
+            var data = await _context.TaskHistories
+                .AsNoTracking()
+                .Include(x => x.Task)
+                .Include(x => x.Step)
+                .Include(x => x.User)
+                .Where(x => x.TaskId == taskId)
+                .OrderBy(x => x.CreatedDate)
+                .ToListAsync();
 
+            return data;
+        }
 
         #endregion
 
