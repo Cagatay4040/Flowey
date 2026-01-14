@@ -1,10 +1,14 @@
 import api from './api';
 
 export const boardService = {
-    getBoard: async (projectId) => {
-        const response = await api.get(`/Step/GetProjectSteps`, {
-            params: { projectId }
-        });
+    getBoard: async (projectId, userIds = []) => {
+        const params = new URLSearchParams();
+        params.append('projectId', projectId);
+        if (userIds && userIds.length > 0) {
+            userIds.forEach(id => params.append('userIds', id));
+        }
+
+        const response = await api.get(`/Step/GetBoardData?${params.toString()}`);
         return response.data.data || response.data;
     },
 

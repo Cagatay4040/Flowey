@@ -20,7 +20,7 @@ namespace Flowey.API.Controllers
             _stepService = stepService;
         }
 
-        [HttpGet("GetProjectSteps")]
+        [HttpGet("GetBoardData")]
         public async Task<IActionResult> GetProjectSteps([FromQuery] Guid projectId, [FromQuery] List<Guid> userIds)
         {
             var result = await _stepService.GetBoardDataAsync(projectId, userIds);

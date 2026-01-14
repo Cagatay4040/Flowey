@@ -7,15 +7,31 @@ import TaskColumn from '../components/board/TaskColumn';
 import TaskCard from '../components/board/TaskCard';
 import TaskModal from '../components/board/TaskModal';
 import CreateTaskModal from '../components/board/CreateTaskModal';
+import MultiSelectUserDropdown from '../components/common/MultiSelectUserDropdown';
+import { useAuth } from '../context/AuthContext';
+import { getCookie, setCookie } from '../utils/cookieUtils';
 
 const ProjectBoard = () => {
     const { projectId } = useParams();
+    const { user } = useAuth();
     const [steps, setSteps] = useState([]);
     const [activeTask, setActiveTask] = useState(null);
     const [activeDragTaskId, setActiveDragTaskId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [projectUsers, setProjectUsers] = useState([]);
+
+    const [selectedUserIds, setSelectedUserIds] = useState(() => {
+        const saved = getCookie(`board_filter_${projectId}`);
+        if (saved) return saved;
+        return user ? [user.id] : [];
+    });
+
+    useEffect(() => {
+        if (selectedUserIds) {
+            setCookie(`board_filter_${projectId}`, selectedUserIds);
+        }
+    }, [selectedUserIds, projectId]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -28,7 +44,7 @@ const ProjectBoard = () => {
     const fetchBoard = async () => {
         if (!projectId) return;
         try {
-            const data = await boardService.getBoard(projectId);
+            const data = await boardService.getBoard(projectId, selectedUserIds);
             setSteps(data);
         } catch (error) {
             console.error("Failed to fetch board", error);
@@ -49,7 +65,7 @@ const ProjectBoard = () => {
     useEffect(() => {
         fetchBoard();
         fetchProjectUsers();
-    }, [projectId]);
+    }, [projectId, selectedUserIds]);
 
     const handleDragStart = (event) => {
         setActiveDragTaskId(event.active.id);
@@ -105,7 +121,7 @@ const ProjectBoard = () => {
     const handleAssignTask = async (taskId, userId) => {
         try {
             await boardService.changeAssignTask(taskId, userId);
-            // Optimistic update
+
             const newSteps = steps.map(step => ({
                 ...step,
                 tasks: step.tasks?.map(task =>
@@ -124,8 +140,6 @@ const ProjectBoard = () => {
             return;
         }
 
-        // Find the first step (column)
-        // Assuming sorted steps are in correct order, but safe to sort again to be sure or just use index 0 of current state
         const sortedSteps = [...steps].sort((a, b) => a.order - b.order);
         const firstStep = sortedSteps[0];
 
@@ -135,12 +149,12 @@ const ProjectBoard = () => {
                 description: taskData.description,
                 stepId: firstStep.id,
                 projectId: projectId,
-                order: 0 // Add to top usually, or handle in backend
+                order: 0
             };
 
             await boardService.createTask(newTaskPayload);
             setShowCreateModal(false);
-            fetchBoard(); // Refresh to get proper ID and data
+            fetchBoard();
         } catch (error) {
             console.error("Failed to create task", error);
         }
@@ -162,7 +176,14 @@ const ProjectBoard = () => {
     return (
         <div className="h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold text-gray-800">Project Board</h1>
+                <div className="flex items-center space-x-4">
+                    <h1 className="text-2xl font-bold text-gray-800">Project Board</h1>
+                    <MultiSelectUserDropdown
+                        users={projectUsers}
+                        selectedUserIds={selectedUserIds}
+                        onChange={setSelectedUserIds}
+                    />
+                </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-medium text-sm flex items-center"
