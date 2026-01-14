@@ -1,11 +1,14 @@
 import api from './api';
 
 export const boardService = {
-    getBoard: async (projectId, userIds = []) => {
+    getBoard: async (projectId, userIds = [], includeUnassigned = false) => {
         const params = new URLSearchParams();
         params.append('projectId', projectId);
         if (userIds && userIds.length > 0) {
             userIds.forEach(id => params.append('userIds', id));
+        }
+        if (includeUnassigned) {
+            params.append('includeUnassigned', 'true');
         }
 
         const response = await api.get(`/Step/GetBoardData?${params.toString()}`);

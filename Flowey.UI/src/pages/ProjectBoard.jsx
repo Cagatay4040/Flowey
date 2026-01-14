@@ -44,7 +44,10 @@ const ProjectBoard = () => {
     const fetchBoard = async () => {
         if (!projectId) return;
         try {
-            const data = await boardService.getBoard(projectId, selectedUserIds);
+            const includeUnassigned = selectedUserIds.includes('unassigned');
+            const validUserIds = selectedUserIds.filter(id => id !== 'unassigned');
+
+            const data = await boardService.getBoard(projectId, validUserIds, includeUnassigned);
             setSteps(data);
         } catch (error) {
             console.error("Failed to fetch board", error);
@@ -56,7 +59,10 @@ const ProjectBoard = () => {
     const fetchProjectUsers = async () => {
         try {
             const users = await projectService.getProjectUsers(projectId);
-            setProjectUsers(users || []);
+            setProjectUsers([
+                { id: 'unassigned', fullName: 'Unassigned Tasks' },
+                ...(users || [])
+            ]);
         } catch (error) {
             console.error("Failed to fetch project users", error);
         }
