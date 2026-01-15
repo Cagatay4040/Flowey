@@ -31,7 +31,7 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IDataResult<List<CommentGetDTO>>> GetByTaskIdAsync(Guid taskId)
         {
-            var comments = await _commentRepository.GetList(c => c.TaskId == taskId && c.IsActive);
+            var comments = await _commentRepository.GetList(c => c.TaskId == taskId && c.IsActive, includes: x => x.User);
             var commentDtos = _mapper.Map<List<CommentGetDTO>>(comments).OrderByDescending(c => c.CreatedDate).ToList();
             return new DataResult<List<CommentGetDTO>>(ResultStatus.Success, Messages.CommentListed, commentDtos);
         }
