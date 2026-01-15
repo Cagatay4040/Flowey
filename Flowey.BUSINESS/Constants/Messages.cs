@@ -88,10 +88,15 @@ namespace Flowey.BUSINESS.Constants
         public const string UserNotProjectMember = "You are not a member of this project";
         public const string InsufficientPermissions = "You do not have permission for this action";
 
+        public const string FileUploadSuccessfull = "File uploaded successfully";
+
         public const string RequiredField = "{PropertyName} is required";
         public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters";
         public const string MinLengthError = "{PropertyName} must be at least {MinLength} characters";
         public const string HtmlTagsNotAllowed = "{PropertyName} cannot contain HTML tags";
         public const string ValidationFailed = "Validation Failed";
+        public const string FileRequired = "Please select a file";
+        public const string FileTooLarge = "File size must not exceed {0} MB";
+        public const string InvalidFileType = "Invalid file type. Allowed types: {0}";
     }
 }

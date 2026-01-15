@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Flowey.CORE\Flowey.CORE.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
 </Project>

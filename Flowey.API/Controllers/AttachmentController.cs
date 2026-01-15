@@ -1,3 +1,6 @@
+using Flowey.BUSINESS.Abstract;
+using Flowey.BUSINESS.DTO.Attachment;
+using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,35 +16,24 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class AttachmentController : ControllerBase
     {
-        private readonly IWebHostEnvironment _env;
+        private readonly IFileService _fileService;
 
-        public AttachmentController(IWebHostEnvironment env)
+        public AttachmentController(IFileService fileService)
         {
-            _env = env;
+            _fileService = fileService;
         }
 
         [HttpPost("Upload")]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public async Task<IActionResult> Upload([FromForm] FileUploadDTO uploadDto)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded");
+            var result = await _fileService.UploadAsync(uploadDto.File);
 
-            var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var uniqueFileName = Guid.NewGuid().ToString() + "_" + file.FileName;
-            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            if (result.ResultStatus == ResultStatus.Success)
             {
-                await file.CopyToAsync(stream);
+                return Ok(new { url = result.Data });
             }
 
-            var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-            var fileUrl = $"{baseUrl}/uploads/{uniqueFileName}";
-
-            return Ok(new { url = fileUrl });
+            return BadRequest(result.Message);
         }
     }
 }

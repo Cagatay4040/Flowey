@@ -41,6 +41,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUserService, UserManager>();
             serviceCollection.AddScoped<ICommentService, CommentManager>();
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();
+            serviceCollection.AddScoped<IFileService, FileManager>();
 
             serviceCollection.AddAutoMapper(typeof(ServiceCollectionExtensions));
 
