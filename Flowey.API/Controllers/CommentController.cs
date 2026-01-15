@@ -28,24 +28,24 @@ namespace Flowey.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Add([FromBody] CommentAddDTO dto)
+        [HttpPost("AddComment")]
+        public async Task<IActionResult> AddComment([FromBody] CommentAddDTO dto)
         {
             var result = await _commentService.AddAsync(dto);
 
             return Ok(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] CommentUpdateDTO dto)
+        [HttpPut("UpdateComment")]
+        public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateDTO dto)
         {
             var result = await _commentService.UpdateAsync(dto);
 
             return Ok(result);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpDelete("DeleteComment/{id}")]
+        public async Task<IActionResult> DeleteComment(Guid id)
         {
             var result = await _commentService.DeleteAsync(id);
 

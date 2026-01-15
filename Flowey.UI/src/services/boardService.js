@@ -38,10 +38,10 @@ export const boardService = {
         return response.data.data || response.data;
     },
     addComment: async (comment) => {
-        await api.post('/Comment', comment);
+        await api.post('/Comment/AddComment', comment);
     },
     deleteComment: async (id) => {
-        await api.delete(`/Comment/${id}`);
+        await api.delete(`/Comment/DeleteComment/${id}`);
     }
 };
 
