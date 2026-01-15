@@ -1,30 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { boardService } from '../../services/boardService';
 import api from '../../services/api';
 
 const TaskModal = ({ task, onClose, onUpdate }) => {
+    const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
-    // userId management needs context, simplifying for now
-    const [userId, setUserId] = useState('');
 
     useEffect(() => {
         boardService.getComments(task.id).then((data) => {
             setComments(data);
         });
-
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            setUserId(JSON.parse(userStr).id);
-        }
     }, [task.id]);
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
         try {
-            await boardService.addComment({ taskId: task.id, content: newComment, userId });
+            await boardService.addComment({ taskId: task.id, content: newComment, userId: user?.id });
             setNewComment('');
             const data = await boardService.getComments(task.id);
             setComments(data);
