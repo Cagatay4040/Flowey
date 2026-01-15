@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Flowey.API.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AttachmentController : ControllerBase
     {
@@ -20,7 +20,7 @@ namespace Flowey.API.Controllers
             _env = env;
         }
 
-        [HttpPost("upload")]
+        [HttpPost("Upload")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)
