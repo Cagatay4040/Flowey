@@ -16,12 +16,14 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IProjectRepository _projectRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly IStepRepository _stepRepository;
+        private readonly ICommentRepository _commentRepository;
 
-        public PermissionManager(IProjectRepository projectRepository, ITaskRepository taskRepository, IStepRepository stepRepository)
+        public PermissionManager(IProjectRepository projectRepository, ITaskRepository taskRepository, IStepRepository stepRepository, ICommentRepository commentRepository)
         {
             _projectRepository = projectRepository;
             _taskRepository = taskRepository;
             _stepRepository = stepRepository;
+            _commentRepository = commentRepository;
         }
 
         public async Task<bool> HasProjectPermissionAsync(Guid userId, Guid projectId, params RoleType[] allowedRoles)
@@ -55,6 +57,16 @@ namespace Flowey.BUSINESS.Concrete
                 return false;
 
             return await HasProjectPermissionAsync(userId, step.ProjectId, allowedRoles);
+        }
+
+        public async Task<bool> HasCommentPermissionAsync(Guid userId, Guid commentId, params RoleType[] allowedRoles)
+        {
+            var comment = await _commentRepository.GetByIdAsync(commentId, includes: x => x.Task);
+
+            if (comment == null)
+                return false;
+
+            return await HasTaskPermissionAsync(userId, comment.Task.Id, allowedRoles);
         }
     }
 }

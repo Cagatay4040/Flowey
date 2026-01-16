@@ -4,7 +4,7 @@ namespace Flowey.BUSINESS.DTO.Comment
 {
     public class CommentUpdateDTO
     {
-        public Guid Id { get; set; }
+        public Guid CommentId { get; set; }
         public string Content { get; set; }
     }
 }

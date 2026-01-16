@@ -66,7 +66,7 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> UpdateAsync(CommentUpdateDTO dto)
         {
-            var existingComment = await _commentRepository.GetByIdAsync(dto.Id);
+            var existingComment = await _commentRepository.GetByIdAsync(dto.CommentId);
 
             if (existingComment == null)
                 return new Result(ResultStatus.Error, Messages.CommentNotFound);
