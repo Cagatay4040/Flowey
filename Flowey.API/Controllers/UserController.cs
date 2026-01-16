@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using System.Text;
-using Flowey.BUSINESS.Abstract;
+﻿using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.User;
+using Flowey.CORE.Result.Concrete;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace Flowey.API.Controllers
 {
@@ -22,8 +23,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> Register([FromBody] UserAddDTO dto)
         {
             var result = await _userService.AddAsync(dto);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [Authorize]
@@ -31,8 +32,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] UserPasswordChangeDTO dto)
         {
             var result = await _userService.ChangePasswordAsync(dto);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [Authorize]
@@ -40,8 +41,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDTO dto)
         {
             var result = await _userService.UpdateAsync(dto);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
     }
 }

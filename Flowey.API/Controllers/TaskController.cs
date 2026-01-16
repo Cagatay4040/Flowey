@@ -2,6 +2,7 @@
 using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Task;
 using Flowey.CORE.Enums;
+using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,8 +26,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> GetProjectTasks([FromBody] Guid projectId)
         {
             var result = await _taskService.GetProjectTasksAsync(projectId);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpGet("GetTaskHistory")]
@@ -34,8 +35,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> GetTaskHistory([FromQuery] Guid taskId)
         {
             var result = await _taskService.GetTaskHistoryAsync(taskId);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("AddTask")]
@@ -43,8 +44,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)
         {
             var result = await _taskService.AddAndAssignTaskAsync(task);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("ChangeAssignTask")]
@@ -52,8 +53,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> ChangeAssignTask([FromBody] TaskAssignDTO task)
         {
             var result = await _taskService.ChangeAssignTaskAsync(task);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("ChangeStepTask")]
@@ -61,8 +62,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> ChangeStepTask([FromBody] TaskStepDTO task)
         {
             var result = await _taskService.ChangeStepTaskAsync(task);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPut("UpdateTask")]
@@ -70,8 +71,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> UpdateTask([FromBody] TaskUpdateDTO task)
         {
             var result = await _taskService.UpdateAsync(task);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpDelete("DeleteTask")]
@@ -79,8 +80,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> DeleteTask([FromBody] Guid taskId)
         {
             var result = await _taskService.SoftDeleteAsync(taskId);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
     }
 }

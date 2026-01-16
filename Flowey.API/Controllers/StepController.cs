@@ -2,6 +2,7 @@
 using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Step;
 using Flowey.CORE.Enums;
+using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +25,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> GetProjectSteps([FromQuery] Guid projectId, [FromQuery] List<Guid> userIds, [FromQuery] bool includeUnassigned = false)
         {
             var result = await _stepService.GetBoardDataAsync(projectId, userIds, includeUnassigned);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("AddStep")]
@@ -33,8 +34,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> AddStep([FromBody] StepAddDTO step)
         {
             var result = await _stepService.AddStepAsync(step);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("AddSteps")]
@@ -42,8 +43,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> AddSteps([FromBody] List<StepAddDTO> steps)
         {
             var result = await _stepService.AddRangeStepAsync(steps);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPut("UpdateStep")]
@@ -51,8 +52,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> UpdateStep([FromBody] StepUpdateDTO step)
         {
             var result = await _stepService.UpdateStepAsync(step);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPut("UpdateSteps")]
@@ -60,8 +61,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> UpdateSteps([FromBody] List<StepUpdateDTO> steps)
         {
             var result = await _stepService.UpdateRangeStepAsync(steps);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpDelete("DeleteStep")]
@@ -69,8 +70,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> DeleteStep([FromBody] Guid stepId)
         {
             var result = await _stepService.SoftDeleteAsync(stepId);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
     }
 }

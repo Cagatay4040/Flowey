@@ -3,6 +3,7 @@ using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Project;
 using Flowey.BUSINESS.DTO.ProjectUser;
 using Flowey.CORE.Enums;
+using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,32 +25,32 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> UserProjects()
         {
             var result = await _projectService.GetProjectsByLoginUserAsync();
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpGet("MyProjects")]
         public async Task<IActionResult> MyProjects()
         {
             var result = await _projectService.GetMyProjectsAsync();
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpGet("ProjectUsers")]
         public async Task<IActionResult> ProjectUsers([FromQuery] Guid projectId)
         {
             var result = await _projectService.GetProjectUsersAsync(projectId);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] ProjectAddDTO project)
         {
             var result = await _projectService.AddWithCreatorAsync(project);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPost("AddUserToProject")]
@@ -57,8 +58,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> AddUserToProject([FromBody] ProjectUserAddDTO projectUser)
         {
             var result = await _projectService.AddUserToProjectAsync(projectUser);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpPut("Update")]
@@ -66,8 +67,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> UpdateProject([FromBody] ProjectUpdateDTO project)
         {
             var result = await _projectService.UpdateAsync(project);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpDelete("Delete")]
@@ -75,8 +76,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> DeleteProject([FromBody] Guid projectId)
         {
             var result = await _projectService.SoftDeleteAsync(projectId);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
 
         [HttpDelete("RemoveUserFromProject")]
@@ -84,8 +85,8 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> RemoveUserFromProject([FromBody] ProjectRemoveUserDTO projectUser)
         {
             var result = await _projectService.RemoveUserFromProjectAsync(projectUser);
-
-            return Ok(result);
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
         }
     }
 }
