@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -40,13 +41,18 @@ namespace Flowey.BUSINESS.Concrete
             return new DataResult<List<StepGetDTO>>(ResultStatus.Success, data);
         }
 
-        public async Task<List<StepGetDTO>> GetBoardDataAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned)
+        public async Task<IDataResult<List<StepGetDTO>>> GetBoardDataAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned)
         {
+            var existingProject = await _projectRepository.AnyAsync(x => x.Id == projectId);
+
+            if (!existingProject)
+                return new DataResult<List<StepGetDTO>>(ResultStatus.Error, Messages.ProjectNotFound, new List<StepGetDTO>());
+
             var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(projectId, userIds, includeUnassigned);
 
-            var stepDtos = _mapper.Map<List<StepGetDTO>>(steps);
+            var data = _mapper.Map<List<StepGetDTO>>(steps);
 
-            return stepDtos;
+            return new DataResult<List<StepGetDTO>>(ResultStatus.Success, data);
         }
 
         #endregion
