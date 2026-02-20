@@ -1,4 +1,5 @@
-﻿using Flowey.CORE.Result.Concrete;
+﻿using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,22 +19,23 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "Hata oluştu: {Message}", exception.Message);
+        _logger.LogError(exception, "Global Exception Caught: {Message}", exception.Message);
 
-        var statusCode = exception switch
+        var (statusCode, displayMessage) = exception switch
         {
-            KeyNotFoundException => StatusCodes.Status404NotFound,
-            FluentValidation.ValidationException => StatusCodes.Status400BadRequest,
-            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
-            _ => StatusCodes.Status500InternalServerError
+            KeyNotFoundException => (StatusCodes.Status404NotFound, ExceptionMessages.NotFound),
+            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, ExceptionMessages.Unauthorized),
+            FluentValidation.ValidationException => (StatusCodes.Status400BadRequest, ExceptionMessages.ValidationFailed),
+
+            _ => (StatusCodes.Status500InternalServerError, ExceptionMessages.InternalServerError)
         };
 
         httpContext.Response.StatusCode = statusCode;
+        httpContext.Response.ContentType = "application/json";
 
         var resultResponse = new Result(
             ResultStatus.Error,
-            exception.Message,
-            exception
+            displayMessage
         );
 
         await httpContext.Response.WriteAsJsonAsync(resultResponse, cancellationToken);
