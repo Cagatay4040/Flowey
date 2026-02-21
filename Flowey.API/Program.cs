@@ -1,6 +1,6 @@
 
 using Flowey.API.Extensions;
-using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Constants;
 using Flowey.BUSINESS.Services;
 using Flowey.CORE.Result.Concrete;
 using FluentValidation.AspNetCore;
@@ -58,19 +58,19 @@ namespace Flowey.API
                         Description = "JWT Authorization header using the Bearer scheme."
                     });
                     c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-                {
                     {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                         {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                             {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] {}
-                    }
-                });
+                                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                                {
+                                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            new string[] {}
+                        }
+                    });
                 });
 
                 builder.Services.AddHttpContextAccessor();

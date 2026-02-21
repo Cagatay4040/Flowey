@@ -1,5 +1,5 @@
 ﻿using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
@@ -26,7 +26,7 @@ namespace Flowey.API.Filters
 
         public async System.Threading.Tasks.Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var userIdString = _currentUserService.GetUserId() != null ? _currentUserService.GetUserId().Value.ToString() : null;
+            var userIdString = _currentUserService.GetUserId().Value.ToString();
 
             if (string.IsNullOrEmpty(userIdString))
             {

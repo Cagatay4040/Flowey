@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Flowey.CORE.DataAccess.Concrete
 {
@@ -19,8 +21,12 @@ namespace Flowey.CORE.DataAccess.Concrete
 
         public Guid? GetUserId()
         {
-            var idClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            return idClaim != null ? Guid.Parse(idClaim.Value) : null;
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+                throw new UnauthorizedAccessException(AuthMessages.AuthenticationRequired);
+
+            return userId;
         }
     }
 }

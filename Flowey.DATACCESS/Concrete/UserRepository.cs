@@ -33,11 +33,17 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
+
         #endregion
 
         #region Insert Methods
 
-
+        public async Task<int> SubscribeUserAsync(User user, UserSubscription subscription)
+        {
+            await _context.UserSubscriptions.AddAsync(subscription);
+            _context.Users.Update(user);
+            return await _context.SaveChangesAsync();
+        }
 
         #endregion
 

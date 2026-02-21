@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Flowey.BUSINESS.Constants
+namespace Flowey.CORE.Constants
 {
     public static class TaskHistoryMessages
     {

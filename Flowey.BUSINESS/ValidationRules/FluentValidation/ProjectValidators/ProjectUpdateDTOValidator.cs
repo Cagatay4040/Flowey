@@ -1,4 +1,4 @@
-﻿using Flowey.BUSINESS.Constants;
+﻿using Flowey.CORE.Constants;
 using Flowey.BUSINESS.DTO.Project;
 using FluentValidation;
 using System;

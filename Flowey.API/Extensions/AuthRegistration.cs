@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Flowey.CORE.Constants;
+using Flowey.CORE.Result.Concrete;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -42,7 +44,54 @@ namespace Flowey.API.Extensions
                         Console.WriteLine("Authentication failed: " + context.Exception.Message);
                         return Task.CompletedTask;
                     },
+
+                    OnForbidden = async context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+
+                        var result = new Result(
+                            ResultStatus.Error,
+                            AuthMessages.PremiumMembershipRequired
+                        );
+
+                        await context.Response.WriteAsJsonAsync(result);
+                    },
+
+                    OnChallenge = async context =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        var result = new Result(
+                            ResultStatus.Error,
+                            AuthMessages.AuthenticationRequired
+                        );
+
+                        await context.Response.WriteAsJsonAsync(result);
+                    }
                 };
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequirePremium", policy =>
+                {
+                    policy.RequireAssertion(context =>
+                    {
+                        var expireDateClaim = context.User.FindFirst("PremiumExpireDate");
+
+                        if (expireDateClaim == null || string.IsNullOrEmpty(expireDateClaim.Value))
+                            return false;
+
+                        if (DateTime.TryParse(expireDateClaim.Value, out DateTime expireDate))
+                            return expireDate > DateTime.UtcNow;
+
+                        return false;
+                    });
+                });
             });
 
             return services;

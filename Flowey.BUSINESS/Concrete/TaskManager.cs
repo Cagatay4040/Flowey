@@ -10,7 +10,7 @@ using System.Linq;
 using Flowey.BUSINESS.DTO.Task;
 using AutoMapper;
 using Flowey.CORE.DataAccess.Abstract;
-using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Constants;
 using Flowey.CORE.Enums;
 
 namespace Flowey.BUSINESS.Concrete

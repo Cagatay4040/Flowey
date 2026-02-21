@@ -20,6 +20,7 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
         public DbSet<TaskHistory> TaskHistories { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentAttachment> CommentAttachments { get; set; }
+        public DbSet<UserSubscription> UserSubscriptions { get; set; }
 
         public FloweyDbContext(DbContextOptions<FloweyDbContext> options) : base(options) { }
 

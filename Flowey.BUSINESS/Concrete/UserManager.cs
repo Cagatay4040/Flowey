@@ -1,6 +1,6 @@
 using AutoMapper;
 using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Constants;
 using Flowey.BUSINESS.DTO.User;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;

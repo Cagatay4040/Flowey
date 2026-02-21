@@ -46,6 +46,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddProject")]
+        [Authorize(Policy = "RequirePremium")]
         public async Task<IActionResult> AddProject([FromBody] ProjectAddDTO project)
         {
             var result = await _projectService.AddWithCreatorAsync(project);

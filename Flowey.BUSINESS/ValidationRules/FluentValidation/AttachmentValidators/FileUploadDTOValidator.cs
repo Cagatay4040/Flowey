@@ -1,4 +1,4 @@
-﻿using Flowey.BUSINESS.Constants;
+﻿using Flowey.CORE.Constants;
 using Flowey.BUSINESS.DTO.Attachment;
 using FluentValidation;
 using Microsoft.AspNetCore.Components.Forms;

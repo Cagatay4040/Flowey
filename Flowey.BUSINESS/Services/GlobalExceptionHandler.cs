@@ -1,4 +1,4 @@
-﻿using Flowey.BUSINESS.Constants;
+﻿using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;

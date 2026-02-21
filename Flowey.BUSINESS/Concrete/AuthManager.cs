@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.Constants;
+using Flowey.CORE.Constants;
 using Flowey.BUSINESS.DTO.User;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -34,11 +34,14 @@ namespace Flowey.BUSINESS.Concrete
 
         public string GetToken(User user)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
             };
+
+            if (user.PremiumExpirationDate.HasValue)
+                claims.Add(new Claim("PremiumExpireDate", user.PremiumExpirationDate.Value.ToString("o")));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["AuthConfig:Secret"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
