@@ -1,7 +1,10 @@
 
 using Flowey.API.Extensions;
-using Flowey.CORE.Constants;
+using Flowey.API.Hubs;
+using Flowey.API.Services;
+using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.Services;
+using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Concrete;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -79,15 +82,20 @@ namespace Flowey.API
                     options.AddPolicy("AllowAll",
                         builder =>
                         {
-                            builder.AllowAnyOrigin()
+                            builder.WithOrigins("http://localhost:3000")
                                    .AllowAnyMethod()
-                                   .AllowAnyHeader();
+                                   .AllowAnyHeader()
+                                   .AllowCredentials();
                         });
                 });
+
+                builder.Services.AddSignalR();
 
                 builder.Services.ConfigureAuth(builder.Configuration);
                 builder.Services.AddMyServices(builder.Configuration);
                 builder.Services.AddFluentValidationAutoValidation();
+
+                builder.Services.AddScoped<IRealTimeNotificationService, SignalRNotificationManager>();
 
                 var app = builder.Build();
 
@@ -109,6 +117,8 @@ namespace Flowey.API
                 app.UseAuthorization();
 
                 app.MapControllers();
+
+                app.MapHub<NotificationHub>("/hubs/notification");
 
                 app.Run();
             }

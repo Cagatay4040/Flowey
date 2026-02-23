@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { DndContext, useSensor, useSensors, PointerSensor, DragOverlay } from '@dnd-kit/core';
 import { boardService } from '../services/boardService';
 import { projectService } from '../services/projectService';
@@ -13,6 +13,7 @@ import { getCookie, setCookie } from '../utils/cookieUtils';
 
 const ProjectBoard = () => {
     const { projectId } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { user } = useAuth();
     const [steps, setSteps] = useState([]);
     const [activeTask, setActiveTask] = useState(null);
@@ -26,6 +27,8 @@ const ProjectBoard = () => {
         if (saved) return saved;
         return user ? [user.id] : [];
     });
+
+    const initializedUrlTaskId = useRef(null);
 
     useEffect(() => {
         if (selectedUserIds) {
@@ -72,6 +75,24 @@ const ProjectBoard = () => {
         fetchBoard();
         fetchProjectUsers();
     }, [projectId, selectedUserIds]);
+
+    useEffect(() => {
+        const urlTaskId = searchParams.get('taskId');
+        if (urlTaskId) {
+            if (steps.length > 0 && initializedUrlTaskId.current !== urlTaskId) {
+                for (const step of steps) {
+                    const foundTask = step.tasks?.find(t => t.id === urlTaskId);
+                    if (foundTask) {
+                        setActiveTask(foundTask);
+                        initializedUrlTaskId.current = urlTaskId;
+                        break;
+                    }
+                }
+            }
+        } else {
+            initializedUrlTaskId.current = null;
+        }
+    }, [steps, searchParams]);
 
     const handleDragStart = (event) => {
         setActiveDragTaskId(event.active.id);
@@ -230,7 +251,12 @@ const ProjectBoard = () => {
             {activeTask && (
                 <TaskModal
                     task={activeTask}
-                    onClose={() => setActiveTask(null)}
+                    onClose={() => {
+                        setActiveTask(null);
+                        const newSearchParams = new URLSearchParams(searchParams);
+                        newSearchParams.delete('taskId');
+                        setSearchParams(newSearchParams, { replace: true });
+                    }}
                     onUpdate={handleTaskUpdate}
                 />
             )}

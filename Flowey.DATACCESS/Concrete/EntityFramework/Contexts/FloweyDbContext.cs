@@ -21,6 +21,7 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
         public DbSet<Comment> Comments { get; set; }
         public DbSet<CommentAttachment> CommentAttachments { get; set; }
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
+        public DbSet<UserNotification> UserNotifications { get; set; }
 
         public FloweyDbContext(DbContextOptions<FloweyDbContext> options) : base(options) { }
 
@@ -67,6 +68,8 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
             modelBuilder.Entity<Task>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<TaskHistory>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<User>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<UserSubscription>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<UserNotification>().HasQueryFilter(x => x.IsActive);
         }
     }
 }

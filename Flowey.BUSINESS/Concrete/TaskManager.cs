@@ -12,6 +12,7 @@ using AutoMapper;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Constants;
 using Flowey.CORE.Enums;
+using Flowey.BUSINESS.DTO.Notification;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -23,8 +24,9 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUserNotificationService _userNotificationService;
 
-        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService)
+        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService, IUserNotificationService userNotificationService)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
@@ -32,6 +34,7 @@ namespace Flowey.BUSINESS.Concrete
             _userRepository = userRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
+            _userNotificationService = userNotificationService;
         }
 
         #region Get Methods
@@ -168,7 +171,19 @@ namespace Flowey.BUSINESS.Concrete
             int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
 
             if (effectedRow > 0)
+            {
+                if (dto.UserId != _currentUserService.GetUserId().Value)
+                {
+                    await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
+                    {
+                        UserId = dto.UserId,
+                        Title = Messages.NewTaskAssignedTitle,
+                        Message = string.Format(Messages.NewTaskAssignedMessage, newTaskKey),
+                        ActionUrl = $"/board/{dto.ProjectId}?taskId={task.Id}"
+                    });
+                }
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));
+            }
 
             return new Result(ResultStatus.Error, Messages.TaskCreateError);
         }
@@ -204,7 +219,23 @@ namespace Flowey.BUSINESS.Concrete
             int effectedRow = await _taskRepository.ChangeAssignTaskAsync(existingTask, dto.UserId);
 
             if (effectedRow > 0)
+            {
+                if (dto.UserId != _currentUserService.GetUserId().Value)
+                {
+                    string taskIdentifier = existingTask.TaskKey != null
+                                            ? $"task #{existingTask.TaskKey}"
+                                            : "a task";
+
+                    await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
+                    {
+                        UserId = dto.UserId,
+                        Title = Messages.TaskReassignedTitle,
+                        Message = string.Format(Messages.TaskReassignedMessage, taskIdentifier),
+                        ActionUrl = $"/board/{existingTask.ProjectId}?taskId={existingTask.Id}"
+                    });
+                }
                 return new Result(ResultStatus.Success, Messages.TaskAssignedSuccessfully);
+            }
 
             return new Result(ResultStatus.Error, Messages.TaskAssignError);
         }

@@ -32,6 +32,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IStepRepository, StepRepository>();
             serviceCollection.AddScoped<ITaskRepository, TaskRepository>();
             serviceCollection.AddScoped<ICommentRepository, CommentRepository>();
+            serviceCollection.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
 
             serviceCollection.AddScoped<IAuthService, AuthManager>();
             serviceCollection.AddScoped<IRoleService, RoleManager>();
@@ -43,6 +44,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();
             serviceCollection.AddScoped<IFileService, FileManager>();
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionManager>();
+            serviceCollection.AddScoped<IUserNotificationService, UserNotificationManager>();
 
             serviceCollection.AddAutoMapper(typeof(ServiceCollectionExtensions));
 

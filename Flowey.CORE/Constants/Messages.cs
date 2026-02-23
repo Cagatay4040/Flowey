@@ -62,6 +62,19 @@ namespace Flowey.CORE.Constants
         public const string PasswordsDoNotMatch = "Passwords do not match";
         public const string NewPasswordCannotBeSame = "New password cannot be the same as the old password";
 
+        public const string UserNotificationAdded = "User notification added successfully";
+        public const string UserNotificationCreateError = "Could not create user notification";
+        public const string UserNotificationNotFound = "User notification not found";
+        public const string UserNotificationUpdated = "User notification updated successfully";
+        public const string UserNotificationUpdateError = "Could not update user notification";
+        public const string UserNotificationsMarkedAsRead = "All notifications have been marked as read.";
+        public const string NoUnreadNotifications = "There are no unread notifications.";
+
+        public const string NewTaskAssignedTitle = "New Task Assignment";
+        public const string NewTaskAssignedMessage = "A new task (#{0}) has been assigned to you.";
+        public const string TaskReassignedTitle = "Task Assignment Updated";
+        public const string TaskReassignedMessage = "You have been assigned to {0}.";
+
         public const string StepAdded = "Step added successfully";
         public const string StepUpdated = "Step updated successfully";
         public const string StepDeleted = "Step deleted successfully";
