@@ -33,7 +33,13 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
 
     const handleSaveTask = async () => {
         try {
-            const updated = { ...task, title, description };
+            const updated = {
+                ...task,
+                taskId: task.id,
+                title: title,
+                description: description
+            };
+
             await boardService.updateTask(updated);
             onUpdate(updated);
             onClose();
@@ -169,10 +175,10 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                                 Drop image to upload
                             </div>
                         )}
-                        <div onPaste={handlePaste}>
+                        <div onPaste={handlePaste} className="mb-12">
                             <ReactQuill
                                 theme="snow"
-                                className="bg-white mb-2 h-32"
+                                className="bg-white h-32"
                                 value={newComment}
                                 onChange={setNewComment}
                                 placeholder="Add a comment... (Paste or Drop images here)"

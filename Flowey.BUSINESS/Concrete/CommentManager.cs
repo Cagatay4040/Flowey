@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using Flowey.BUSINESS.Abstract;
-using Flowey.CORE.Constants;
 using Flowey.BUSINESS.DTO.Comment;
+using Flowey.BUSINESS.Extensions;
+using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
-using Ganss.Xss;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace Flowey.BUSINESS.Concrete
             if (!existingTask)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            var cleanContent = SanitizeContent(dto.Content);
+            var cleanContent = dto.Content.ToSafeRichText();
 
             var comment = _mapper.Map<Comment>(dto);
             comment.Content = cleanContent;
@@ -71,7 +71,7 @@ namespace Flowey.BUSINESS.Concrete
             if (existingComment == null)
                 return new Result(ResultStatus.Error, Messages.CommentNotFound);
 
-            var cleanContent = SanitizeContent(dto.Content);
+            var cleanContent = dto.Content.ToSafeRichText();
 
             _mapper.Map(dto, existingComment);
 
@@ -106,22 +106,5 @@ namespace Flowey.BUSINESS.Concrete
 
         #endregion
 
-        #region Helper Methods
-
-        private string SanitizeContent(string rawContent)
-        {
-            if (string.IsNullOrEmpty(rawContent)) return rawContent;
-
-            var sanitizer = new HtmlSanitizer();
-
-            sanitizer.AllowedTags.Add("table");
-            sanitizer.AllowedTags.Add("tr");
-            sanitizer.AllowedTags.Add("td");
-            sanitizer.AllowedTags.Add("img");
-
-            return sanitizer.Sanitize(rawContent);
-        }
-
-        #endregion
     }
 }

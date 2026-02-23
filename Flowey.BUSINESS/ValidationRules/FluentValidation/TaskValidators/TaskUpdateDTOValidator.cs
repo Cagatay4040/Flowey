@@ -16,13 +16,11 @@ namespace Flowey.BUSINESS.ValidationRules.FluentValidation.TaskValidators
         {
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(100).WithMessage(Messages.MaxLengthExceeded)
-                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
+                .MaximumLength(100).WithMessage(Messages.MaxLengthExceeded);
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage(Messages.RequiredField)
-                .MaximumLength(500).WithMessage(Messages.MaxLengthExceeded)
-                .NotContainHtml().WithMessage(Messages.HtmlTagsNotAllowed);
+                .MaximumLength(500).WithMessage(Messages.MaxLengthExceeded);
         }
     }
 }

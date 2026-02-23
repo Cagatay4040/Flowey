@@ -14,8 +14,11 @@ namespace Flowey.BUSINESS.Mapping
             CreateMap<TaskAddDTO, DOMAIN.Model.Concrete.Task>();
             CreateMap<DOMAIN.Model.Concrete.Task, TaskAddDTO>();
 
-            CreateMap<TaskUpdateDTO, DOMAIN.Model.Concrete.Task>();
-            CreateMap<DOMAIN.Model.Concrete.Task, TaskUpdateDTO>();
+            CreateMap<TaskUpdateDTO, DOMAIN.Model.Concrete.Task>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.TaskId));
+
+            CreateMap<DOMAIN.Model.Concrete.Task, TaskUpdateDTO>()
+                .ForMember(dest => dest.TaskId, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<TaskGetDTO, DOMAIN.Model.Concrete.Task>();
             CreateMap<DOMAIN.Model.Concrete.Task, TaskGetDTO>();

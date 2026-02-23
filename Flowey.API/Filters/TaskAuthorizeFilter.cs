@@ -39,7 +39,7 @@ namespace Flowey.API.Filters
             Guid projectId = Guid.Empty;
             bool found = false;
 
-            if (context.ActionArguments.TryGetValue("taskId", out var idObj) && idObj is Guid directId)
+            if (context.ActionArguments.TryGetValue("TaskId", out var idObj) && idObj is Guid directId)
             {
                 taskId = directId;
                 found = true;

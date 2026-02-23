@@ -1,6 +1,7 @@
 using Flowey.BUSINESS.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
+using Flowey.BUSINESS.Extensions;
 using Flowey.DATACCESS.Abstract;
 using System;
 using Task = Flowey.DOMAIN.Model.Concrete.Task;
@@ -168,6 +169,8 @@ namespace Flowey.BUSINESS.Concrete
             if(firstStep == null)
                 return new Result(ResultStatus.Error, Messages.ProjectStepsNotFound);
 
+            task.Description = dto.Description.ToSafeRichText();
+
             int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
 
             if (effectedRow > 0)
@@ -194,12 +197,14 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> UpdateAsync(TaskUpdateDTO dto)
         {
-            var existingTask = await _taskRepository.GetByIdAsync(dto.Id);
+            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
             _mapper.Map(dto, existingTask);
+
+            existingTask.Description = dto.Description.ToSafeRichText();
 
             int effectedRow = await _taskRepository.UpdateAsync(existingTask);
 
