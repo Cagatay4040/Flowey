@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { boardService } from '../../services/boardService';
 import api from '../../services/api';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const TaskModal = ({ task, onClose, onUpdate }) => {
     const { user } = useAuth();
@@ -50,16 +52,19 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             const url = res.data.url;
-            setNewComment(prev => prev + `\n![image](${url})`);
+            setNewComment(prev => prev + `<img src="${url}" />`);
         } catch (err) {
             console.error("Upload failed", err);
         }
     };
 
     const handlePaste = async (e) => {
-        const items = e.clipboardData.items;
+        // Only handle real clipboard events with files
+        const items = e.clipboardData?.items;
+        if (!items) return;
         for (let i = 0; i < items.length; i++) {
             if (items[i].type.indexOf('image') !== -1) {
+                // Prevent Quill's default paste for images if we intercept it
                 const blob = items[i].getAsFile();
                 await uploadFile(blob);
             }
@@ -108,12 +113,13 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                         </div>
                     </div>
 
-                    <div className="flex-1">
+                    <div className="flex-1 flex flex-col min-h-[300px]">
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                        <textarea
-                            className="w-full h-[calc(100%-2rem)] p-3 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                        <ReactQuill
+                            theme="snow"
+                            className="flex-1 bg-white mb-2 h-[calc(100%-3rem)]"
                             value={description || ''}
-                            onChange={e => setDescription(e.target.value)}
+                            onChange={setDescription}
                             placeholder="Add a description..."
                         />
                     </div>
@@ -133,16 +139,20 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                                     <span className="font-semibold text-xs text-gray-800">{c.userName || 'User'}</span>
                                     <span className="text-xs text-gray-400">{new Date(c.createdDate).toLocaleDateString()} {new Date(c.createdDate).toLocaleTimeString()}</span>
                                 </div>
-                                <div className="text-sm text-gray-600 whitespace-pre-wrap markdown-body">
-                                    {c.content.split('\n').map((line, i) => {
-                                        // Simple image rendering if markdown image syntax is detected
-                                        const imgMatch = line.match(/!\[.*?\]\((.*?)\)/);
-                                        if (imgMatch) {
-                                            return <img key={i} src={imgMatch[1]} alt="attachment" className="max-w-xs rounded mt-2" />;
-                                        }
-                                        return <div key={i}>{line}</div>;
-                                    })}
-                                </div>
+                                {c.content.includes('<p>') || c.content.includes('<img') || c.content.includes('<') ? (
+                                    <div className="text-sm text-gray-600 markdown-body" dangerouslySetInnerHTML={{ __html: c.content }} />
+                                ) : (
+                                    <div className="text-sm text-gray-600 whitespace-pre-wrap markdown-body">
+                                        {c.content.split('\n').map((line, i) => {
+                                            // Simple image rendering if markdown image syntax is detected
+                                            const imgMatch = line.match(/!\[.*?\]\((.*?)\)/);
+                                            if (imgMatch) {
+                                                return <img key={i} src={imgMatch[1]} alt="attachment" className="max-w-xs rounded mt-2" />;
+                                            }
+                                            return <div key={i}>{line}</div>;
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -159,17 +169,18 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                                 Drop image to upload
                             </div>
                         )}
-                        <textarea
-                            className="w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono"
-                            rows={3}
-                            value={newComment}
-                            onChange={e => setNewComment(e.target.value)}
-                            onPaste={handlePaste}
-                            placeholder="Add a comment... (Paste or Drop images here)"
-                        />
+                        <div onPaste={handlePaste}>
+                            <ReactQuill
+                                theme="snow"
+                                className="bg-white mb-2 h-32"
+                                value={newComment}
+                                onChange={setNewComment}
+                                placeholder="Add a comment... (Paste or Drop images here)"
+                            />
+                        </div>
                         <button
                             type="submit"
-                            disabled={!newComment.trim()}
+                            disabled={!newComment || (newComment.replace(/<[^>]+>/g, '').trim() === '' && !newComment.includes('<img'))}
                             className="mt-2 w-full px-4 py-2 bg-green-600 text-white text-sm rounded disabled:opacity-50 hover:bg-green-700"
                         >
                             Post Comment

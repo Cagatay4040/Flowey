@@ -26,10 +26,10 @@ export const boardService = {
         return response.data;
     },
     updateTask: async (task) => {
-        await api.put('/Tasks', task);
+        await api.put('/Task/UpdateTask', task);
     },
     deleteTask: async (id) => {
-        await api.delete(`/Task/${id}`);
+        await api.delete(`/Task/DeleteTask/${id}`);
     },
 
     // Comments
