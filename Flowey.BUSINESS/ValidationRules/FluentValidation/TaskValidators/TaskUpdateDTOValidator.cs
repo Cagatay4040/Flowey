@@ -19,7 +19,7 @@ namespace Flowey.BUSINESS.ValidationRules.FluentValidation.TaskValidators
                 .MaximumLength(100).WithMessage(Messages.MaxLengthExceeded);
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage(Messages.RequiredField)
+                .NotEmptyHtml().WithMessage(Messages.RequiredField)
                 .MaximumLength(500).WithMessage(Messages.MaxLengthExceeded);
         }
     }
