@@ -139,6 +139,8 @@ namespace Flowey.BUSINESS.Concrete
                 }
             }
 
+            historyData = historyData.OrderByDescending(x => x.CreatedDate).ToList();
+
             return new DataResult<List<TaskHistoryGetDTO>>(ResultStatus.Success, historyData);
         }
 
