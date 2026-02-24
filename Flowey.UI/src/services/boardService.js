@@ -32,6 +32,11 @@ export const boardService = {
         await api.delete(`/Task/DeleteTask/${id}`);
     },
 
+    getTaskHistory: async (taskId) => {
+        const response = await api.get(`/Task/GetTaskHistory?taskId=${taskId}`);
+        return response.data.data || response.data;
+    },
+
     // Comments
     getComments: async (taskId) => {
         const response = await api.get(`/Comment/task/${taskId}`);

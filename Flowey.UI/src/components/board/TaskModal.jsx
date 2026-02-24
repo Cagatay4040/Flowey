@@ -12,11 +12,16 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
     const [isDragging, setIsDragging] = useState(false);
+    const [activeTab, setActiveTab] = useState('comments');
+    const [taskHistory, setTaskHistory] = useState([]);
 
     useEffect(() => {
         boardService.getComments(task.id).then((data) => {
             setComments(data);
         });
+        boardService.getTaskHistory(task.id).then((data) => {
+            setTaskHistory(data);
+        }).catch(err => console.error("Failed to fetch history", err));
     }, [task.id]);
 
     const handleCommentSubmit = async (e) => {
@@ -131,67 +136,105 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                     </div>
                 </div>
 
-                {/* Comments Section (Bottom) */}
+                {/* Tabs Section (Bottom) */}
                 <div className="h-1/2 p-6 bg-gray-50 flex flex-col">
-                    <h3 className="font-bold text-gray-700 mb-4">Comments / Activity</h3>
-
-                    <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
-                        {comments.length === 0 && (
-                            <div className="text-gray-400 text-center py-4 text-sm">No comments yet.</div>
-                        )}
-                        {comments.map(c => (
-                            <div key={c.id} className="bg-white p-3 rounded shadow-sm border border-gray-100">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="font-semibold text-xs text-gray-800">{c.userName || 'User'}</span>
-                                    <span className="text-xs text-gray-400">{new Date(c.createdDate).toLocaleDateString()} {new Date(c.createdDate).toLocaleTimeString()}</span>
-                                </div>
-                                {c.content.includes('<p>') || c.content.includes('<img') || c.content.includes('<') ? (
-                                    <div className="text-sm text-gray-600 markdown-body" dangerouslySetInnerHTML={{ __html: c.content }} />
-                                ) : (
-                                    <div className="text-sm text-gray-600 whitespace-pre-wrap markdown-body">
-                                        {c.content.split('\n').map((line, i) => {
-                                            // Simple image rendering if markdown image syntax is detected
-                                            const imgMatch = line.match(/!\[.*?\]\((.*?)\)/);
-                                            if (imgMatch) {
-                                                return <img key={i} src={imgMatch[1]} alt="attachment" className="max-w-xs rounded mt-2" />;
-                                            }
-                                            return <div key={i}>{line}</div>;
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                    <div className="flex space-x-4 mb-4 border-b border-gray-200 shrink-0">
+                        <button
+                            className={`pb-2 font-semibold ${activeTab === 'comments' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setActiveTab('comments')}
+                        >
+                            Comments
+                        </button>
+                        <button
+                            className={`pb-2 font-semibold ${activeTab === 'history' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setActiveTab('history')}
+                        >
+                            History
+                        </button>
                     </div>
 
-                    <form
-                        onSubmit={handleCommentSubmit}
-                        className={`mt-auto relative transition-colors ${isDragging ? 'bg-blue-50 ring-2 ring-blue-400' : ''}`}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                    >
-                        {isDragging && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-blue-100 bg-opacity-90 rounded z-10 border-2 border-dashed border-blue-500 text-blue-700 font-semibold pointer-events-none">
-                                Drop image to upload
+                    {activeTab === 'comments' && (
+                        <>
+                            <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
+                                {comments.length === 0 && (
+                                    <div className="text-gray-400 text-center py-4 text-sm">No comments yet.</div>
+                                )}
+                                {comments.map(c => (
+                                    <div key={c.id} className="bg-white p-3 rounded shadow-sm border border-gray-100">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="font-semibold text-xs text-gray-800">{c.userName || 'User'}</span>
+                                            <span className="text-xs text-gray-400">{new Date(c.createdDate).toLocaleDateString()} {new Date(c.createdDate).toLocaleTimeString()}</span>
+                                        </div>
+                                        {c.content.includes('<p>') || c.content.includes('<img') || c.content.includes('<') ? (
+                                            <div className="text-sm text-gray-600 markdown-body" dangerouslySetInnerHTML={{ __html: c.content }} />
+                                        ) : (
+                                            <div className="text-sm text-gray-600 whitespace-pre-wrap markdown-body">
+                                                {c.content.split('\n').map((line, i) => {
+                                                    const imgMatch = line.match(/!\[.*?\]\((.*?)\)/);
+                                                    if (imgMatch) {
+                                                        return <img key={i} src={imgMatch[1]} alt="attachment" className="max-w-xs rounded mt-2" />;
+                                                    }
+                                                    return <div key={i}>{line}</div>;
+                                                })}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
-                        )}
-                        <div onPaste={handlePaste} className="mb-12">
-                            <ReactQuill
-                                theme="snow"
-                                className="bg-white h-32"
-                                value={newComment}
-                                onChange={setNewComment}
-                                placeholder="Add a comment... (Paste or Drop images here)"
-                            />
+
+                            <form
+                                onSubmit={handleCommentSubmit}
+                                className={`mt-auto shrink-0 relative transition-colors ${isDragging ? 'bg-blue-50 ring-2 ring-blue-400' : ''}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                            >
+                                {isDragging && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-blue-100 bg-opacity-90 rounded z-10 border-2 border-dashed border-blue-500 text-blue-700 font-semibold pointer-events-none">
+                                        Drop image to upload
+                                    </div>
+                                )}
+                                <div onPaste={handlePaste} className="mb-12">
+                                    <ReactQuill
+                                        theme="snow"
+                                        className="bg-white h-32"
+                                        value={newComment}
+                                        onChange={setNewComment}
+                                        placeholder="Add a comment... (Paste or Drop images here)"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={!newComment || (newComment.replace(/<[^>]+>/g, '').trim() === '' && !newComment.includes('<img'))}
+                                    className="mt-2 w-full px-4 py-2 bg-green-600 text-white text-sm rounded disabled:opacity-50 hover:bg-green-700"
+                                >
+                                    Post Comment
+                                </button>
+                            </form>
+                        </>
+                    )}
+
+                    {activeTab === 'history' && (
+                        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+                            {taskHistory.length === 0 && (
+                                <div className="text-gray-400 text-center py-4 text-sm">No history available.</div>
+                            )}
+                            {taskHistory.map((h, i) => (
+                                <div key={i} className="flex items-start space-x-3 text-sm">
+                                    <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0"></div>
+                                    <div className="flex-1 bg-white p-3 rounded shadow-sm border border-gray-100">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <span className="font-semibold text-gray-800">{h.createdByUserName}</span>
+                                            <span className="text-xs text-gray-400">{new Date(h.createdDate).toLocaleDateString()} {new Date(h.createdDate).toLocaleTimeString()}</span>
+                                        </div>
+                                        <div className="text-gray-600">
+                                            {h.displayMessage}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <button
-                            type="submit"
-                            disabled={!newComment || (newComment.replace(/<[^>]+>/g, '').trim() === '' && !newComment.includes('<img'))}
-                            className="mt-2 w-full px-4 py-2 bg-green-600 text-white text-sm rounded disabled:opacity-50 hover:bg-green-700"
-                        >
-                            Post Comment
-                        </button>
-                    </form>
+                    )}
                 </div>
             </div>
         </div>
