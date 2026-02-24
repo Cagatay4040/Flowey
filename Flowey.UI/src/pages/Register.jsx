@@ -16,7 +16,6 @@ const RegisterPage = () => {
             navigate('/');
         } catch (error) {
             console.error("Registration failed", error);
-            alert("Registration failed");
         }
     };
 
