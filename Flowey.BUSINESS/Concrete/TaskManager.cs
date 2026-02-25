@@ -179,11 +179,15 @@ namespace Flowey.BUSINESS.Concrete
             {
                 if (dto.UserId != _currentUserService.GetUserId().Value)
                 {
+                    var senderUser = await _userRepository.GetByIdAsync(_currentUserService.GetUserId().Value);
+                    string senderName = senderUser != null ? $"{senderUser.Name} {senderUser.Surname}" : "System";
+
                     await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
                     {
                         UserId = dto.UserId,
+                        SenderId = _currentUserService.GetUserId().Value,
                         Title = Messages.NewTaskAssignedTitle,
-                        Message = string.Format(Messages.NewTaskAssignedMessage, newTaskKey),
+                        Message = string.Format(Messages.NewTaskAssignedMessage, senderName, newTaskKey),
                         ActionUrl = $"/board/{dto.ProjectId}?taskId={task.Id}"
                     });
                 }
@@ -233,11 +237,15 @@ namespace Flowey.BUSINESS.Concrete
                                             ? $"task #{existingTask.TaskKey}"
                                             : "a task";
 
+                    var senderUser = await _userRepository.GetByIdAsync(_currentUserService.GetUserId().Value);
+                    string senderName = senderUser != null ? $"{senderUser.Name} {senderUser.Surname}" : "System";
+
                     await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
                     {
                         UserId = dto.UserId,
+                        SenderId = _currentUserService.GetUserId().Value,
                         Title = Messages.TaskReassignedTitle,
-                        Message = string.Format(Messages.TaskReassignedMessage, taskIdentifier),
+                        Message = string.Format(Messages.TaskReassignedMessage, senderName, taskIdentifier),
                         ActionUrl = $"/board/{existingTask.ProjectId}?taskId={existingTask.Id}"
                     });
                 }

@@ -53,6 +53,19 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
+            modelBuilder.Entity<UserNotification>(entity =>
+            {
+                entity.HasOne(un => un.User)
+                      .WithMany()
+                      .HasForeignKey(un => un.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(un => un.SenderUser)
+                      .WithMany()
+                      .HasForeignKey(un => un.SenderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "Admin", Code = "ADMIN", IsActive = true, CreatedDate = DateTime.Now },
                 new Role { Id = 2, Name = "Editor", Code = "EDITOR", IsActive = true, CreatedDate = DateTime.Now },

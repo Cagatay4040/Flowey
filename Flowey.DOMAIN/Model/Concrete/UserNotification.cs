@@ -12,6 +12,10 @@ namespace Flowey.DOMAIN.Model.Concrete
     {
         public Guid UserId { get; set; }
         public User User { get; set; }
+
+        public Guid SenderId { get; set; }
+        public User SenderUser { get; set; }
+
         public string Title { get; set; }
         public string Message { get; set; } 
         public string? ActionUrl { get; set; } 

@@ -71,9 +71,9 @@ namespace Flowey.CORE.Constants
         public const string NoUnreadNotifications = "There are no unread notifications.";
 
         public const string NewTaskAssignedTitle = "New Task Assignment";
-        public const string NewTaskAssignedMessage = "A new task (#{0}) has been assigned to you.";
+        public const string NewTaskAssignedMessage = "User {0} assigned a new task (#{1}) to you.";
         public const string TaskReassignedTitle = "Task Assignment Updated";
-        public const string TaskReassignedMessage = "You have been assigned to {0}.";
+        public const string TaskReassignedMessage = "User {0} assigned you to {1}.";
 
         public const string StepAdded = "Step added successfully";
         public const string StepUpdated = "Step updated successfully";
