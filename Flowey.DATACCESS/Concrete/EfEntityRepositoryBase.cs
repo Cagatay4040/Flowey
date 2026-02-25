@@ -57,40 +57,28 @@ namespace Flowey.DATACCESS.Concrete
         #region Update Methods
         public virtual async Task<int> UpdateAsync(TEntity entity)
         {
-            using (var dbContext = this.dbContext)
-            {
-                this.entity.Attach(entity);
-                dbContext.Entry(entity).State = EntityState.Modified;
-                return await dbContext.SaveChangesAsync();
-            }
+            this.entity.Attach(entity);
+            dbContext.Entry(entity).State = EntityState.Modified;
+            return await dbContext.SaveChangesAsync();
         }
 
         public virtual int Update(TEntity entity)
         {
-            using (var dbContext = this.dbContext)
-            {
-                this.entity.Attach(entity);
-                dbContext.Entry(entity).State = EntityState.Modified;
-                return dbContext.SaveChanges();
-            }
+            this.entity.Attach(entity);
+            dbContext.Entry(entity).State = EntityState.Modified;
+            return dbContext.SaveChanges();
         }
 
         public virtual int UpdateRange(List<TEntity> entities)
         {
-            using (var dbContext = this.dbContext)
-            {
-                dbContext.UpdateRange(entities);
-                return dbContext.SaveChanges();
-            }
+            dbContext.UpdateRange(entities);
+            return dbContext.SaveChanges();
         }
 
         public virtual async Task<int> UpdateRangeAsync(List<TEntity> entities)
         {
-            using (var dbContext = this.dbContext)
-            {
-                dbContext.UpdateRange(entities);
-                return await dbContext.SaveChangesAsync();
-            }
+            dbContext.UpdateRange(entities);
+            return await dbContext.SaveChangesAsync();
         }
         #endregion
 
@@ -133,24 +121,18 @@ namespace Flowey.DATACCESS.Concrete
 
         public virtual int SoftDelete(TEntity entity)
         {
-            using (var dbContext = this.dbContext)
-            {
-                entity.GetType().GetProperty("IsActive").SetValue(entity, false);
-                this.entity.Attach(entity);
-                dbContext.Entry(entity).State = EntityState.Modified;
-                return dbContext.SaveChanges();
-            }
+            entity.GetType().GetProperty("IsActive").SetValue(entity, false);
+            this.entity.Attach(entity);
+            dbContext.Entry(entity).State = EntityState.Modified;
+            return dbContext.SaveChanges();
         }
 
         public async virtual Task<int> SoftDeleteAsync(TEntity entity)
         {
-            using (var dbContext = this.dbContext)
-            {
-                entity.GetType().GetProperty("IsActive").SetValue(entity, false);
-                this.entity.Attach(entity);
-                dbContext.Entry(entity).State = EntityState.Modified;
-                return await dbContext.SaveChangesAsync();
-            }
+            entity.GetType().GetProperty("IsActive").SetValue(entity, false);
+            this.entity.Attach(entity);
+            dbContext.Entry(entity).State = EntityState.Modified;
+            return await dbContext.SaveChangesAsync();
         }
 
         public virtual bool DeleteRange(Expression<Func<TEntity, bool>> predicate)

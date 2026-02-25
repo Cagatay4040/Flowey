@@ -2,8 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { boardService } from '../../services/boardService';
 import api from '../../services/api';
-import ReactQuill from 'react-quill-new';
+import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { projectService } from '../../services/projectService';
+import { Mention, MentionBlot } from 'quill-mention';
+import 'quill-mention/dist/quill.mention.css';
+
+Quill.register({ 'blots/mention': MentionBlot, 'modules/mention': Mention });
 
 const TaskModal = ({ task, onClose, onUpdate }) => {
     const { user } = useAuth();
@@ -14,6 +19,7 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
     const [isDragging, setIsDragging] = useState(false);
     const [activeTab, setActiveTab] = useState('comments');
     const [taskHistory, setTaskHistory] = useState([]);
+    const [projectUsers, setProjectUsers] = useState([]);
 
     useEffect(() => {
         boardService.getComments(task.id).then((data) => {
@@ -22,7 +28,37 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
         boardService.getTaskHistory(task.id).then((data) => {
             setTaskHistory(data);
         }).catch(err => console.error("Failed to fetch history", err));
-    }, [task.id]);
+
+        if (task.projectId) {
+            projectService.getProjectUsers(task.projectId).then((data) => {
+                setProjectUsers(data.map(u => ({ id: u.id, value: u.fullName })));
+            }).catch(err => console.error("Failed to fetch project users", err));
+        }
+    }, [task.id, task.projectId]);
+
+    const quillModules = React.useMemo(() => ({
+        mention: {
+            allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+            mentionDenotationChars: ['@'],
+            source: function (searchTerm, renderList, mentionChar) {
+                if (searchTerm.length === 0) {
+                    renderList(projectUsers, searchTerm);
+                } else {
+                    const matches = projectUsers.filter(user =>
+                        user.value.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    renderList(matches, searchTerm);
+                }
+            },
+        },
+        toolbar: [
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'image'],
+            ['clean']
+        ]
+    }), [projectUsers]);
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
@@ -131,6 +167,7 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                             className="flex-1 bg-white mb-2 h-[calc(100%-3rem)]"
                             value={description || ''}
                             onChange={setDescription}
+                            modules={quillModules}
                             placeholder="Add a description..."
                         />
                     </div>
@@ -200,6 +237,7 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                                         className="bg-white h-32"
                                         value={newComment}
                                         onChange={setNewComment}
+                                        modules={quillModules}
                                         placeholder="Add a comment... (Paste or Drop images here)"
                                     />
                                 </div>

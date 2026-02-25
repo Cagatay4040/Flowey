@@ -19,6 +19,13 @@ namespace Flowey.BUSINESS.Extensions
             _sanitizer.AllowedTags.Add("tr");
             _sanitizer.AllowedTags.Add("td");
             _sanitizer.AllowedTags.Add("img");
+
+            // Allow attributes used by quill-mention
+            _sanitizer.AllowedAttributes.Add("data-id");
+            _sanitizer.AllowedAttributes.Add("data-value");
+            _sanitizer.AllowedAttributes.Add("data-denotation-char");
+            _sanitizer.AllowedAttributes.Add("class");
+            _sanitizer.AllowedClasses.Add("mention");
         }
 
         public static string ToSafeRichText(this string rawContent)

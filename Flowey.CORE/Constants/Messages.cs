@@ -74,6 +74,8 @@ namespace Flowey.CORE.Constants
         public const string NewTaskAssignedMessage = "User {0} assigned a new task (#{1}) to you.";
         public const string TaskReassignedTitle = "Task Assignment Updated";
         public const string TaskReassignedMessage = "User {0} assigned you to {1}.";
+        public const string NewMentionTitle = "New Mention";
+        public const string NewMentionMessage = "User {0} mentioned you in {1}.";
 
         public const string StepAdded = "Step added successfully";
         public const string StepUpdated = "Step updated successfully";

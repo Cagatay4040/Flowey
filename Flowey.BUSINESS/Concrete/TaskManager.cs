@@ -191,6 +191,8 @@ namespace Flowey.BUSINESS.Concrete
                         ActionUrl = $"/board/{dto.ProjectId}?taskId={task.Id}"
                     });
                 }
+                
+                await SendMentionNotificationsAsync(task.Description, task.Id, dto.ProjectId);
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));
             }
 
@@ -215,7 +217,10 @@ namespace Flowey.BUSINESS.Concrete
             int effectedRow = await _taskRepository.UpdateAsync(existingTask);
 
             if (effectedRow > 0)
+            {
+                await SendMentionNotificationsAsync(existingTask.Description, existingTask.Id, existingTask.ProjectId);
                 return new Result(ResultStatus.Success, Messages.TaskUpdated);
+            }
 
             return new Result(ResultStatus.Error, Messages.TaskNotFound);
         }
@@ -302,6 +307,61 @@ namespace Flowey.BUSINESS.Concrete
                 return new Result(ResultStatus.Success, Messages.TaskDeleted);
 
             return new Result(ResultStatus.Error, Messages.TaskDeleteError);
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private async System.Threading.Tasks.Task SendMentionNotificationsAsync(string content, Guid taskId, Guid projectId)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return;
+
+            var currentUserId = _currentUserService.GetUserId().Value;
+            var senderUser = await _userRepository.GetByIdAsync(currentUserId);
+            string senderName = senderUser != null ? $"{senderUser.Name} {senderUser.Surname}" : "System";
+
+            var mentionedUserIds = ExtractMentionedUserIds(content);
+            if (!mentionedUserIds.Any()) return;
+
+            var existingTask = await _taskRepository.GetByIdAsync(taskId);
+            string taskIdentifier = existingTask?.TaskKey != null ? $"task #{existingTask.TaskKey}" : "a task";
+
+            foreach (var mentionedUserId in mentionedUserIds)
+            {
+                if (mentionedUserId != currentUserId)
+                {
+                    await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
+                    {
+                        UserId = mentionedUserId,
+                        SenderId = currentUserId,
+                        Title = Messages.NewMentionTitle,
+                        Message = string.Format(Messages.NewMentionMessage, senderName, taskIdentifier),
+                        ActionUrl = $"/board/{projectId}?taskId={taskId}"
+                    });
+                }
+            }
+        }
+
+        private List<Guid> ExtractMentionedUserIds(string htmlContent)
+        {
+            var userIds = new List<Guid>();
+            if (string.IsNullOrWhiteSpace(htmlContent)) return userIds;
+
+            var regex = new System.Text.RegularExpressions.Regex(@"data-id=""([a-fA-F0-9\-]{36})""");
+            var matches = regex.Matches(htmlContent);
+
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                if (match.Groups.Count > 1 && Guid.TryParse(match.Groups[1].Value, out Guid parsedId))
+                {
+                    if (!userIds.Contains(parsedId))
+                    {
+                        userIds.Add(parsedId);
+                    }
+                }
+            }
+            return userIds;
         }
 
         #endregion
