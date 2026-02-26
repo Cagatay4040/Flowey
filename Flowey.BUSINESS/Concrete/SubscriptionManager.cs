@@ -1,6 +1,8 @@
-﻿using Flowey.BUSINESS.Abstract;
-using Flowey.CORE.Constants;
+﻿using AutoMapper;
+using Flowey.BUSINESS.Abstract;
+using Flowey.BUSINESS.DTO.Task;
 using Flowey.BUSINESS.DTO.User;
+using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -19,17 +21,34 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IUserRepository _userRepository;
         private readonly IAuthService _authService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IMapper _mapper;
 
-        public SubscriptionManager(IUserRepository userRepository, IAuthService authService, ICurrentUserService currentUserService)
+        public SubscriptionManager(IUserRepository userRepository, IAuthService authService, ICurrentUserService currentUserService, IMapper mapper)
         {
             _userRepository = userRepository;
             _authService = authService;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
 
         #region Get Methods
 
+        public async Task<IDataResult<List<UserSubscriptionGetDTO>>> GetBillingHistoryAsync(Guid userId)
+        {
+            var userExists = await _userRepository.AnyAsync(x => x.Id == userId);
 
+            if (!userExists)
+                return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Error, Messages.UserNotFound, null);
+
+            var entityList = await _userRepository.GetBillingHistoryAsync(userId);
+
+            if (entityList == null || !entityList.Any())
+                return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Success, Messages.NoInvoicesFound, new List<UserSubscriptionGetDTO>());
+
+            var data = _mapper.Map<List<UserSubscriptionGetDTO>>(entityList);
+
+            return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Success, data);
+        }
 
         #endregion
 

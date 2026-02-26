@@ -20,7 +20,6 @@ namespace Flowey.DATACCESS.Concrete
             _context = dbContext;
         }
 
-
         #region Get Methods
 
         public async Task<List<User>> GetUsersByIdListAsync(List<Guid> userIds)
@@ -33,6 +32,15 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
+        public async Task<List<UserSubscription>> GetBillingHistoryAsync(Guid userId)
+        {
+            var data = await _context.UserSubscriptions
+                        .Where(x => x.UserId == userId)
+                        .OrderByDescending(x => x.CreatedDate)
+                        .ToListAsync();
+
+            return data;
+        }
 
         #endregion
 

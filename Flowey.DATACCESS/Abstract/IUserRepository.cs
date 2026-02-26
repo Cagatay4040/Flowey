@@ -13,6 +13,7 @@ namespace Flowey.DATACCESS.Abstract
         #region Get Methods
 
         Task<List<User>> GetUsersByIdListAsync(List<Guid> userIds);
+        Task<List<UserSubscription>> GetBillingHistoryAsync(Guid userId);
 
         #endregion
 

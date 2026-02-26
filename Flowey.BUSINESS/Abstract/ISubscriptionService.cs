@@ -12,6 +12,7 @@ namespace Flowey.BUSINESS.Abstract
     {
         #region Get Methods
 
+        Task<IDataResult<List<UserSubscriptionGetDTO>>> GetBillingHistoryAsync(Guid userId);
 
         #endregion
 

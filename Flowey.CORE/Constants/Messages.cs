@@ -117,5 +117,6 @@ namespace Flowey.CORE.Constants
 
         public const string SubscriptionFailed = "Failed to process the subscription. Please try again.";
         public const string PaymentSuccessful = "Payment successful. Premium activated.";
+        public const string NoInvoicesFound = "No invoices found for this account.";
     }
 }

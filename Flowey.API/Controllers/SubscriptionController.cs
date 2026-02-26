@@ -19,6 +19,16 @@ namespace Flowey.API.Controllers
             _subscriptionService = subscriptionService;
         }
 
+        [HttpGet("BillingHistory")]
+        public async Task<IActionResult> BillingHistory([FromQuery] Guid userId)
+        {
+            var result = await _subscriptionService.GetBillingHistoryAsync(userId);
+
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+
+            return BadRequest(result);
+        }
+
         [HttpPost("Checkout")]
         public async Task<IActionResult> Checkout([FromBody] UserCheckoutRequestDTO request)
         {
