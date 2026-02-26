@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { projectService } from '../services/projectService';
+import { useAuth } from '../context/AuthContext';
 
 const ProjectsPage = () => {
+    const { user } = useAuth();
+    const isPremium = user?.premiumExpireDate && new Date(user.premiumExpireDate) > new Date();
     const [projects, setProjects] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newProjectName, setNewProjectName] = useState('');
@@ -38,12 +41,14 @@ const ProjectsPage = () => {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">My Projects</h2>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow-sm"
-                >
-                    Create Project
-                </button>
+                {isPremium && (
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition shadow-sm"
+                    >
+                        Create Project
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

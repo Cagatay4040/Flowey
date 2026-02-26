@@ -27,7 +27,9 @@ export const AuthProvider = ({ children }) => {
         return {
             id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.sub || decoded.nameid || decoded.id,
             email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || decoded.email,
-            name: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.unique_name || decoded.name
+            name: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.unique_name || decoded.name,
+            surname: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] || decoded.surname,
+            premiumExpireDate: decoded['PremiumExpireDate'] || decoded.premiumExpireDate
         };
     };
 
@@ -63,13 +65,19 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
     };
 
+    const updateToken = (token) => {
+        localStorage.setItem('token', token);
+        const userData = getUserFromToken(token);
+        setUser(userData);
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, register, logout, loading, updateToken }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -10,7 +10,8 @@ const Profile = () => {
     const [infoData, setInfoData] = useState({
         name: '',
         surname: '',
-        email: ''
+        email: '',
+        premiumExpireDate: ''
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -27,15 +28,11 @@ const Profile = () => {
 
     useEffect(() => {
         if (user) {
-            // Assume user.name might contain full name
-            const nameParts = user.name ? user.name.split(' ') : [''];
-            const name = nameParts[0] || '';
-            const surname = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-
             setInfoData({
-                name: name,
-                surname: surname,
-                email: user.email || ''
+                name: user.name,
+                surname: user.surname,
+                email: user.email || '',
+                premiumExpireDate: user.premiumExpireDate
             });
 
             // Fetch billing history if user exists
