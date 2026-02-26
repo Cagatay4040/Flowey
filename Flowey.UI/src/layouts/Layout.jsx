@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import NotificationDropdown from '../components/common/NotificationDropdown';
+import ProfileDropdown from '../components/common/ProfileDropdown';
 
 const Layout = () => {
     return (
@@ -9,7 +10,10 @@ const Layout = () => {
             <Sidebar />
             <div className="flex-1 flex flex-col overflow-hidden">
                 <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-end px-6">
-                    <NotificationDropdown />
+                    <div className="flex items-center">
+                        <NotificationDropdown />
+                        <ProfileDropdown />
+                    </div>
                 </header>
                 <main className="flex-1 overflow-auto p-6">
                     <Outlet />

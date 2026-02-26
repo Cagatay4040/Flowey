@@ -6,6 +6,7 @@ import RegisterPage from './pages/Register';
 import Layout from './layouts/Layout';
 import ProjectsPage from './pages/Projects';
 import ProjectBoard from './pages/ProjectBoard';
+import ProfilePage from './pages/Profile';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ const App = () => {
           <Route index element={<Navigate to="/projects" replace />} />
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="board/:projectId" element={<ProjectBoard />} />
+          <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </AuthProvider>
