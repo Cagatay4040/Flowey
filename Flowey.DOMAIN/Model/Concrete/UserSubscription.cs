@@ -13,6 +13,8 @@ namespace Flowey.DOMAIN.Model.Concrete
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
 
+        public string PlanName { get; set; }
+        public bool IsPaid { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 

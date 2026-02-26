@@ -73,6 +73,8 @@ namespace Flowey.BUSINESS.Concrete
             var subscription = new UserSubscription
             {
                 UserId = user.Id,
+                PlanName = "Premium (1 Month)",
+                IsPaid = true,
                 StartDate = startDate,
                 EndDate = endDate,
                 Price = 299.90m * checkoutDto.MonthsToPurchase,
