@@ -19,6 +19,9 @@ const Profile = () => {
         newPasswordConfirm: ''
     });
 
+    const [billingHistory, setBillingHistory] = useState([]);
+    const [billingLoading, setBillingLoading] = useState(false);
+
     const [infoMessage, setInfoMessage] = useState({ type: '', text: '' });
     const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
@@ -34,8 +37,24 @@ const Profile = () => {
                 surname: surname,
                 email: user.email || ''
             });
+
+            // Fetch billing history if user exists
+            fetchBillingHistory(user.id || user.nameid || user.sub);
         }
     }, [user]);
+
+    const fetchBillingHistory = async (userId) => {
+        setBillingLoading(true);
+        try {
+            const response = await api.get(`/Subscription/BillingHistory?userId=${userId}`);
+            // Assuming response.data.data contains an array of billing records
+            setBillingHistory(response.data.data || []);
+        } catch (error) {
+            console.error('Error fetching billing history:', error);
+        } finally {
+            setBillingLoading(false);
+        }
+    };
 
     const handleInfoChange = (e) => {
         setInfoData({ ...infoData, [e.target.name]: e.target.value });
@@ -108,6 +127,13 @@ const Profile = () => {
                     >
                         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                         Password & Security
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('billing')}
+                        className={`w-full text-left px-4 py-3 rounded-md font-medium text-sm flex items-center transition-colors ${activeTab === 'billing' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+                    >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                        Billing & Subscription
                     </button>
                 </div>
 
@@ -235,6 +261,78 @@ const Profile = () => {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    )}
+
+                    {/* Billing & Subscription Tab */}
+                    {activeTab === 'billing' && (
+                        <div className="animate-fadeIn">
+                            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                                <h3 className="text-xl leading-6 font-semibold text-gray-900">Billing History</h3>
+                                <button
+                                    onClick={() => alert("This is a dummy cancel subscription button!")}
+                                    className="inline-flex items-center justify-center px-4 py-2 border border-red-300 text-red-700 bg-white hover:bg-red-50 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 rounded-md text-sm font-medium transition-colors"
+                                >
+                                    Cancel Subscription
+                                </button>
+                            </div>
+
+                            <div className="mt-4 text-sm text-gray-500 mb-6">
+                                <p>View your past payments and subscription details.</p>
+                            </div>
+
+                            {billingLoading ? (
+                                <div className="py-12 flex justify-center items-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                </div>
+                            ) : billingHistory.length > 0 ? (
+                                <div className="bg-white shadow overflow-hidden sm:rounded-md border border-gray-200">
+                                    <ul className="divide-y divide-gray-200">
+                                        {billingHistory.map((record, index) => (
+                                            <li key={index} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                                <div className="flex flex-col space-y-1">
+                                                    <span className="text-base font-semibold text-gray-900 flex items-center">
+                                                        {record.planName || 'Subscription Plan'}
+                                                        <span className={`ml-3 px-2.5 py-0.5 inline-flex text-xs font-medium rounded-full ${record.isPaid ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                                                            {record.isPaid ? 'Active' : 'Unpaid'}
+                                                        </span>
+                                                    </span>
+                                                    <div className="flex items-center text-sm text-gray-500 space-x-4 pt-1">
+                                                        <span className="flex items-center">
+                                                            <svg className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            Start: {record.startDate ? new Date(record.startDate).toLocaleDateString() : 'N/A'}
+                                                        </span>
+                                                        <span className="flex items-center">
+                                                            <svg className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            End: {record.endDate ? new Date(record.endDate).toLocaleDateString() : 'N/A'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-lg font-bold text-gray-900">
+                                                        {record.price ? `$${record.price.toFixed(2)}` : 'Free'}
+                                                    </span>
+                                                    <span className="text-xs text-gray-400 mt-1">
+                                                        Billed on {record.createdDate ? new Date(record.createdDate).toLocaleDateString() : 'N/A'}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200 border-dashed">
+                                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No billing history</h3>
+                                    <p className="mt-1 text-sm text-gray-500">You haven't made any payments yet.</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
