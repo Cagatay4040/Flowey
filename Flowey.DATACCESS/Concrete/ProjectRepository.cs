@@ -46,12 +46,26 @@ namespace Flowey.DATACCESS.Concrete
                 .AnyAsync(x => x.ProjectId == projectUserRole.ProjectId && x.UserId == projectUserRole.UserId);
         }
 
-        public async Task<List<Project>> GetProjectsByLoginUserAsync(Guid userId)
+        private IQueryable<ProjectUserRole> BuildBaseUserProjectQuery(Guid userId)
         {
-            var data = await _context.ProjectUserRoles
+            return _context.ProjectUserRoles
                 .AsNoTracking()
-                .Where(x => x.UserId == userId)
-                .Select(x => x.Project)
+                .Include(x => x.Project)
+                .Include(x => x.Role)
+                .Where(x => x.UserId == userId);
+        }
+
+        public async Task<List<ProjectUserRole>> GetUserProjectMembershipsAsync(Guid userId)
+        {
+            var data = await BuildBaseUserProjectQuery(userId).ToListAsync();
+              
+            return data;
+        }
+
+        public async Task<List<ProjectUserRole>> GetUserProjectMembershipsAsync(Guid userId, RoleType roleFilter)
+        {
+            var data = await BuildBaseUserProjectQuery(userId)
+                .Where(x => x.RoleId == (int)roleFilter)
                 .ToListAsync();
 
             return data;

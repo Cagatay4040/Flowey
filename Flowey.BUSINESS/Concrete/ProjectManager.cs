@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 
 using System.Linq;
+using Flowey.CORE.Enums;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -33,14 +34,14 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IDataResult<List<ProjectGetDTO>>> GetProjectsByLoginUserAsync()
         {
-            var entityList = await _projectRepository.GetProjectsByLoginUserAsync(_currentUserService.GetUserId().Value);
+            var entityList = await _projectRepository.GetUserProjectMembershipsAsync(_currentUserService.GetUserId().Value);
             var data = _mapper.Map<List<ProjectGetDTO>>(entityList);
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);
         }
 
         public async Task<IDataResult<List<ProjectGetDTO>>> GetMyProjectsAsync()
         {
-            var entityList = await _projectRepository.GetList(x => x.CreatedBy == _currentUserService.GetUserId().Value);
+            var entityList = await _projectRepository.GetUserProjectMembershipsAsync(_currentUserService.GetUserId().Value, RoleType.Admin);
             var data = _mapper.Map<List<ProjectGetDTO>>(entityList);
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);
         }

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using AutoMapper;
+using Flowey.BUSINESS.DTO.Project;
+using Flowey.BUSINESS.DTO.ProjectUser;
+using Flowey.DOMAIN.Model.Concrete;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
-using Flowey.BUSINESS.DTO.ProjectUser;
-using Flowey.DOMAIN.Model.Concrete;
 
 namespace Flowey.BUSINESS.Mapping
 {
@@ -18,6 +19,10 @@ namespace Flowey.BUSINESS.Mapping
 
             CreateMap<ProjectUserGetDTO, ProjectUserRole>();
             CreateMap<ProjectUserRole, ProjectUserGetDTO>();
+
+            CreateMap<ProjectUserRole, ProjectGetDTO>()
+                .IncludeMembers(src => src.Project)
+                .ForMember(dest => dest.CurrentUserRole, opt => opt.MapFrom(src => src.Role.Code));
         }
     }
 }
