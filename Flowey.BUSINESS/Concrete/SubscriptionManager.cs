@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.Task;
 using Flowey.BUSINESS.DTO.User;
 using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
@@ -19,14 +18,16 @@ namespace Flowey.BUSINESS.Concrete
     public class SubscriptionManager : ISubscriptionService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IEntityRepository<UserSubscription> _userSubscriptionRepository;
         private readonly IAuthService _authService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public SubscriptionManager(IUserRepository userRepository, IAuthService authService, ICurrentUserService currentUserService, IMapper mapper, IUnitOfWork unitOfWork)
+        public SubscriptionManager(IUserRepository userRepository, IEntityRepository<UserSubscription> userSubscriptionRepository, IAuthService authService, ICurrentUserService currentUserService, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
+            _userSubscriptionRepository = userSubscriptionRepository;
             _authService = authService;
             _currentUserService = currentUserService;
             _mapper = mapper;
@@ -42,7 +43,7 @@ namespace Flowey.BUSINESS.Concrete
             if (!userExists)
                 return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Error, Messages.UserNotFound, null);
 
-            var entityList = await _userRepository.GetBillingHistoryAsync(userId);
+            var entityList = await _userSubscriptionRepository.GetList(x => x.UserId == userId, true, query => query.OrderByDescending(o => o.CreatedDate));
 
             if (entityList == null || !entityList.Any())
                 return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Success, Messages.NoInvoicesFound, new List<UserSubscriptionGetDTO>());
@@ -85,7 +86,9 @@ namespace Flowey.BUSINESS.Concrete
 
             user.PremiumExpirationDate = endDate;
 
-            await _userRepository.SubscribeUserAsync(user, subscription);
+            await _userSubscriptionRepository.AddAsync(subscription);
+            await _userRepository.UpdateAsync(user);
+
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow <= 0)

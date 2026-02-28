@@ -43,7 +43,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)
         {
-            var result = await _taskService.AddAndAssignTaskAsync(task);
+            var result = await _taskService.AddTaskAsync(task);
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

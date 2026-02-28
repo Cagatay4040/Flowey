@@ -17,7 +17,7 @@ namespace Flowey.BUSINESS.Abstract
 
         #region Insert Methods
 
-        Task<IResult> AddAndAssignTaskAsync(TaskAddDTO dto);
+        Task<IResult> AddTaskAsync(TaskAddDTO dto);
 
         #endregion
 

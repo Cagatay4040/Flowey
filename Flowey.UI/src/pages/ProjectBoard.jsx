@@ -147,7 +147,7 @@ const ProjectBoard = () => {
 
     const handleAssignTask = async (taskId, userId) => {
         try {
-            await boardService.changeAssignTask(taskId, userId);
+            await boardService.changeAssignTask(taskId, userId || null);
 
             const newSteps = steps.map(step => ({
                 ...step,

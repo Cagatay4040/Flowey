@@ -1,19 +1,20 @@
+using AutoMapper;
 using Flowey.BUSINESS.Abstract;
+using Flowey.BUSINESS.DTO.Notification;
+using Flowey.BUSINESS.DTO.Task;
+using Flowey.BUSINESS.Extensions;
+using Flowey.CORE.Constants;
+using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.BUSINESS.Extensions;
 using Flowey.DATACCESS.Abstract;
+using Flowey.DOMAIN.Model.Concrete;
 using System;
-using Task = Flowey.DOMAIN.Model.Concrete.Task;
 using System.Collections.Generic;
-
 using System.Linq;
-using Flowey.BUSINESS.DTO.Task;
-using AutoMapper;
-using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.Constants;
-using Flowey.CORE.Enums;
-using Flowey.BUSINESS.DTO.Notification;
+using System.Threading.Tasks;
+using Task = Flowey.DOMAIN.Model.Concrete.Task;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -23,17 +24,19 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IProjectRepository _projectRepository;
         private readonly IStepRepository _stepRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IEntityRepository<TaskHistory> _taskHistoryRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserNotificationService _userNotificationService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService, IUserNotificationService userNotificationService, IUnitOfWork unitOfWork)
+        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IEntityRepository<TaskHistory> taskHistoryRepository, IMapper mapper, ICurrentUserService currentUserService, IUserNotificationService userNotificationService, IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _stepRepository = stepRepository;
             _userRepository = userRepository;
+            _taskHistoryRepository = taskHistoryRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
             _userNotificationService = userNotificationService;
@@ -58,7 +61,13 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IDataResult<List<TaskHistoryGetDTO>>> GetTaskHistoryAsync(Guid taskId)
         {
-            var entityList = await _taskRepository.GetTaskHistoryAsync(taskId);
+            var entityList = await _taskHistoryRepository.GetList(
+                                x => x.TaskId == taskId, 
+                                true, 
+                                query => query.OrderBy(x => x.CreatedDate), 
+                                x => x.Task,
+                                x => x.Step,
+                                x => x.User);
 
             var historyData = new List<TaskHistoryGetDTO>();
 
@@ -150,7 +159,7 @@ namespace Flowey.BUSINESS.Concrete
 
         #region Insert Methods
 
-        public async Task<IResult> AddAndAssignTaskAsync(TaskAddDTO dto)
+        public async Task<IResult> AddTaskAsync(TaskAddDTO dto)
         {
             var project = await _projectRepository.FirstOrDefaultAsync(x => x.Id == dto.ProjectId);
 
@@ -175,29 +184,17 @@ namespace Flowey.BUSINESS.Concrete
 
             task.Description = dto.Description.ToSafeRichText();
 
-            await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
+            await _taskRepository.AddAsync(task);
+            await _taskHistoryRepository.AddAsync(new TaskHistory
+            {
+                TaskId = task.Id,
+                StepId = task.CurrentStepId
+            });
+
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
-            {
-                if (dto.UserId != _currentUserService.GetUserId().Value)
-                {
-                    var senderUser = await _userRepository.GetByIdAsync(_currentUserService.GetUserId().Value);
-                    string senderName = senderUser != null ? $"{senderUser.Name} {senderUser.Surname}" : "System";
-
-                    await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
-                    {
-                        UserId = dto.UserId,
-                        SenderId = _currentUserService.GetUserId().Value,
-                        Title = Messages.NewTaskAssignedTitle,
-                        Message = string.Format(Messages.NewTaskAssignedMessage, senderName, newTaskKey),
-                        ActionUrl = $"/board/{dto.ProjectId}?taskId={task.Id}"
-                    });
-                }
-                
-                await SendMentionNotificationsAsync(task.Description, task.Id, dto.ProjectId);
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));
-            }
 
             return new Result(ResultStatus.Error, Messages.TaskCreateError);
         }
@@ -236,12 +233,22 @@ namespace Flowey.BUSINESS.Concrete
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            await _taskRepository.ChangeAssignTaskAsync(existingTask, dto.UserId);
+            existingTask.AssigneeId = dto.UserId;
+
+            await _taskRepository.UpdateAsync(existingTask);
+
+            await _taskHistoryRepository.AddAsync(new TaskHistory
+            {
+                TaskId = existingTask.Id,
+                UserId = dto.UserId,
+                StepId = existingTask.CurrentStepId
+            });
+
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
-                if (dto.UserId != _currentUserService.GetUserId().Value)
+                if (dto.UserId.HasValue && dto.UserId != _currentUserService.GetUserId().Value)
                 {
                     string taskIdentifier = existingTask.TaskKey != null
                                             ? $"task #{existingTask.TaskKey}"
@@ -252,7 +259,7 @@ namespace Flowey.BUSINESS.Concrete
 
                     await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
                     {
-                        UserId = dto.UserId,
+                        UserId = dto.UserId.Value,
                         SenderId = _currentUserService.GetUserId().Value,
                         Title = Messages.TaskReassignedTitle,
                         Message = string.Format(Messages.TaskReassignedMessage, senderName, taskIdentifier),
@@ -272,7 +279,17 @@ namespace Flowey.BUSINESS.Concrete
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            await _taskRepository.ChangeStepTaskAsync(existingTask, dto.NewStepId);
+            existingTask.CurrentStepId = dto.NewStepId;
+
+            await _taskRepository.UpdateAsync(existingTask);
+
+            await _taskHistoryRepository.AddAsync(new TaskHistory
+            {
+                TaskId = existingTask.Id,
+                UserId = existingTask.AssigneeId,
+                StepId = existingTask.CurrentStepId
+            });
+
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)

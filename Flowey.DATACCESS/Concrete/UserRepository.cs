@@ -1,5 +1,4 @@
-﻿using Flowey.CORE.DataAccess.Concrete;
-using Flowey.DATACCESS.Abstract;
+﻿using Flowey.DATACCESS.Abstract;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
@@ -32,25 +31,11 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
-        public async Task<List<UserSubscription>> GetBillingHistoryAsync(Guid userId)
-        {
-            var data = await _context.UserSubscriptions
-                        .Where(x => x.UserId == userId)
-                        .OrderByDescending(x => x.CreatedDate)
-                        .ToListAsync();
-
-            return data;
-        }
-
         #endregion
 
         #region Insert Methods
 
-        public async System.Threading.Tasks.Task SubscribeUserAsync(User user, UserSubscription subscription)
-        {
-            await _context.UserSubscriptions.AddAsync(subscription);
-            _context.Users.Update(user);
-        }
+
 
         #endregion
 

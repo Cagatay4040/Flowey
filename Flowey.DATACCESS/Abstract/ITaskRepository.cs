@@ -8,20 +8,19 @@ namespace Flowey.DATACCESS.Abstract
     {
         #region Get Methods
 
-        Task<List<TaskHistory>> GetTaskHistoryAsync(Guid taskId);
+
 
         #endregion
 
         #region Insert Methods
 
-        System.Threading.Tasks.Task AddAndAssignTaskAsync(Task task, Guid userId);
+
 
         #endregion
 
         #region Update Methods
 
-        System.Threading.Tasks.Task ChangeAssignTaskAsync(Task task, Guid userId);
-        System.Threading.Tasks.Task ChangeStepTaskAsync(Task task, Guid newStepId);
+
 
         #endregion
 

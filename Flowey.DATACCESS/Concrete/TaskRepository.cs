@@ -17,68 +17,19 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Get Methods
 
-        public async Task<List<TaskHistory>> GetTaskHistoryAsync(Guid taskId)
-        {
-            var data = await _context.TaskHistories
-                .AsNoTracking()
-                .Include(x => x.Task)
-                .Include(x => x.Step)
-                .Include(x => x.User)
-                .Where(x => x.TaskId == taskId)
-                .OrderBy(x => x.CreatedDate)
-                .ToListAsync();
 
-            return data;
-        }
 
         #endregion
 
         #region Insert Methods
 
-        public async System.Threading.Tasks.Task AddAndAssignTaskAsync(Task task, Guid userId)
-        {
-            await _context.Tasks.AddAsync(task);
-            await _context.TaskHistories.AddAsync(new TaskHistory
-            {
-                TaskId = task.Id,
-                UserId = userId,
-                StepId = task.CurrentStepId
-            });
-        }
+
 
         #endregion
 
         #region Update Methods
 
-        public async System.Threading.Tasks.Task ChangeAssignTaskAsync(Task task, Guid userId)
-        {
-            task.AssigneeId = userId;
 
-            _context.Tasks.Attach(task);
-            _context.Entry(task).State = EntityState.Modified;
-
-            await _context.TaskHistories.AddAsync(new TaskHistory
-            {
-                TaskId = task.Id,
-                UserId = userId,
-                StepId = task.CurrentStepId
-            });
-        }
-
-        public async System.Threading.Tasks.Task ChangeStepTaskAsync(Task task, Guid newStepId)
-        {
-            task.CurrentStepId = newStepId;
-
-            _context.Tasks.Attach(task);
-            _context.Entry(task).State = EntityState.Modified;
-
-            await _context.TaskHistories.AddAsync(new TaskHistory
-            {
-                TaskId = task.Id,
-                UserId = task.AssigneeId,
-                StepId = task.CurrentStepId
-            });
-        }
 
         #endregion
 
