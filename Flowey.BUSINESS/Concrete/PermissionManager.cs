@@ -13,14 +13,14 @@ namespace Flowey.BUSINESS.Concrete
 {
     public class PermissionManager : IPermissionService
     {
-        private readonly IProjectRepository _projectRepository;
+        private readonly IEntityRepository<ProjectUserRole> _projectUserRoleRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly IStepRepository _stepRepository;
         private readonly ICommentRepository _commentRepository;
 
-        public PermissionManager(IProjectRepository projectRepository, ITaskRepository taskRepository, IStepRepository stepRepository, ICommentRepository commentRepository)
+        public PermissionManager(IEntityRepository<ProjectUserRole> projectUserRoleRepository, ITaskRepository taskRepository, IStepRepository stepRepository, ICommentRepository commentRepository)
         {
-            _projectRepository = projectRepository;
+            _projectUserRoleRepository = projectUserRoleRepository;
             _taskRepository = taskRepository;
             _stepRepository = stepRepository;
             _commentRepository = commentRepository;
@@ -28,7 +28,7 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<bool> HasProjectPermissionAsync(Guid userId, Guid projectId, params RoleType[] allowedRoles)
         {
-            var projectUser = await _projectRepository.GetProjectUserAsync(projectId, userId);
+            var projectUser = await _projectUserRoleRepository.FirstOrDefaultAsync(x => x.ProjectId == projectId && x.UserId == userId);
 
             if (projectUser == null)
                 return false;

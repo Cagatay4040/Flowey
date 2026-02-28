@@ -9,7 +9,7 @@ namespace Flowey.BUSINESS.Abstract
     {
         #region Get Methods
 
-        Task<IDataResult<RoleGetDTO>> GetUserRole(Guid projectId);
+
 
         #endregion
 

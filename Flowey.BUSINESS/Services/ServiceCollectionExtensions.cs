@@ -26,6 +26,7 @@ namespace Flowey.BUSINESS.Services
 
             serviceCollection.DataStore(configuration);
 
+            serviceCollection.AddScoped(typeof(IEntityRepository<>), typeof(EfEntityRepositoryBase<>));
             serviceCollection.AddScoped<IUserRepository, UserRepository>();
             serviceCollection.AddScoped<IRoleRepository, RoleRepository>();
             serviceCollection.AddScoped<IProjectRepository, ProjectRepository>();

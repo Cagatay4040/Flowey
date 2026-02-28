@@ -18,12 +18,5 @@ namespace Flowey.API.Controllers
             _roleService = roleService;
         }
 
-        [HttpGet("GetUserRole")]
-        public async Task<IActionResult> GetUserRole([FromBody] Guid projectId)
-        {
-            var result = await _roleService.GetUserRole(projectId);
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
     }
 }

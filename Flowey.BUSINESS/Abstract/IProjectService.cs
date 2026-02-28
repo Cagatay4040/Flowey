@@ -12,7 +12,6 @@ namespace Flowey.BUSINESS.Abstract
 
         Task<IDataResult<List<ProjectGetDTO>>> GetProjectsByLoginUserAsync();
         Task<IDataResult<List<ProjectGetDTO>>> GetMyProjectsAsync();
-        Task<IDataResult<UserSelectDTO>> GetProjectUserAsync(Guid projectId, Guid userId);
         Task<IDataResult<List<UserSelectDTO>>> GetProjectUsersAsync(Guid projectId);
 
         #endregion

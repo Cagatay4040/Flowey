@@ -14,19 +14,22 @@ using System.Collections.Generic;
 
 using System.Linq;
 using Flowey.CORE.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Flowey.BUSINESS.Concrete
 {
     public class ProjectManager : IProjectService
     {
         private readonly IProjectRepository _projectRepository;
+        private readonly IEntityRepository<ProjectUserRole> _projectUserRoleRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ProjectManager(IProjectRepository projectRepository, IMapper mapper, ICurrentUserService currentUserService, IUnitOfWork unitOfWork)
+        public ProjectManager(IProjectRepository projectRepository, IEntityRepository<ProjectUserRole> projectUserRoleRepository, IMapper mapper, ICurrentUserService currentUserService, IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
+            _projectUserRoleRepository = projectUserRoleRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
@@ -36,37 +39,26 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IDataResult<List<ProjectGetDTO>>> GetProjectsByLoginUserAsync()
         {
-            var entityList = await _projectRepository.GetUserProjectMembershipsAsync(_currentUserService.GetUserId().Value);
+            var entityList = await _projectUserRoleRepository.GetList(x => x.UserId == _currentUserService.GetUserId().Value, true, null, x => x.Project, x => x.Role);
             var data = _mapper.Map<List<ProjectGetDTO>>(entityList);
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);
         }
 
         public async Task<IDataResult<List<ProjectGetDTO>>> GetMyProjectsAsync()
         {
-            var entityList = await _projectRepository.GetUserProjectMembershipsAsync(_currentUserService.GetUserId().Value, RoleType.Admin);
+            var entityList = await _projectUserRoleRepository.GetList(x => x.UserId == _currentUserService.GetUserId().Value && x.RoleId == (int)RoleType.Admin, true, null, x => x.Project, x => x.Role);
             var data = _mapper.Map<List<ProjectGetDTO>>(entityList);
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);
         }
 
-        public async Task<IDataResult<UserSelectDTO>> GetProjectUserAsync(Guid projectId, Guid userId)
-        {
-            var entity = await _projectRepository.GetProjectUserAsync(projectId, userId);
-
-            var data = new UserSelectDTO
-            {
-                Id = entity.User.Id,
-                FullName = $"{entity.User.Name} {entity.User.Surname}",
-                Email = entity.User.Email
-            };
-
-            return new DataResult<UserSelectDTO>(ResultStatus.Success, data);
-        }
-
         public async Task<IDataResult<List<UserSelectDTO>>> GetProjectUsersAsync(Guid projectId)
         {
-            var entities = await _projectRepository.GetProjectUsersAsync(projectId);
+            var entities = await _projectRepository.GetProjectWithUsersAsync(projectId);
 
-            var data = entities.Select(role => new UserSelectDTO
+            if(entities == null)
+                return new DataResult<List<UserSelectDTO>>(ResultStatus.Error, Messages.ProjectNotFound, new List<UserSelectDTO>());
+
+            var data = entities.ProjectUserRoles.Select(role => new UserSelectDTO
             {
                 Id = role.User.Id,
                 FullName = $"{role.User.Name} {role.User.Surname}",
@@ -95,9 +87,23 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> AddWithCreatorAsync(ProjectAddDTO dto)
         {
-            var project = _mapper.Map<Project>(dto);
+            var newProject = new Project
+            {
+                Id = Guid.NewGuid(),
+                Name = dto.Name,
+                ProjectKey = dto.ProjectKey,
+                ProjectUserRoles = new List<ProjectUserRole>
+                {
+                    new ProjectUserRole
+                    {
+                        UserId = _currentUserService.GetUserId().Value,
+                        RoleId = (int)RoleType.Admin
+                    }
+                }
+            };
 
-            await _projectRepository.AddWithCreatorAsync(project, _currentUserService.GetUserId().Value);
+            await _projectRepository.AddAsync(newProject);
+
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
@@ -110,11 +116,11 @@ namespace Flowey.BUSINESS.Concrete
         {
             var projectUser = _mapper.Map<ProjectUserRole>(dto);
 
-            bool isExists = await _projectRepository.IsUserInProjectAsync(projectUser);
+            bool isExists = await _projectRepository.IsUserInProjectAsync(projectUser.ProjectId, projectUser.UserId);
             if (isExists)
                 return new Result(ResultStatus.Error, Messages.ProjectAlreadyAssignedToUser);
 
-            await _projectRepository.AddUserToProjectAsync(projectUser);
+            await _projectUserRoleRepository.AddAsync(projectUser);
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
@@ -183,12 +189,12 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> RemoveUserFromProjectAsync(ProjectRemoveUserDTO dto)
         {
-            var relation = await _projectRepository.GetProjectUserAsync(dto.ProjectId, dto.UserId);
+            var relation = await _projectUserRoleRepository.FirstOrDefaultAsync(x => x.ProjectId == dto.ProjectId && x.UserId == dto.UserId);
 
             if (relation == null)
                 return new Result(ResultStatus.Error, Messages.ProjectUserNotFound);
 
-            await _projectRepository.RemoveUserFromProjectAsync(relation);
+            await _projectUserRoleRepository.SoftDeleteAsync(relation);
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
