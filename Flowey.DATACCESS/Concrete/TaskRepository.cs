@@ -79,7 +79,7 @@ namespace Flowey.DATACCESS.Concrete
             await _context.TaskHistories.AddAsync(new TaskHistory
             {
                 TaskId = task.Id,
-                UserId = task.AssigneeId.Value,
+                UserId = task.AssigneeId,
                 StepId = task.CurrentStepId
             });
 

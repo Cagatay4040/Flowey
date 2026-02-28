@@ -12,7 +12,7 @@ namespace Flowey.DOMAIN.Model.Concrete
     {
         public Guid TaskId { get; set; }
         public Guid StepId { get; set; }
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public Guid CreatedBy { get; set; }
@@ -21,6 +21,6 @@ namespace Flowey.DOMAIN.Model.Concrete
 
         public virtual Task Task { get; set; }
         public virtual Step Step { get; set; }
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
     }
 }
