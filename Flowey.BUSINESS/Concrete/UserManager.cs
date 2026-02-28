@@ -20,12 +20,14 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserManager(IMapper mapper, IPasswordHasher<User> passwordHasher, IUserRepository userRepository)
+        public UserManager(IMapper mapper, IPasswordHasher<User> passwordHasher, IUserRepository userRepository, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _unitOfWork = unitOfWork;
         }
 
         #region Get Methods
@@ -52,7 +54,8 @@ namespace Flowey.BUSINESS.Concrete
                 var user = _mapper.Map<User>(dto);
                 user.Password = _passwordHasher.HashPassword(user, dto.Password);
 
-                int effectedRow = await _userRepository.AddAsync(user);
+                await _userRepository.AddAsync(user);
+                int effectedRow = await _unitOfWork.SaveChangesAsync();
                 
                 if (effectedRow > 0)
                     return new Result(ResultStatus.Success, Messages.UserAdded);
@@ -80,7 +83,8 @@ namespace Flowey.BUSINESS.Concrete
 
             _mapper.Map(dto, existingUser);
 
-            int effectedRow = await _userRepository.UpdateAsync(existingUser);
+            await _userRepository.UpdateAsync(existingUser);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
             
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.UserUpdated);
@@ -104,7 +108,8 @@ namespace Flowey.BUSINESS.Concrete
 
             user.Password = newPasswordHash;
 
-            int effectedRow = await _userRepository.UpdateAsync(user);
+            await _userRepository.UpdateAsync(user);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.UserPasswordChangeSuccess);
@@ -125,7 +130,8 @@ namespace Flowey.BUSINESS.Concrete
 
             _mapper.Map(dto, existingUser);
 
-            int effectedRow = await _userRepository.SoftDeleteAsync(existingUser);
+            await _userRepository.SoftDeleteAsync(existingUser);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.UserDeleted);

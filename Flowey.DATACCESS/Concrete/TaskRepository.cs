@@ -35,7 +35,7 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Insert Methods
 
-        public async Task<int> AddAndAssignTaskAsync(Task task, Guid userId)
+        public async System.Threading.Tasks.Task AddAndAssignTaskAsync(Task task, Guid userId)
         {
             await _context.Tasks.AddAsync(task);
             await _context.TaskHistories.AddAsync(new TaskHistory
@@ -44,15 +44,13 @@ namespace Flowey.DATACCESS.Concrete
                 UserId = userId,
                 StepId = task.CurrentStepId
             });
-
-            return await _context.SaveChangesAsync();
         }
 
         #endregion
 
         #region Update Methods
 
-        public async Task<int> ChangeAssignTaskAsync(Task task, Guid userId)
+        public async System.Threading.Tasks.Task ChangeAssignTaskAsync(Task task, Guid userId)
         {
             task.AssigneeId = userId;
 
@@ -65,11 +63,9 @@ namespace Flowey.DATACCESS.Concrete
                 UserId = userId,
                 StepId = task.CurrentStepId
             });
-
-            return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> ChangeStepTaskAsync(Task task, Guid newStepId)
+        public async System.Threading.Tasks.Task ChangeStepTaskAsync(Task task, Guid newStepId)
         {
             task.CurrentStepId = newStepId;
 
@@ -82,8 +78,6 @@ namespace Flowey.DATACCESS.Concrete
                 UserId = task.AssigneeId,
                 StepId = task.CurrentStepId
             });
-
-            return await _context.SaveChangesAsync();
         }
 
         #endregion

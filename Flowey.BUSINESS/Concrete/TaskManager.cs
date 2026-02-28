@@ -26,8 +26,9 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserNotificationService _userNotificationService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService, IUserNotificationService userNotificationService)
+        public TaskManager(ITaskRepository taskRepository, IProjectRepository projectRepository, IStepRepository stepRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService, IUserNotificationService userNotificationService, IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
@@ -36,6 +37,7 @@ namespace Flowey.BUSINESS.Concrete
             _mapper = mapper;
             _currentUserService = currentUserService;
             _userNotificationService = userNotificationService;
+            _unitOfWork = unitOfWork;
         }
 
         #region Get Methods
@@ -173,7 +175,8 @@ namespace Flowey.BUSINESS.Concrete
 
             task.Description = dto.Description.ToSafeRichText();
 
-            int effectedRow = await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
+            await _taskRepository.AddAndAssignTaskAsync(task, dto.UserId);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -214,7 +217,8 @@ namespace Flowey.BUSINESS.Concrete
 
             existingTask.Description = dto.Description.ToSafeRichText();
 
-            int effectedRow = await _taskRepository.UpdateAsync(existingTask);
+            await _taskRepository.UpdateAsync(existingTask);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -232,7 +236,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            int effectedRow = await _taskRepository.ChangeAssignTaskAsync(existingTask, dto.UserId);
+            await _taskRepository.ChangeAssignTaskAsync(existingTask, dto.UserId);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -267,7 +272,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            int effectedRow = await _taskRepository.ChangeStepTaskAsync(existingTask, dto.NewStepId);
+            await _taskRepository.ChangeStepTaskAsync(existingTask, dto.NewStepId);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.TaskStepUpdatedSuccessfully);
@@ -286,7 +292,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            int effectedRow = await _taskRepository.DeleteAsync(existingTask);
+            await _taskRepository.DeleteAsync(existingTask);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.TaskDeleted);
@@ -301,7 +308,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingProject == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            int effectedRow = await _taskRepository.SoftDeleteAsync(existingProject);
+            await _taskRepository.SoftDeleteAsync(existingProject);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.TaskDeleted);

@@ -33,6 +33,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<ITaskRepository, TaskRepository>();
             serviceCollection.AddScoped<ICommentRepository, CommentRepository>();
             serviceCollection.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
+            serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
             serviceCollection.AddScoped<IAuthService, AuthManager>();
             serviceCollection.AddScoped<IRoleService, RoleManager>();

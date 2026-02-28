@@ -22,13 +22,15 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IAuthService _authService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SubscriptionManager(IUserRepository userRepository, IAuthService authService, ICurrentUserService currentUserService, IMapper mapper)
+        public SubscriptionManager(IUserRepository userRepository, IAuthService authService, ICurrentUserService currentUserService, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _authService = authService;
             _currentUserService = currentUserService;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         #region Get Methods
@@ -83,7 +85,8 @@ namespace Flowey.BUSINESS.Concrete
 
             user.PremiumExpirationDate = endDate;
 
-            int effectedRow = await _userRepository.SubscribeUserAsync(user, subscription);
+            await _userRepository.SubscribeUserAsync(user, subscription);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow <= 0)
                 return new DataResult<string>(ResultStatus.Error, Messages.SubscriptionFailed, null);

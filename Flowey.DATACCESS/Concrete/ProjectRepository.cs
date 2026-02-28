@@ -75,7 +75,7 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Insert Methods
 
-        public async Task<int> AddWithCreatorAsync(Project project, Guid userId)
+        public async System.Threading.Tasks.Task AddWithCreatorAsync(Project project, Guid userId)
         {
             await _context.Projects.AddAsync(project);
             await _context.ProjectUserRoles.AddAsync(new ProjectUserRole
@@ -84,13 +84,11 @@ namespace Flowey.DATACCESS.Concrete
                 UserId = userId,
                 RoleId = (int)RoleType.Admin
             });
-            return await _context.SaveChangesAsync();
         }
 
-        public async Task<int> AddUserToProjectAsync(ProjectUserRole projectUserRole)
+        public async System.Threading.Tasks.Task AddUserToProjectAsync(ProjectUserRole projectUserRole)
         {
             await _context.ProjectUserRoles.AddAsync(projectUserRole);
-            return await _context.SaveChangesAsync();
         }
 
         #endregion
@@ -103,7 +101,7 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Delete Methods
 
-        public async Task<int> RemoveUserFromProjectAsync(ProjectUserRole projectUserRole)
+        public async System.Threading.Tasks.Task RemoveUserFromProjectAsync(ProjectUserRole projectUserRole)
         {
             var data = await GetProjectUserAsync(projectUserRole.ProjectId, projectUserRole.UserId);
 
@@ -113,10 +111,7 @@ namespace Flowey.DATACCESS.Concrete
 
                 _context.Set<ProjectUserRole>().Attach(data);
                 _context.Entry(projectUserRole).State = EntityState.Modified;
-                return await _context.SaveChangesAsync();
             }
-
-            return 0;
         }
 
         #endregion

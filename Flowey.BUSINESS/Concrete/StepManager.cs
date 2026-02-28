@@ -19,12 +19,14 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IStepRepository _stepRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public StepManager(IStepRepository stepRepository, IProjectRepository projectRepository, IMapper mapper)
+        public StepManager(IStepRepository stepRepository, IProjectRepository projectRepository, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _stepRepository = stepRepository;
             _projectRepository = projectRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         #region Get Methods
@@ -68,7 +70,8 @@ namespace Flowey.BUSINESS.Concrete
 
             var step = _mapper.Map<Step>(dto);
 
-            int effectedRow = await _stepRepository.AddAsync(step);
+            await _stepRepository.AddAsync(step);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.StepAdded);
@@ -95,7 +98,8 @@ namespace Flowey.BUSINESS.Concrete
 
             var steps = _mapper.Map<List<Step>>(dtos);
 
-            int effectedRow = await _stepRepository.AddRangeAsync(steps);
+            await _stepRepository.AddRangeAsync(steps);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -119,7 +123,8 @@ namespace Flowey.BUSINESS.Concrete
 
             _mapper.Map(dto, existingStep);
 
-            int effectedRow = await _stepRepository.UpdateAsync(existingStep);
+            await _stepRepository.UpdateAsync(existingStep);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.StepUpdated);
@@ -147,7 +152,8 @@ namespace Flowey.BUSINESS.Concrete
                 _mapper.Map(matchingDto, existingStep);
             }
 
-            int effectedRow = await _stepRepository.UpdateRangeAsync(existingSteps);
+            await _stepRepository.UpdateRangeAsync(existingSteps);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -169,7 +175,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingStep == null)
                 return new Result(ResultStatus.Error, Messages.StepNotFound);
 
-            int effectedRow = await _stepRepository.SoftDeleteAndReOrderStepsAsync(existingStep);
+            await _stepRepository.SoftDeleteAndReOrderStepsAsync(existingStep);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.StepDeleted);

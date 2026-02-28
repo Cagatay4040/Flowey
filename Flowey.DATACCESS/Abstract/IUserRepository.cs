@@ -19,7 +19,7 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Insert Methods
 
-        Task<int> SubscribeUserAsync(User user, UserSubscription subscription);
+        System.Threading.Tasks.Task SubscribeUserAsync(User user, UserSubscription subscription);
 
         #endregion
 

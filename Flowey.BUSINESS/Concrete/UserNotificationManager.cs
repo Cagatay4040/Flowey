@@ -20,13 +20,15 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IRealTimeNotificationService _realTimeNotificationService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserNotificationManager(IUserNotificationRepository userNotificationRepository, IUserRepository userRepository, IMapper mapper, IRealTimeNotificationService realTimeNotificationService)
+        public UserNotificationManager(IUserNotificationRepository userNotificationRepository, IUserRepository userRepository, IMapper mapper, IRealTimeNotificationService realTimeNotificationService, IUnitOfWork unitOfWork)
         {
             _userNotificationRepository = userNotificationRepository;
             _userRepository = userRepository;
             _mapper = mapper;
             _realTimeNotificationService = realTimeNotificationService;
+            _unitOfWork = unitOfWork;
         }
 
 
@@ -57,7 +59,8 @@ namespace Flowey.BUSINESS.Concrete
 
             var userNotification = _mapper.Map<UserNotification>(dto);
 
-            int effectedRow = await _userNotificationRepository.AddAsync(userNotification);
+            await _userNotificationRepository.AddAsync(userNotification);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -81,7 +84,8 @@ namespace Flowey.BUSINESS.Concrete
 
             notification.IsRead = true;
 
-            int effectedRow = await _userNotificationRepository.UpdateAsync(notification);
+            await _userNotificationRepository.UpdateAsync(notification);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
             
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.UserNotificationUpdated);
@@ -101,7 +105,8 @@ namespace Flowey.BUSINESS.Concrete
                 notification.IsRead = true;
             }
 
-            int effectedRow = await _userNotificationRepository.UpdateRangeAsync(unreadNotifications);
+            await _userNotificationRepository.UpdateRangeAsync(unreadNotifications);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.UserNotificationUpdated);

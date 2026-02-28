@@ -14,14 +14,14 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Insert Methods
 
-        Task<int> AddAndAssignTaskAsync(Task task, Guid userId);
+        System.Threading.Tasks.Task AddAndAssignTaskAsync(Task task, Guid userId);
 
         #endregion
 
         #region Update Methods
 
-        Task<int> ChangeAssignTaskAsync(Task task, Guid userId);
-        Task<int> ChangeStepTaskAsync(Task task, Guid newStepId);
+        System.Threading.Tasks.Task ChangeAssignTaskAsync(Task task, Guid userId);
+        System.Threading.Tasks.Task ChangeStepTaskAsync(Task task, Guid newStepId);
 
         #endregion
 

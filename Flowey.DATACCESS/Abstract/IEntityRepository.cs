@@ -11,30 +11,30 @@ namespace Flowey.DATACCESS.Abstract
     public interface IEntityRepository<TEntity> where TEntity : class, IEntity, new()
     {
         #region Add Methods
-        Task<int> AddAsync(TEntity entity);
-        int Add(TEntity entity);
-        int AddRange(IEnumerable<TEntity> entities);
-        Task<int> AddRangeAsync(IEnumerable<TEntity> entities);
+        Task AddAsync(TEntity entity);
+        void Add(TEntity entity);
+        void AddRange(IEnumerable<TEntity> entities);
+        Task AddRangeAsync(IEnumerable<TEntity> entities);
 
         #endregion
 
         #region Update Methods
-        Task<int> UpdateAsync(TEntity entity);
-        int Update(TEntity entity);
-        int UpdateRange(List<TEntity> entities);
-        Task<int> UpdateRangeAsync(List<TEntity> entities);
+        Task UpdateAsync(TEntity entity);
+        void Update(TEntity entity);
+        void UpdateRange(List<TEntity> entities);
+        Task UpdateRangeAsync(List<TEntity> entities);
 
         #endregion
 
         #region Delete Methods
-        Task<int> DeleteAsync(Guid id);
-        int Delete(Guid id);
-        Task<int> DeleteAsync(TEntity entity);
-        int Delete(TEntity entity);
-        int SoftDelete(TEntity entity);
-        Task<int> SoftDeleteAsync(TEntity entity);
-        bool DeleteRange(Expression<Func<TEntity, bool>> predicate);
-        Task<bool> DeleteRangeAsync(Expression<Func<TEntity, bool>> predicate);
+        Task DeleteAsync(Guid id);
+        void Delete(Guid id);
+        Task DeleteAsync(TEntity entity);
+        void Delete(TEntity entity);
+        void SoftDelete(TEntity entity);
+        Task SoftDeleteAsync(TEntity entity);
+        void DeleteRange(Expression<Func<TEntity, bool>> predicate);
+        Task DeleteRangeAsync(Expression<Func<TEntity, bool>> predicate);
 
         #endregion
 

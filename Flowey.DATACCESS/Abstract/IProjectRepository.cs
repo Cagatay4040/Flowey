@@ -18,8 +18,8 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Insert Methods
 
-        Task<int> AddWithCreatorAsync(Project project, Guid userId);
-        Task<int> AddUserToProjectAsync(ProjectUserRole projectUserRole);
+        System.Threading.Tasks.Task AddWithCreatorAsync(Project project, Guid userId);
+        System.Threading.Tasks.Task AddUserToProjectAsync(ProjectUserRole projectUserRole);
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Flowey.DATACCESS.Abstract
 
         #region Delete Methods
 
-        Task<int> RemoveUserFromProjectAsync(ProjectUserRole projectUserRole);
+        System.Threading.Tasks.Task RemoveUserFromProjectAsync(ProjectUserRole projectUserRole);
 
         #endregion
     }

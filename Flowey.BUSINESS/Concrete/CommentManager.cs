@@ -24,8 +24,9 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IUserNotificationService _userNotificationService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CommentManager(ICommentRepository commentRepository, ITaskRepository taskRepository, IMapper mapper, IUserNotificationService userNotificationService, ICurrentUserService currentUserService, IUserRepository userRepository)
+        public CommentManager(ICommentRepository commentRepository, ITaskRepository taskRepository, IMapper mapper, IUserNotificationService userNotificationService, ICurrentUserService currentUserService, IUserRepository userRepository, IUnitOfWork unitOfWork)
         {
             _commentRepository = commentRepository;
             _taskRepository = taskRepository;
@@ -33,6 +34,7 @@ namespace Flowey.BUSINESS.Concrete
             _userNotificationService = userNotificationService;
             _currentUserService = currentUserService;
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         #region Get Methods
@@ -60,7 +62,8 @@ namespace Flowey.BUSINESS.Concrete
             var comment = _mapper.Map<Comment>(dto);
             comment.Content = cleanContent;
 
-            int effectedRow = await _commentRepository.AddAsync(comment);
+            await _commentRepository.AddAsync(comment);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
@@ -139,7 +142,8 @@ namespace Flowey.BUSINESS.Concrete
 
             existingComment.Content = cleanContent;
 
-            int effectedRow = await _commentRepository.UpdateAsync(existingComment);
+            await _commentRepository.UpdateAsync(existingComment);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.CommentUpdated);
@@ -158,7 +162,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingStep == null) 
                 return new Result(ResultStatus.Error, Messages.CommentNotFound);
 
-            int effectedRow =  await _commentRepository.SoftDeleteAsync(existingStep);
+            await _commentRepository.SoftDeleteAsync(existingStep);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.CommentDeleted);

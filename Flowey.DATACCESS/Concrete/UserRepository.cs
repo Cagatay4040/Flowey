@@ -46,11 +46,10 @@ namespace Flowey.DATACCESS.Concrete
 
         #region Insert Methods
 
-        public async Task<int> SubscribeUserAsync(User user, UserSubscription subscription)
+        public async System.Threading.Tasks.Task SubscribeUserAsync(User user, UserSubscription subscription)
         {
             await _context.UserSubscriptions.AddAsync(subscription);
             _context.Users.Update(user);
-            return await _context.SaveChangesAsync();
         }
 
         #endregion

@@ -22,12 +22,14 @@ namespace Flowey.BUSINESS.Concrete
         private readonly IProjectRepository _projectRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProjectManager(IProjectRepository projectRepository, IMapper mapper, ICurrentUserService currentUserService)
+        public ProjectManager(IProjectRepository projectRepository, IMapper mapper, ICurrentUserService currentUserService, IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
             _mapper = mapper;
             _currentUserService = currentUserService;
+            _unitOfWork = unitOfWork;
         }
 
         #region Get Methods
@@ -82,7 +84,8 @@ namespace Flowey.BUSINESS.Concrete
         {
             var project = _mapper.Map<Project>(dto);
 
-            int effectedRow = await _projectRepository.AddAsync(project);
+            await _projectRepository.AddAsync(project);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectAdded);
@@ -94,7 +97,8 @@ namespace Flowey.BUSINESS.Concrete
         {
             var project = _mapper.Map<Project>(dto);
 
-            int effectedRow = await _projectRepository.AddWithCreatorAsync(project, _currentUserService.GetUserId().Value);
+            await _projectRepository.AddWithCreatorAsync(project, _currentUserService.GetUserId().Value);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectAdded);
@@ -110,7 +114,8 @@ namespace Flowey.BUSINESS.Concrete
             if (isExists)
                 return new Result(ResultStatus.Error, Messages.ProjectAlreadyAssignedToUser);
 
-            int effectedRow = await _projectRepository.AddUserToProjectAsync(projectUser);
+            await _projectRepository.AddUserToProjectAsync(projectUser);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectAssigned);
@@ -131,7 +136,8 @@ namespace Flowey.BUSINESS.Concrete
 
             _mapper.Map(dto, existingProject);
 
-            int effectedRow = await _projectRepository.UpdateAsync(existingProject);
+            await _projectRepository.UpdateAsync(existingProject);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectUpdated);
@@ -150,7 +156,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingProject == null)
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);
 
-            int effectedRow = await _projectRepository.DeleteAsync(existingProject);
+            await _projectRepository.DeleteAsync(existingProject);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectDeleted);
@@ -165,7 +172,8 @@ namespace Flowey.BUSINESS.Concrete
             if (existingProject == null)
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);
 
-            int effectedRow = await _projectRepository.SoftDeleteAsync(existingProject);
+            await _projectRepository.SoftDeleteAsync(existingProject);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectDeleted);
@@ -180,7 +188,8 @@ namespace Flowey.BUSINESS.Concrete
             if (relation == null)
                 return new Result(ResultStatus.Error, Messages.ProjectUserNotFound);
 
-            int effectedRow = await _projectRepository.RemoveUserFromProjectAsync(relation);
+            await _projectRepository.RemoveUserFromProjectAsync(relation);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
                 return new Result(ResultStatus.Success, Messages.ProjectRemoveUser);

@@ -22,80 +22,73 @@ namespace Flowey.DATACCESS.Concrete
         }
 
         #region Insert Methods
-        public virtual async Task<int> AddAsync(TEntity entity)
+        public virtual async Task AddAsync(TEntity entity)
         {
             await this.entity.AddAsync(entity);
-            return await dbContext.SaveChangesAsync();
-
         }
 
-        public virtual int Add(TEntity entity)
+        public virtual void Add(TEntity entity)
         {
             this.entity.Add(entity);
-            return dbContext.SaveChanges();
         }
 
-        public virtual async Task<int> AddRangeAsync(IEnumerable<TEntity> entities)
+        public virtual async Task AddRangeAsync(IEnumerable<TEntity> entities)
         {
             if (entities != null && !entities.Any())
-                return 0;
+                return;
 
             await entity.AddRangeAsync(entities);
-            return await dbContext.SaveChangesAsync();
         }
 
-        public virtual int AddRange(IEnumerable<TEntity> entities)
+        public virtual void AddRange(IEnumerable<TEntity> entities)
         {
             if (entities != null && !entities.Any())
-                return 0;
+                return;
 
-            entity.AddRange(entity);
-            return dbContext.SaveChanges();
+            entity.AddRange(entities);
         }
         #endregion
 
         #region Update Methods
-        public virtual async Task<int> UpdateAsync(TEntity entity)
+        public virtual Task UpdateAsync(TEntity entity)
         {
             this.entity.Attach(entity);
             dbContext.Entry(entity).State = EntityState.Modified;
-            return await dbContext.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
-        public virtual int Update(TEntity entity)
+        public virtual void Update(TEntity entity)
         {
             this.entity.Attach(entity);
             dbContext.Entry(entity).State = EntityState.Modified;
-            return dbContext.SaveChanges();
         }
 
-        public virtual int UpdateRange(List<TEntity> entities)
+        public virtual void UpdateRange(List<TEntity> entities)
         {
             dbContext.UpdateRange(entities);
-            return dbContext.SaveChanges();
         }
 
-        public virtual async Task<int> UpdateRangeAsync(List<TEntity> entities)
+        public virtual Task UpdateRangeAsync(List<TEntity> entities)
         {
             dbContext.UpdateRange(entities);
-            return await dbContext.SaveChangesAsync();
+            return Task.CompletedTask;
         }
         #endregion
 
         #region Delete Methods
-        public virtual Task<int> DeleteAsync(Guid id)
+        public virtual Task DeleteAsync(Guid id)
         {
             var entity = this.entity.Find(id);
             return DeleteAsync(entity);
         }
 
-        public virtual int Delete(Guid id)
+        public virtual void Delete(Guid id)
         {
             var entity = this.entity.Find(id);
-            return Delete(entity);
+            Delete(entity);
         }
 
-        public virtual Task<int> DeleteAsync(TEntity entity)
+        public virtual Task DeleteAsync(TEntity entity)
         {
             if (dbContext.Entry(entity).State == EntityState.Detached)
             {
@@ -104,10 +97,10 @@ namespace Flowey.DATACCESS.Concrete
 
             this.entity.Remove(entity);
 
-            return dbContext.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
-        public virtual int Delete(TEntity entity)
+        public virtual void Delete(TEntity entity)
         {
             if (dbContext.Entry(entity).State == EntityState.Detached)
             {
@@ -115,36 +108,32 @@ namespace Flowey.DATACCESS.Concrete
             }
 
             this.entity.Remove(entity);
-
-            return dbContext.SaveChanges();
         }
 
-        public virtual int SoftDelete(TEntity entity)
+        public virtual void SoftDelete(TEntity entity)
         {
             entity.GetType().GetProperty("IsActive").SetValue(entity, false);
             this.entity.Attach(entity);
             dbContext.Entry(entity).State = EntityState.Modified;
-            return dbContext.SaveChanges();
         }
 
-        public async virtual Task<int> SoftDeleteAsync(TEntity entity)
+        public async virtual Task SoftDeleteAsync(TEntity entity)
         {
             entity.GetType().GetProperty("IsActive").SetValue(entity, false);
             this.entity.Attach(entity);
             dbContext.Entry(entity).State = EntityState.Modified;
-            return await dbContext.SaveChangesAsync();
+            await Task.CompletedTask;
         }
 
-        public virtual bool DeleteRange(Expression<Func<TEntity, bool>> predicate)
+        public virtual void DeleteRange(Expression<Func<TEntity, bool>> predicate)
         {
             dbContext.RemoveRange(entity.Where(predicate));
-            return dbContext.SaveChanges() > 0;
         }
 
-        public virtual async Task<bool> DeleteRangeAsync(Expression<Func<TEntity, bool>> predicate)
+        public virtual async Task DeleteRangeAsync(Expression<Func<TEntity, bool>> predicate)
         {
             dbContext.RemoveRange(entity.Where(predicate));
-            return await dbContext.SaveChangesAsync() > 0;
+            await Task.CompletedTask;
         }
         #endregion
 
