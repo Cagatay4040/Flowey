@@ -16,7 +16,7 @@ namespace Flowey.API.Filters
         private readonly ICurrentUserService _currentUserService;
         private readonly IPermissionService _permissionService;
 
-        public StepAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService, ITaskService taskService)
+        public StepAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService)
         {
             _allowedRoles = allowedRoles;
             _currentUserService = currentUserService;

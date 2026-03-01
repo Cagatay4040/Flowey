@@ -1,10 +1,11 @@
 ﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Task;
+using Flowey.BUSINESS.Features.Tasks.Commands;
+using Flowey.BUSINESS.Features.Tasks.Queries;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Flowey.API.Controllers
@@ -14,18 +15,18 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class TaskController : ControllerBase
     {
-        private readonly ITaskService _taskService;
+        private readonly ISender _sender;
 
-        public TaskController(ITaskService tasktService)
+        public TaskController(ISender sender)
         {
-            _taskService = tasktService;
+            _sender = sender;
         }
 
         [HttpGet("GetProjectTasks")]
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
-        public async Task<IActionResult> GetProjectTasks([FromBody] Guid projectId)
+        public async Task<IActionResult> GetProjectTasks([FromQuery] Guid projectId)
         {
-            var result = await _taskService.GetProjectTasksAsync(projectId);
+            var result = await _sender.Send(new GetProjectTasksQuery(projectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -34,7 +35,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetTaskHistory([FromQuery] Guid taskId)
         {
-            var result = await _taskService.GetTaskHistoryAsync(taskId);
+            var result = await _sender.Send(new GetTaskHistoryQuery(taskId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -43,7 +44,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)
         {
-            var result = await _taskService.AddTaskAsync(task);
+            var result = await _sender.Send(new AddTaskCommand(task));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -52,7 +53,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> ChangeAssignTask([FromBody] TaskAssignDTO task)
         {
-            var result = await _taskService.ChangeAssignTaskAsync(task);
+            var result = await _sender.Send(new ChangeAssignTaskCommand(task));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -61,7 +62,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> ChangeStepTask([FromBody] TaskStepDTO task)
         {
-            var result = await _taskService.ChangeStepTaskAsync(task);
+            var result = await _sender.Send(new ChangeStepTaskCommand(task));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -70,7 +71,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateTask([FromBody] TaskUpdateDTO task)
         {
-            var result = await _taskService.UpdateAsync(task);
+            var result = await _sender.Send(new UpdateTaskCommand(task));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -79,7 +80,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> DeleteTask([FromBody] Guid taskId)
         {
-            var result = await _taskService.SoftDeleteAsync(taskId);
+            var result = await _sender.Send(new SoftDeleteTaskCommand(taskId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

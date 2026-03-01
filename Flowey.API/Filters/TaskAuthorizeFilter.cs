@@ -17,7 +17,7 @@ namespace Flowey.API.Filters
         private readonly ICurrentUserService _currentUserService;
         private readonly IPermissionService _permissionService;
 
-        public TaskAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService, ITaskService taskService)
+        public TaskAuthorizeFilter(RoleType[] allowedRoles, ICurrentUserService currentUserService, IPermissionService permissionService)
         {
             _allowedRoles = allowedRoles;
             _currentUserService = currentUserService;

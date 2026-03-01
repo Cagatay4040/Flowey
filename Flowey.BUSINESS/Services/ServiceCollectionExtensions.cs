@@ -40,7 +40,6 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IRoleService, RoleManager>();
             serviceCollection.AddScoped<IProjectService, ProjectManager>();
             serviceCollection.AddScoped<IStepService, StepManager>();
-            serviceCollection.AddScoped<ITaskService, TaskManager>();
             serviceCollection.AddScoped<IUserService, UserManager>();
             serviceCollection.AddScoped<ICommentService, CommentManager>();
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();
@@ -49,6 +48,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUserNotificationService, UserNotificationManager>();
 
             serviceCollection.AddAutoMapper(typeof(ServiceCollectionExtensions));
+            serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             serviceCollection.AddScoped<IPasswordHasher<User>, BcryptPasswordHasher<User>>();
 
