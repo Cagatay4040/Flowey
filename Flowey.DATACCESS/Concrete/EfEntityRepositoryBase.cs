@@ -195,20 +195,22 @@ namespace Flowey.DATACCESS.Concrete
 
         public virtual async Task<TEntity> GetByIdAsync(Guid id, bool noTracking = true, params Expression<Func<TEntity, object>>[] includes)
         {
-            TEntity found = await entity.FindAsync(id);
+            IQueryable<TEntity> query = dbContext.Set<TEntity>().AsQueryable();
 
-            if (found == null)
-                return null;
-
-            if (noTracking)
-                dbContext.Entry(found).State = EntityState.Detached;
-
-            foreach (Expression<Func<TEntity, object>> include in includes)
+            if (includes != null && includes.Any())
             {
-                dbContext.Entry(found).Reference(include).Load();
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
             }
 
-            return found;
+            if (noTracking)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
         }
 
         public virtual bool Any(Expression<Func<TEntity, bool>> predicate)

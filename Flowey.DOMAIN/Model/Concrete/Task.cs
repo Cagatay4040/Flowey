@@ -11,6 +11,11 @@ namespace Flowey.DOMAIN.Model.Concrete
 {
     public class Task : BaseEntity, IEntity
     {
+        public Task()
+        {
+            TaskHistories = new List<TaskHistory>();
+        }
+
         public string Title { get; set; }
         public string TaskKey { get; set; }
         public string Description { get; set; }

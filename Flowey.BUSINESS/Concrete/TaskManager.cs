@@ -184,12 +184,16 @@ namespace Flowey.BUSINESS.Concrete
 
             task.Description = dto.Description.ToSafeRichText();
 
-            await _taskRepository.AddAsync(task);
-            await _taskHistoryRepository.AddAsync(new TaskHistory
+            task.TaskHistories = new List<TaskHistory>
             {
-                TaskId = task.Id,
-                StepId = task.CurrentStepId
-            });
+                new TaskHistory
+                {
+                    TaskId = task.Id,
+                    StepId = task.CurrentStepId
+                }
+            };
+
+            await _taskRepository.AddAsync(task);
 
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
@@ -205,7 +209,7 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> UpdateAsync(TaskUpdateDTO dto)
         {
-            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId);
+            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId, false, x => x.TaskHistories);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
@@ -214,7 +218,15 @@ namespace Flowey.BUSINESS.Concrete
 
             existingTask.Description = dto.Description.ToSafeRichText();
 
+            existingTask.TaskHistories.Add(new TaskHistory
+            {
+                TaskId = existingTask.Id,
+                UserId = existingTask.AssigneeId,
+                StepId = existingTask.CurrentStepId
+            });
+
             await _taskRepository.UpdateAsync(existingTask);
+
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
@@ -228,21 +240,21 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> ChangeAssignTaskAsync(TaskAssignDTO dto)
         {
-            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId);
+            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId, false, x => x.TaskHistories);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
             existingTask.AssigneeId = dto.UserId;
 
-            await _taskRepository.UpdateAsync(existingTask);
-
-            await _taskHistoryRepository.AddAsync(new TaskHistory
+            existingTask.TaskHistories.Add(new TaskHistory
             {
                 TaskId = existingTask.Id,
                 UserId = dto.UserId,
                 StepId = existingTask.CurrentStepId
             });
+
+            await _taskRepository.UpdateAsync(existingTask);
 
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
@@ -274,21 +286,21 @@ namespace Flowey.BUSINESS.Concrete
 
         public async Task<IResult> ChangeStepTaskAsync(TaskStepDTO dto)
         {
-            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId);
+            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId, false, x => x.TaskHistories);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
             existingTask.CurrentStepId = dto.NewStepId;
 
-            await _taskRepository.UpdateAsync(existingTask);
-
-            await _taskHistoryRepository.AddAsync(new TaskHistory
+            existingTask.TaskHistories.Add(new TaskHistory
             {
                 TaskId = existingTask.Id,
                 UserId = existingTask.AssigneeId,
                 StepId = existingTask.CurrentStepId
             });
+
+            await _taskRepository.UpdateAsync(existingTask);
 
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
