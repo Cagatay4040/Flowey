@@ -1,65 +1,72 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Comment;
+using Flowey.BUSINESS.DTO.Notification;
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Constants;
+using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using Flowey.CORE.DataAccess.Abstract;
-using Flowey.BUSINESS.DTO.Notification;
 
-namespace Flowey.BUSINESS.Concrete
+namespace Flowey.BUSINESS.Features.Comments.Commands
 {
-    public class CommentManager : ICommentService
+    public class AddCommentCommand : IRequest<IResult>
+    {
+        public CommentAddDTO Dto { get; set; }
+
+        public AddCommentCommand(CommentAddDTO dto)
+        {
+            Dto = dto;
+        }
+    }
+
+    public class AddCommentCommandHandler : IRequestHandler<AddCommentCommand, IResult>
     {
         private readonly ICommentRepository _commentRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IUserNotificationService _userNotificationService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CommentManager(ICommentRepository commentRepository, ITaskRepository taskRepository, IMapper mapper, IUserNotificationService userNotificationService, ICurrentUserService currentUserService, IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public AddCommentCommandHandler(
+            ICommentRepository commentRepository,
+            ITaskRepository taskRepository,
+            IMapper mapper,
+            IUnitOfWork unitOfWork,
+            IUserNotificationService userNotificationService,
+            ICurrentUserService currentUserService,
+            IUserRepository userRepository)
         {
             _commentRepository = commentRepository;
             _taskRepository = taskRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
             _userNotificationService = userNotificationService;
             _currentUserService = currentUserService;
             _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
         }
 
-        #region Get Methods
-
-        public async Task<IDataResult<List<CommentGetDTO>>> GetByTaskIdAsync(Guid taskId)
+        public async Task<IResult> Handle(AddCommentCommand request, CancellationToken cancellationToken)
         {
-            var comments = await _commentRepository.GetList(c => c.TaskId == taskId && c.IsActive, includes: x => x.User);
-            var commentDtos = _mapper.Map<List<CommentGetDTO>>(comments).OrderByDescending(c => c.CreatedDate).ToList();
-            return new DataResult<List<CommentGetDTO>>(ResultStatus.Success, Messages.CommentListed, commentDtos);
-        }
-
-        #endregion
-
-        #region Insert Methods
-
-        public async Task<IResult> AddAsync(CommentAddDTO dto)
-        {
-            var existingTask = await _taskRepository.AnyAsync(x => x.Id == dto.TaskId);
+            var existingTask = await _taskRepository.AnyAsync(x => x.Id == request.Dto.TaskId);
 
             if (!existingTask)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            var cleanContent = dto.Content.ToSafeRichText();
+            var cleanContent = request.Dto.Content.ToSafeRichText();
 
-            var comment = _mapper.Map<Comment>(dto);
+            var comment = _mapper.Map<Comment>(request.Dto);
             comment.Content = cleanContent;
 
             await _commentRepository.AddAsync(comment);
@@ -67,7 +74,7 @@ namespace Flowey.BUSINESS.Concrete
 
             if (effectedRow > 0)
             {
-                await SendMentionNotificationsAsync(cleanContent, dto.TaskId);
+                await SendMentionNotificationsAsync(cleanContent, request.Dto.TaskId);
                 return new Result(ResultStatus.Success, Messages.CommentAdded);
             }
 
@@ -92,7 +99,7 @@ namespace Flowey.BUSINESS.Concrete
             {
                 if (mentionedUserId != currentUserId)
                 {
-                    await _userNotificationService.AddUserNotificationAsync(new BUSINESS.DTO.Notification.UserNotificationAddDTO
+                    await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
                     {
                         UserId = mentionedUserId,
                         SenderId = currentUserId,
@@ -109,10 +116,10 @@ namespace Flowey.BUSINESS.Concrete
             var userIds = new List<Guid>();
             if (string.IsNullOrWhiteSpace(htmlContent)) return userIds;
 
-            var regex = new System.Text.RegularExpressions.Regex(@"data-id=""([a-fA-F0-9\-]{36})""");
+            var regex = new Regex(@"data-id=""([a-fA-F0-9\-]{36})""");
             var matches = regex.Matches(htmlContent);
 
-            foreach (System.Text.RegularExpressions.Match match in matches)
+            foreach (Match match in matches)
             {
                 if (match.Groups.Count > 1 && Guid.TryParse(match.Groups[1].Value, out Guid parsedId))
                 {
@@ -124,54 +131,5 @@ namespace Flowey.BUSINESS.Concrete
             }
             return userIds;
         }
-
-        #endregion
-
-        #region Update Methods
-
-        public async Task<IResult> UpdateAsync(CommentUpdateDTO dto)
-        {
-            var existingComment = await _commentRepository.GetByIdAsync(dto.CommentId);
-
-            if (existingComment == null)
-                return new Result(ResultStatus.Error, Messages.CommentNotFound);
-
-            var cleanContent = dto.Content.ToSafeRichText();
-
-            _mapper.Map(dto, existingComment);
-
-            existingComment.Content = cleanContent;
-
-            await _commentRepository.UpdateAsync(existingComment);
-            int effectedRow = await _unitOfWork.SaveChangesAsync();
-
-            if (effectedRow > 0)
-                return new Result(ResultStatus.Success, Messages.CommentUpdated);
-
-            return new Result(ResultStatus.Error, Messages.CommentUpdateError);
-        }
-
-        #endregion
-
-        #region Delete Methods
-
-        public async Task<IResult> DeleteAsync(Guid id)
-        {
-            var existingStep = await _commentRepository.GetByIdAsync(id);
-
-            if (existingStep == null) 
-                return new Result(ResultStatus.Error, Messages.CommentNotFound);
-
-            await _commentRepository.SoftDeleteAsync(existingStep);
-            int effectedRow = await _unitOfWork.SaveChangesAsync();
-
-            if (effectedRow > 0)
-                return new Result(ResultStatus.Success, Messages.CommentDeleted);
-
-            return new Result(ResultStatus.Error, Messages.CommentDeleteError);
-        }
-
-        #endregion
-
     }
 }

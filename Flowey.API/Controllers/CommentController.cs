@@ -1,8 +1,10 @@
 using Flowey.API.Attributes;
-using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Comment;
+using Flowey.BUSINESS.Features.Comments.Queries;
+using Flowey.BUSINESS.Features.Comments.Commands;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,18 +17,18 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        private readonly ICommentService _commentService;
+        private readonly ISender _sender;
 
-        public CommentController(ICommentService commentService)
+        public CommentController(ISender sender)
         {
-            _commentService = commentService;
+            _sender = sender;
         }
 
         [HttpGet("task/{taskId}")]
         [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetByTaskId(Guid taskId)
         {
-            var result = await _commentService.GetByTaskIdAsync(taskId);
+            var result = await _sender.Send(new GetCommentsByTaskIdQuery(taskId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -35,7 +37,7 @@ namespace Flowey.API.Controllers
         [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddComment([FromBody] CommentAddDTO dto)
         {
-            var result = await _commentService.AddAsync(dto);
+            var result = await _sender.Send(new AddCommentCommand(dto));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -44,7 +46,7 @@ namespace Flowey.API.Controllers
         [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateDTO dto)
         {
-            var result = await _commentService.UpdateAsync(dto);
+            var result = await _sender.Send(new UpdateCommentCommand(dto));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -53,7 +55,7 @@ namespace Flowey.API.Controllers
         [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> DeleteComment(Guid commentId)
         {
-            var result = await _commentService.DeleteAsync(commentId);
+            var result = await _sender.Send(new DeleteCommentCommand(commentId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
