@@ -1,11 +1,15 @@
 ﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Step;
+using Flowey.BUSINESS.Features.Steps.Commands;
+using Flowey.BUSINESS.Features.Steps.Queries;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Flowey.API.Controllers
 {
@@ -14,17 +18,17 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class StepController : ControllerBase
     {
-        private readonly IStepService _stepService;
+        private readonly ISender _sender;
 
-        public StepController(IStepService stepService)
+        public StepController(ISender sender)
         {
-            _stepService = stepService;
+            _sender = sender;
         }
 
         [HttpGet("GetBoardData")]
         public async Task<IActionResult> GetBoardData([FromQuery] Guid projectId, [FromQuery] List<Guid> userIds, [FromQuery] bool includeUnassigned = false)
         {
-            var result = await _stepService.GetBoardDataAsync(projectId, userIds, includeUnassigned);
+            var result = await _sender.Send(new GetBoardDataQuery(projectId, userIds, includeUnassigned));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -32,7 +36,7 @@ namespace Flowey.API.Controllers
         [HttpGet("GetProjectSteps")]
         public async Task<IActionResult> GetProjectSteps([FromQuery] Guid projectId)
         {
-            var result = await _stepService.GetProjectSteps(projectId);
+            var result = await _sender.Send(new GetProjectStepsQuery(projectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -41,7 +45,7 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> AddStep([FromBody] StepAddDTO step)
         {
-            var result = await _stepService.AddStepAsync(step);
+            var result = await _sender.Send(new AddStepCommand(step));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -50,7 +54,7 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> AddSteps([FromBody] List<StepAddDTO> steps)
         {
-            var result = await _stepService.AddRangeStepAsync(steps);
+            var result = await _sender.Send(new AddRangeStepCommand(steps));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -59,7 +63,7 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> UpdateStep([FromBody] StepUpdateDTO step)
         {
-            var result = await _stepService.UpdateStepAsync(step);
+            var result = await _sender.Send(new UpdateStepCommand(step));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -68,7 +72,7 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> UpdateSteps([FromBody] List<StepUpdateDTO> steps)
         {
-            var result = await _stepService.UpdateRangeStepAsync(steps);
+            var result = await _sender.Send(new UpdateRangeStepCommand(steps));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -77,7 +81,7 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin)]
         public async Task<IActionResult> DeleteStep([FromBody] Guid stepId)
         {
-            var result = await _stepService.SoftDeleteAsync(stepId);
+            var result = await _sender.Send(new SoftDeleteStepCommand(stepId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
