@@ -7,16 +7,16 @@ import 'react-quill-new/dist/quill.snow.css';
 import { projectService } from '../../services/projectService';
 import { Mention, MentionBlot } from 'quill-mention';
 import 'quill-mention/dist/quill.mention.css';
-
 Quill.register({ 'blots/mention': MentionBlot, 'modules/mention': Mention });
 
 const TaskModal = ({ task, onClose, onUpdate }) => {
     const { user } = useAuth();
+    const descriptionQuillRef = React.useRef(null);
+    const commentQuillRef = React.useRef(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
-    const [isDragging, setIsDragging] = useState(false);
     const [activeTab, setActiveTab] = useState('comments');
     const [taskHistory, setTaskHistory] = useState([]);
     const [projectUsers, setProjectUsers] = useState([]);
@@ -51,14 +51,102 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                 }
             },
         },
-        toolbar: [
-            [{ 'header': [1, 2, false] }],
-            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            ['link', 'image'],
-            ['clean']
-        ]
+        toolbar: {
+            container: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image'],
+                ['clean']
+            ],
+            handlers: {
+                image: function () {
+                    const input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    input.click();
+
+                    input.onchange = async () => {
+                        const file = input.files[0];
+                        if (file) {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            try {
+                                const res = await api.post('/Attachment/Upload', formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                });
+                                const url = res.data.url;
+                                const quill = this.quill;
+                                const range = quill.getSelection(true);
+                                quill.insertEmbed(range.index, 'image', url);
+                                quill.setSelection(range.index + 1);
+                            } catch (err) {
+                                console.error("Upload failed", err);
+                            }
+                        }
+                    };
+                }
+            }
+        }
     }), [projectUsers]);
+
+    const uploadFileAndInsert = async (file, quillRef) => {
+        if (!file || !quillRef.current) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const res = await api.post('/Attachment/Upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const url = res.data.url;
+            const quill = quillRef.current.getEditor();
+            let range = quill.getSelection(true);
+            if (!range) {
+                range = { index: quill.getLength(), length: 0 };
+            }
+            quill.insertEmbed(range.index, 'image', url);
+            quill.setSelection(range.index + 1);
+        } catch (err) {
+            console.error("Upload failed", err);
+        }
+    };
+
+    const handlePaste = async (e, quillRef) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        let hasImage = false;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                hasImage = true;
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.nativeEvent) {
+                    e.nativeEvent.stopImmediatePropagation();
+                }
+                const blob = items[i].getAsFile();
+                await uploadFileAndInsert(blob, quillRef);
+            }
+        }
+    };
+
+    const handleDrop = async (e, quillRef) => {
+        const files = e.dataTransfer?.files;
+        if (!files) return;
+
+        let hasImage = false;
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].type.indexOf('image') !== -1) {
+                hasImage = true;
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.nativeEvent) {
+                    e.nativeEvent.stopImmediatePropagation();
+                }
+                await uploadFileAndInsert(files[i], quillRef);
+            }
+        }
+    };
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
@@ -89,55 +177,6 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
         }
     };
 
-    const uploadFile = async (file) => {
-        if (!file) return;
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const res = await api.post('/Attachment/Upload', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            const url = res.data.url;
-            setNewComment(prev => prev + `<img src="${url}" />`);
-        } catch (err) {
-            console.error("Upload failed", err);
-        }
-    };
-
-    const handlePaste = async (e) => {
-        // Only handle real clipboard events with files
-        const items = e.clipboardData?.items;
-        if (!items) return;
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf('image') !== -1) {
-                // Prevent Quill's default paste for images if we intercept it
-                const blob = items[i].getAsFile();
-                await uploadFile(blob);
-            }
-        }
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDragging(false);
-    };
-
-    const handleDrop = async (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const files = e.dataTransfer.files;
-        for (let i = 0; i < files.length; i++) {
-            if (files[i].type.indexOf('image') !== -1) {
-                await uploadFile(files[i]);
-            }
-        }
-    };
-
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[95vh] flex flex-col overflow-hidden">
@@ -162,14 +201,21 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
 
                     <div className="flex-1 flex flex-col min-h-[300px]">
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                        <ReactQuill
-                            theme="snow"
+                        <div
                             className="flex-1 bg-white mb-2 h-[calc(100%-3rem)]"
-                            value={description || ''}
-                            onChange={setDescription}
-                            modules={quillModules}
-                            placeholder="Add a description..."
-                        />
+                            onPasteCapture={(e) => handlePaste(e, descriptionQuillRef)}
+                            onDropCapture={(e) => handleDrop(e, descriptionQuillRef)}
+                        >
+                            <ReactQuill
+                                ref={descriptionQuillRef}
+                                theme="snow"
+                                className="h-full"
+                                value={description || ''}
+                                onChange={setDescription}
+                                modules={quillModules}
+                                placeholder="Add a description..."
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -221,18 +267,15 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
 
                             <form
                                 onSubmit={handleCommentSubmit}
-                                className={`mt-auto shrink-0 relative transition-colors ${isDragging ? 'bg-blue-50 ring-2 ring-blue-400' : ''}`}
-                                onDragOver={handleDragOver}
-                                onDragLeave={handleDragLeave}
-                                onDrop={handleDrop}
+                                className="mt-auto shrink-0 relative transition-colors"
                             >
-                                {isDragging && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-blue-100 bg-opacity-90 rounded z-10 border-2 border-dashed border-blue-500 text-blue-700 font-semibold pointer-events-none">
-                                        Drop image to upload
-                                    </div>
-                                )}
-                                <div onPaste={handlePaste} className="mb-12">
+                                <div
+                                    className="mb-12"
+                                    onPasteCapture={(e) => handlePaste(e, commentQuillRef)}
+                                    onDropCapture={(e) => handleDrop(e, commentQuillRef)}
+                                >
                                     <ReactQuill
+                                        ref={commentQuillRef}
                                         theme="snow"
                                         className="bg-white h-32"
                                         value={newComment}
