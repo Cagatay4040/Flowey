@@ -1,11 +1,15 @@
 ﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Project;
 using Flowey.BUSINESS.DTO.ProjectUser;
+using Flowey.BUSINESS.Features.Projects.Commands;
+using Flowey.BUSINESS.Features.Projects.Queries;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace Flowey.API.Controllers
 {
@@ -14,17 +18,17 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class ProjectController : ControllerBase
     {
-        private readonly IProjectService _projectService;
+        private readonly ISender _sender;
 
-        public ProjectController(IProjectService projectService)
+        public ProjectController(ISender sender)
         {
-            _projectService = projectService;
+            _sender = sender;
         }
         
         [HttpGet("UserProjects")]
         public async Task<IActionResult> UserProjects()
         {
-            var result = await _projectService.GetProjectsByLoginUserAsync();
+            var result = await _sender.Send(new GetUserProjectsQuery());
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -32,7 +36,7 @@ namespace Flowey.API.Controllers
         [HttpGet("MyProjects")]
         public async Task<IActionResult> MyProjects()
         {
-            var result = await _projectService.GetMyProjectsAsync();
+            var result = await _sender.Send(new GetMyProjectsQuery());
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -40,7 +44,7 @@ namespace Flowey.API.Controllers
         [HttpGet("ProjectUsers")]
         public async Task<IActionResult> ProjectUsers([FromQuery] Guid projectId)
         {
-            var result = await _projectService.GetProjectUsersAsync(projectId);
+            var result = await _sender.Send(new GetProjectUsersQuery(projectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -49,7 +53,7 @@ namespace Flowey.API.Controllers
         [Authorize(Policy = "RequirePremium")]
         public async Task<IActionResult> AddProject([FromBody] ProjectAddDTO project)
         {
-            var result = await _projectService.AddWithCreatorAsync(project);
+            var result = await _sender.Send(new AddProjectWithCreatorCommand(project));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -58,7 +62,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddUserToProject([FromBody] ProjectUserAddDTO projectUser)
         {
-            var result = await _projectService.AddUserToProjectAsync(projectUser);
+            var result = await _sender.Send(new AddUserToProjectCommand(projectUser));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -67,7 +71,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectUpdateDTO project)
         {
-            var result = await _projectService.UpdateAsync(project);
+            var result = await _sender.Send(new UpdateProjectCommand(project));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -76,7 +80,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin)]
         public async Task<IActionResult> DeleteProject([FromBody] Guid projectId)
         {
-            var result = await _projectService.SoftDeleteAsync(projectId);
+            var result = await _sender.Send(new SoftDeleteProjectCommand(projectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -85,7 +89,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> RemoveUserFromProject([FromBody] ProjectRemoveUserDTO projectUser)
         {
-            var result = await _projectService.RemoveUserFromProjectAsync(projectUser);
+            var result = await _sender.Send(new RemoveUserFromProjectCommand(projectUser));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
