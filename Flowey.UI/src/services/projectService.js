@@ -18,5 +18,14 @@ export const projectService = {
     update: async (project) => {
         const response = await api.put('/Project/Update', project);
         return response.data;
+    },
+    delete: async (projectId) => {
+        const response = await api.delete('/Project/Delete', {
+            data: projectId,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
     }
 };

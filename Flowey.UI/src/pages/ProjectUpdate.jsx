@@ -16,6 +16,10 @@ const ProjectUpdate = () => {
     const [generalMessage, setGeneralMessage] = useState({ type: '', text: '' });
     const [loadingProject, setLoadingProject] = useState(true);
 
+    // Delete Project Modal State
+    const [showDeleteProjectModal, setShowDeleteProjectModal] = useState(false);
+    const [isDeletingProject, setIsDeletingProject] = useState(false);
+
     // Steps Tab State
     const [steps, setSteps] = useState([]);
     const [loadingSteps, setLoadingSteps] = useState(true);
@@ -84,6 +88,19 @@ const ProjectUpdate = () => {
             setGeneralMessage({ type: 'success', text: 'Project updated successfully.' });
         } catch (error) {
             setGeneralMessage({ type: 'error', text: error.response?.data?.message || 'Failed to update project.' });
+        }
+    };
+
+    const handleDeleteProject = async () => {
+        setIsDeletingProject(true);
+        setGeneralMessage({ type: '', text: '' });
+        try {
+            await projectService.delete(projectId);
+            navigate('/');
+        } catch (error) {
+            setGeneralMessage({ type: 'error', text: error.response?.data?.message || 'Failed to delete project.' });
+            setShowDeleteProjectModal(false);
+            setIsDeletingProject(false);
         }
     };
 
@@ -257,13 +274,23 @@ const ProjectUpdate = () => {
                                             required
                                         />
                                     </div>
-                                    <div className="w-full pt-6">
+                                    <div className="w-full pt-6 flex space-x-4">
                                         <button
                                             type="submit"
-                                            className="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-base shadow-sm transition-colors"
+                                            className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-transparent font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-base shadow-sm transition-colors"
                                         >
                                             Update Project
                                         </button>
+
+                                        {currentUserRole === 'ADMIN' && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowDeleteProjectModal(true)}
+                                                className="inline-flex items-center justify-center px-4 py-3 border border-transparent font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:text-base shadow-sm transition-colors"
+                                            >
+                                                Delete Project
+                                            </button>
+                                        )}
                                     </div>
                                 </form>
                             )}
@@ -380,6 +407,36 @@ const ProjectUpdate = () => {
                         <div className="flex justify-end space-x-3">
                             <button onClick={() => setShowDeleteModal(false)} className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
                             <button onClick={confirmDeleteStep} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete Step</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Project Modal */}
+            {showDeleteProjectModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                        <h3 className="text-xl font-bold mb-4 text-red-600">Delete Project: {projectData?.name}</h3>
+                        <div className="mb-6 text-sm text-gray-600">
+                            <p className="font-medium text-gray-800">Are you absolutely sure you want to delete this project?</p>
+                            <p className="mt-2 text-red-500">This action cannot be undone. All steps, tasks, comments, and project data will be permanently removed.</p>
+                        </div>
+
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setShowDeleteProjectModal(false)}
+                                disabled={isDeletingProject}
+                                className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDeleteProject}
+                                disabled={isDeletingProject}
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 flex items-center"
+                            >
+                                {isDeletingProject ? 'Deleting...' : 'Permanently Delete'}
+                            </button>
                         </div>
                     </div>
                 </div>
