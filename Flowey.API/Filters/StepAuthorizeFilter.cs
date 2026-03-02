@@ -41,6 +41,10 @@ namespace Flowey.API.Filters
             {
                 stepId = directId;
             }
+            else if (context.ActionArguments.TryGetValue("projectId", out var _idObj) && _idObj is Guid _directId)
+            {
+                projectId = _directId;
+            }
             else
             {
                 foreach (var arg in context.ActionArguments.Values)

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { projectService } from '../services/projectService';
 import { stepService } from '../services/stepService';
 
 const ProjectUpdate = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    const currentUserRole = location.state?.currentUserRole || 'EDITOR';
 
     const [activeTab, setActiveTab] = useState('general');
 
@@ -186,7 +188,7 @@ const ProjectUpdate = () => {
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Project Settings</h1>
                 <button
-                    onClick={() => navigate(`/board/${projectId}`)}
+                    onClick={() => navigate(`/board/${projectId}`, { state: { currentUserRole } })}
                     className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 transition"
                 >
                     Back to Board
