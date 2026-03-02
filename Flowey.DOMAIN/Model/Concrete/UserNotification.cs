@@ -20,11 +20,5 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string Message { get; set; } 
         public string? ActionUrl { get; set; } 
         public bool IsRead { get; set; } = false;
-
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public Guid? ModifiedBy { get; set; }
     }
 }

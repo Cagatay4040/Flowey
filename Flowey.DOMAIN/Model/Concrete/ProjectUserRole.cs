@@ -13,11 +13,6 @@ namespace Flowey.DOMAIN.Model.Concrete
         public Guid ProjectId { get; set; }
         public Guid UserId { get; set; }
         public int RoleId { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public Guid? ModifiedBy { get; set; }
 
         public virtual Project Project { get; set; }
         public virtual User User { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Flowey.CORE.DataAccess.Abstract;
+using Flowey.DOMAIN.Model.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -29,7 +30,7 @@ namespace Flowey.DATACCESS.Services
 
             var currentUserId = _currentUserService.GetUserId();
 
-            foreach (var entry in context.ChangeTracker.Entries<IEntity>())
+            foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
             {
                 if (entry.State == EntityState.Added)
                 {

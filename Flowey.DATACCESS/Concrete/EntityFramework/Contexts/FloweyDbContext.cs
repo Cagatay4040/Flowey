@@ -67,16 +67,15 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
             });
 
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, Name = "Admin", Code = "ADMIN", IsActive = true, CreatedDate = DateTime.Now },
-                new Role { Id = 2, Name = "Editor", Code = "EDITOR", IsActive = true, CreatedDate = DateTime.Now },
-                new Role { Id = 3, Name = "Member", Code = "MEMBER", IsActive = true, CreatedDate = DateTime.Now }
+                new Role { Id = 1, Name = "Admin", Code = "ADMIN" },
+                new Role {Id = 2, Name = "Editor", Code = "EDITOR" },
+                new Role {Id = 3, Name = "Member", Code = "MEMBER" }
             );
 
             modelBuilder.Entity<Comment>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<CommentAttachment>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Project>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<ProjectUserRole>().HasQueryFilter(x => x.IsActive);
-            modelBuilder.Entity<Role>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Step>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Task>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<TaskHistory>().HasQueryFilter(x => x.IsActive);

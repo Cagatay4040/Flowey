@@ -15,11 +15,6 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string FileType { get; set; }
         public long FileSize { get; set; }
         public Guid CommentId { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public Guid? ModifiedBy { get; set; }
 
         public virtual Comment TaskComment { get; set; }
     }

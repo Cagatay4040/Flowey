@@ -16,11 +16,6 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string Name { get; set; }
         public string Surname { get; set; }
         public DateTime? PremiumExpirationDate { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public Guid? ModifiedBy { get; set; }
 
         public virtual ICollection<TaskHistory> TaskHistories { get; set; }
         public virtual ICollection<ProjectUserRole> ProjectUserRoles { get; set; }

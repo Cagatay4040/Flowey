@@ -19,10 +19,5 @@ namespace Flowey.DOMAIN.Model.Concrete
         public DateTime EndDate { get; set; }
 
         public decimal Price { get; set; }
-        public bool IsActive { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
-        public DateTime? ModifiedDate { get; set; }
-        public Guid? ModifiedBy { get; set; }
     }
 }
