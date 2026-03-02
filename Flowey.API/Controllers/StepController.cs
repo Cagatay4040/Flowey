@@ -26,6 +26,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpGet("GetBoardData")]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetBoardData([FromQuery] Guid projectId, [FromQuery] List<Guid> userIds, [FromQuery] bool includeUnassigned = false)
         {
             var result = await _sender.Send(new GetBoardDataQuery(projectId, userIds, includeUnassigned));
@@ -34,6 +35,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpGet("GetProjectSteps")]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetProjectSteps([FromQuery] Guid projectId)
         {
             var result = await _sender.Send(new GetProjectStepsQuery(projectId));
@@ -42,7 +44,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddStep")]
-        [StepAuthorize(RoleType.Admin)]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddStep([FromBody] StepAddDTO step)
         {
             var result = await _sender.Send(new AddStepCommand(step));
@@ -51,7 +53,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddSteps")]
-        [StepAuthorize(RoleType.Admin)]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddSteps([FromBody] List<StepAddDTO> steps)
         {
             var result = await _sender.Send(new AddRangeStepCommand(steps));
@@ -60,7 +62,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateStep")]
-        [StepAuthorize(RoleType.Admin)]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateStep([FromBody] StepUpdateDTO step)
         {
             var result = await _sender.Send(new UpdateStepCommand(step));
@@ -69,7 +71,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateSteps")]
-        [StepAuthorize(RoleType.Admin)]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateSteps([FromBody] List<StepUpdateDTO> steps)
         {
             var result = await _sender.Send(new UpdateRangeStepCommand(steps));
@@ -78,7 +80,7 @@ namespace Flowey.API.Controllers
         }
 
         [HttpDelete("DeleteStep")]
-        [StepAuthorize(RoleType.Admin)]
+        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> DeleteStep([FromBody] StepDeleteDTO stepDto)
         {
             var result = await _sender.Send(new SoftDeleteStepCommand(stepDto));
