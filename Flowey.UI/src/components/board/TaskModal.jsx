@@ -9,7 +9,7 @@ import { Mention, MentionBlot } from 'quill-mention';
 import 'quill-mention/dist/quill.mention.css';
 Quill.register({ 'blots/mention': MentionBlot, 'modules/mention': Mention });
 
-const TaskModal = ({ task, onClose, onUpdate }) => {
+const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
     const { user } = useAuth();
     const descriptionQuillRef = React.useRef(null);
     const commentQuillRef = React.useRef(null);
@@ -160,6 +160,20 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
         }
     };
 
+    const handleDeleteTask = async () => {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+            try {
+                await boardService.deleteTask(task.id);
+                if (onDelete) {
+                    onDelete(task.id);
+                }
+                onClose();
+            } catch (error) {
+                console.error("Failed to delete task", error);
+            }
+        }
+    };
+
     const handleSaveTask = async () => {
         try {
             const updated = {
@@ -194,6 +208,7 @@ const TaskModal = ({ task, onClose, onUpdate }) => {
                             </div>
                         </div>
                         <div className="flex space-x-2 shrink-0">
+                            <button onClick={handleDeleteTask} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Delete</button>
                             <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
                             <button onClick={handleSaveTask} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
                         </div>

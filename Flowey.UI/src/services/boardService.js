@@ -28,8 +28,8 @@ export const boardService = {
     updateTask: async (task) => {
         await api.put('/Task/UpdateTask', task);
     },
-    deleteTask: async (id) => {
-        await api.delete(`/Task/DeleteTask/${id}`);
+    deleteTask: async (taskId) => {
+        await api.delete(`/Task/DeleteTask?taskId=${taskId}`);
     },
 
     getTaskHistory: async (taskId) => {

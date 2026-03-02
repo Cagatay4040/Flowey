@@ -150,6 +150,14 @@ const ProjectBoard = () => {
         setSteps(newSteps);
     };
 
+    const handleDeleteTask = (taskId) => {
+        const newSteps = steps.map(step => ({
+            ...step,
+            tasks: step.tasks?.filter(t => t.id !== taskId)
+        }));
+        setSteps(newSteps);
+    };
+
     const handleAssignTask = async (taskId, userId) => {
         try {
             await boardService.changeAssignTask(taskId, userId || null);
@@ -274,6 +282,7 @@ const ProjectBoard = () => {
                         setSearchParams(newSearchParams, { replace: true });
                     }}
                     onUpdate={handleTaskUpdate}
+                    onDelete={handleDeleteTask}
                 />
             )}
 

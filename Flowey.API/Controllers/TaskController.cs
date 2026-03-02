@@ -78,7 +78,7 @@ namespace Flowey.API.Controllers
 
         [HttpDelete("DeleteTask")]
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
-        public async Task<IActionResult> DeleteTask([FromBody] Guid taskId)
+        public async Task<IActionResult> DeleteTask([FromQuery] Guid taskId)
         {
             var result = await _sender.Send(new SoftDeleteTaskCommand(taskId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
