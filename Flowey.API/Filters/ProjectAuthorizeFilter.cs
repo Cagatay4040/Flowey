@@ -24,15 +24,7 @@ namespace Flowey.API.Filters
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var userIdString = _currentUserService.GetUserId().Value.ToString();
-
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                context.Result = new UnauthorizedObjectResult(new Result(ResultStatus.Error, Messages.UnauthorizedAccess));
-                return;
-            }
-
-            var userId = Guid.Parse(userIdString);
+            var userId = _currentUserService.GetUserId().Value;
             Guid projectId = Guid.Empty;
             bool found = false;
 
