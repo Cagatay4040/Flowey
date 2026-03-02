@@ -169,10 +169,7 @@ namespace Flowey.DATACCESS.Concrete
                 query = query.Where(predicate);
             }
 
-            foreach (Expression<Func<TEntity, object>> include in includes)
-            {
-                query = query.Include(include);
-            }
+            query = ApplyIncludes(query, includes);
 
             if (orderBy != null)
             {
@@ -197,13 +194,7 @@ namespace Flowey.DATACCESS.Concrete
         {
             IQueryable<TEntity> query = dbContext.Set<TEntity>().AsQueryable();
 
-            if (includes != null && includes.Any())
-            {
-                foreach (var include in includes)
-                {
-                    query = query.Include(include);
-                }
-            }
+            query = ApplyIncludes(query, includes);
 
             if (noTracking)
             {
