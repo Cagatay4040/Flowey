@@ -14,5 +14,9 @@ export const projectService = {
     create: async (project) => {
         const response = await api.post('/Project/AddProject', project);
         return response.data;
+    },
+    update: async (project) => {
+        const response = await api.put('/Project/Update', project);
+        return response.data;
     }
 };

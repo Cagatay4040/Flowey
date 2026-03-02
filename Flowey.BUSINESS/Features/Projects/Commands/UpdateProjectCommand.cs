@@ -40,7 +40,7 @@ namespace Flowey.BUSINESS.Features.Projects.Commands
 
         public async Task<IResult> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
         {
-            var existingProject = await _projectRepository.GetByIdAsync(request.ProjectUpdateDTO.Id);
+            var existingProject = await _projectRepository.GetByIdAsync(request.ProjectUpdateDTO.ProjectId);
 
             if (existingProject == null)
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);

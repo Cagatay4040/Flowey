@@ -8,6 +8,7 @@ import ProjectsPage from './pages/Projects';
 import ProjectBoard from './pages/ProjectBoard';
 import ProfilePage from './pages/Profile';
 import PremiumPage from './pages/Premium';
+import ProjectUpdate from './pages/ProjectUpdate';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="board/:projectId" element={<ProjectBoard />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="premium" element={<PremiumPage />} />
+          <Route path="project-update/:projectId" element={<ProjectUpdate />} />
         </Route>
       </Routes>
     </AuthProvider>

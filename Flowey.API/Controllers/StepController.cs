@@ -79,9 +79,9 @@ namespace Flowey.API.Controllers
 
         [HttpDelete("DeleteStep")]
         [StepAuthorize(RoleType.Admin)]
-        public async Task<IActionResult> DeleteStep([FromBody] Guid stepId)
+        public async Task<IActionResult> DeleteStep([FromBody] StepDeleteDTO stepDto)
         {
-            var result = await _sender.Send(new SoftDeleteStepCommand(stepId));
+            var result = await _sender.Send(new SoftDeleteStepCommand(stepDto));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
