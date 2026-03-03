@@ -1,71 +1,193 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import ReactQuill, { Quill } from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import { Mention, MentionBlot } from 'quill-mention';
+import 'quill-mention/dist/quill.mention.css';
+import api from '../../services/api';
+import { projectService } from '../../services/projectService';
 
-const CreateTaskModal = ({ onClose, onCreate }) => {
+Quill.register({ 'blots/mention': MentionBlot, 'modules/mention': Mention });
+
+const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const descriptionQuillRef = useRef(null);
+    const [projectUsers, setProjectUsers] = useState([]);
+
+    useEffect(() => {
+        if (projectId) {
+            projectService.getProjectUsers(projectId).then((data) => {
+                setProjectUsers(data.map(u => ({ id: u.id, value: u.fullName })));
+            }).catch(err => console.error("Failed to fetch project users", err));
+        }
+    }, [projectId]);
+
+    const quillModules = useMemo(() => ({
+        mention: {
+            allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
+            mentionDenotationChars: ['@'],
+            source: function (searchTerm, renderList, mentionChar) {
+                if (searchTerm.length === 0) {
+                    renderList(projectUsers, searchTerm);
+                } else {
+                    const matches = projectUsers.filter(user =>
+                        user.value.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                    renderList(matches, searchTerm);
+                }
+            },
+        },
+        toolbar: {
+            container: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image'],
+                ['clean']
+            ],
+            handlers: {
+                image: function () {
+                    const input = document.createElement('input');
+                    input.setAttribute('type', 'file');
+                    input.setAttribute('accept', 'image/*');
+                    input.click();
+
+                    input.onchange = async () => {
+                        const file = input.files[0];
+                        if (file) {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            try {
+                                const res = await api.post('/Attachment/Upload', formData, {
+                                    headers: { 'Content-Type': 'multipart/form-data' }
+                                });
+                                const url = res.data.url;
+                                const quill = this.quill;
+                                const range = quill.getSelection(true);
+                                quill.insertEmbed(range.index, 'image', url);
+                                quill.setSelection(range.index + 1);
+                            } catch (err) {
+                                console.error("Upload failed", err);
+                            }
+                        }
+                    };
+                }
+            }
+        }
+    }), [projectUsers]);
+
+    const uploadFileAndInsert = async (file, quillRef) => {
+        if (!file || !quillRef.current) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const res = await api.post('/Attachment/Upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            const url = res.data.url;
+            const quill = quillRef.current.getEditor();
+            let range = quill.getSelection(true);
+            if (!range) {
+                range = { index: quill.getLength(), length: 0 };
+            }
+            quill.insertEmbed(range.index, 'image', url);
+            quill.setSelection(range.index + 1);
+        } catch (err) {
+            console.error("Upload failed", err);
+        }
+    };
+
+    const handlePaste = async (e, quillRef) => {
+        const items = e.clipboardData?.items;
+        if (!items) return;
+
+        let hasImage = false;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                hasImage = true;
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.nativeEvent) {
+                    e.nativeEvent.stopImmediatePropagation();
+                }
+                const blob = items[i].getAsFile();
+                await uploadFileAndInsert(blob, quillRef);
+            }
+        }
+    };
+
+    const handleDrop = async (e, quillRef) => {
+        const files = e.dataTransfer?.files;
+        if (!files) return;
+
+        let hasImage = false;
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].type.indexOf('image') !== -1) {
+                hasImage = true;
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.nativeEvent) {
+                    e.nativeEvent.stopImmediatePropagation();
+                }
+                await uploadFileAndInsert(files[i], quillRef);
+            }
+        }
+    };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         if (!title.trim()) return;
         onCreate({ title, description });
     };
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-                <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-                    <h2 className="text-lg font-bold text-gray-800">Create New Task</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl h-[80vh] flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col p-6 overflow-y-auto">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="w-full mr-4">
+                            <input
+                                className="text-2xl font-bold text-gray-800 w-full mb-1 border-b border-transparent focus:border-blue-500 focus:outline-none"
+                                value={title}
+                                onChange={e => setTitle(e.target.value)}
+                                placeholder="Task Title"
+                                autoFocus
+                            />
+                            <div className="text-xs text-gray-500">
+                                Create New Task
+                            </div>
+                        </div>
+                        <div className="flex space-x-2 shrink-0">
+                            <button onClick={onClose} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
+                            <button
+                                onClick={handleSubmit}
+                                disabled={!title.trim()}
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                Create Task
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 flex flex-col min-h-[300px]">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                        <div
+                            className="flex-1 bg-white mb-2 h-[calc(100%-3rem)]"
+                            onPasteCapture={(e) => handlePaste(e, descriptionQuillRef)}
+                            onDropCapture={(e) => handleDrop(e, descriptionQuillRef)}
+                        >
+                            <ReactQuill
+                                ref={descriptionQuillRef}
+                                theme="snow"
+                                className="h-full"
+                                value={description}
+                                onChange={setDescription}
+                                modules={quillModules}
+                                placeholder="Add a description..."
+                            />
+                        </div>
+                    </div>
                 </div>
-
-                <form onSubmit={handleSubmit} className="p-6">
-                    <div className="mb-4">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Title
-                        </label>
-                        <input
-                            type="text"
-                            className="w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter task title"
-                            autoFocus
-                        />
-                    </div>
-
-                    <div className="mb-6">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            Content
-                        </label>
-                        <textarea
-                            className="w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-32"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Enter task content..."
-                        />
-                    </div>
-
-                    <div className="flex justify-end space-x-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded text-sm"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={!title.trim()}
-                            className="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 disabled:opacity-50"
-                        >
-                            Create Task
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     );

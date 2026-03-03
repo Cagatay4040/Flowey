@@ -290,6 +290,7 @@ const ProjectBoard = () => {
                 <CreateTaskModal
                     onClose={() => setShowCreateModal(false)}
                     onCreate={handleCreateTask}
+                    projectId={projectId}
                 />
             )}
         </div>
