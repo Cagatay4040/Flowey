@@ -1,24 +1,62 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { boardService } from '../../services/boardService';
 import api from '../../services/api';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { projectService } from '../../services/projectService';
-import { Mention, MentionBlot } from 'quill-mention';
+import { Mention } from 'quill-mention';
 import 'quill-mention/dist/quill.mention.css';
-Quill.register({ 'blots/mention': MentionBlot, 'modules/mention': Mention });
+import { useParams } from 'react-router-dom';
+
+const Embed = Quill.import('blots/embed');
+
+class CustomMentionBlot extends Embed {
+    static create(data) {
+        const node = super.create();
+        const denotationChar = document.createElement('span');
+        denotationChar.className = 'ql-mention-denotation-char';
+        denotationChar.innerHTML = data.denotationChar || '@';
+        node.appendChild(denotationChar);
+        node.innerHTML += data.value;
+        node.dataset.id = data.id;
+        node.dataset.value = data.value;
+        node.dataset.denotationChar = data.denotationChar || '@';
+        return node;
+    }
+
+    static value(domNode) {
+        return {
+            id: domNode.dataset.id,
+            value: domNode.dataset.value,
+            denotationChar: domNode.dataset.denotationChar,
+        };
+    }
+}
+CustomMentionBlot.blotName = 'mention';
+CustomMentionBlot.tagName = 'span';
+CustomMentionBlot.className = 'mention';
+
+if (!Quill.imports['blots/mention'] || Quill.imports['blots/mention'].name !== 'CustomMentionBlot') {
+    Quill.register({ 'blots/mention': CustomMentionBlot, 'modules/mention': Mention }, true);
+}
 
 const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
     const { user } = useAuth();
-    const descriptionQuillRef = React.useRef(null);
-    const commentQuillRef = React.useRef(null);
+    const { projectId } = useParams();
+    const descriptionQuillRef = useRef(null);
+    const commentQuillRef = useRef(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
+    const [status, setStatus] = useState(task.status);
+    const [assignedToUserId, setAssignedToUserId] = useState(task.assignedToUserId);
+    const [priority, setPriority] = useState(task.priority);
+    const [storyPoints, setStoryPoints] = useState(task.storyPoints);
+    const [attachments, setAttachments] = useState(task.attachments || []);
     const [activeTab, setActiveTab] = useState('comments');
-    const [taskHistory, setTaskHistory] = useState([]);
+    const [history, setHistory] = useState([]);
     const [projectUsers, setProjectUsers] = useState([]);
 
     useEffect(() => {
@@ -26,30 +64,32 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
             setComments(data);
         });
         boardService.getTaskHistory(task.id).then((data) => {
-            setTaskHistory(data);
+            setHistory(data);
         }).catch(err => console.error("Failed to fetch history", err));
 
         if (task.projectId) {
             projectService.getProjectUsers(task.projectId).then((data) => {
-                setProjectUsers(data.map(u => ({ id: u.id, value: u.fullName })));
+                setProjectUsers(data.map(u => ({ id: String(u.id), value: u.fullName })));
             }).catch(err => console.error("Failed to fetch project users", err));
         }
     }, [task.id, task.projectId]);
 
-    const quillModules = React.useMemo(() => ({
+    const mentionSource = useCallback((searchTerm, renderList, mentionChar) => {
+        if (searchTerm.length === 0) {
+            renderList(projectUsers, searchTerm);
+        } else {
+            const matches = projectUsers.filter(usr =>
+                usr.value.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderList(matches, searchTerm);
+        }
+    }, [projectUsers]);
+
+    const quillModules = useMemo(() => ({
         mention: {
             allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
             mentionDenotationChars: ['@'],
-            source: function (searchTerm, renderList, mentionChar) {
-                if (searchTerm.length === 0) {
-                    renderList(projectUsers, searchTerm);
-                } else {
-                    const matches = projectUsers.filter(user =>
-                        user.value.toLowerCase().includes(searchTerm.toLowerCase())
-                    );
-                    renderList(matches, searchTerm);
-                }
-            },
+            source: mentionSource
         },
         toolbar: {
             container: [
@@ -88,7 +128,12 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                 }
             }
         }
-    }), [projectUsers]);
+    }), [mentionSource]);
+
+    const formats = React.useMemo(() => [
+        'header', 'bold', 'italic', 'underline', 'strike', 'blockquote',
+        'list', 'link', 'image', 'mention'
+    ], []);
 
     const uploadFileAndInsert = async (file, quillRef) => {
         if (!file || !quillRef.current) return;
@@ -225,9 +270,10 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                 ref={descriptionQuillRef}
                                 theme="snow"
                                 className="h-full"
-                                value={description || ''}
+                                defaultValue={task.description || ''}
                                 onChange={setDescription}
                                 modules={quillModules}
+                                formats={formats}
                                 placeholder="Add a description..."
                             />
                         </div>
@@ -293,9 +339,10 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                         ref={commentQuillRef}
                                         theme="snow"
                                         className="bg-white h-32"
-                                        value={newComment}
+                                        defaultValue={newComment}
                                         onChange={setNewComment}
                                         modules={quillModules}
+                                        formats={formats}
                                         placeholder="Add a comment... (Paste or Drop images here)"
                                     />
                                 </div>

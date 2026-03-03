@@ -1,12 +1,42 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactQuill, { Quill } from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { Mention, MentionBlot } from 'quill-mention';
+import { Mention } from 'quill-mention';
 import 'quill-mention/dist/quill.mention.css';
 import api from '../../services/api';
 import { projectService } from '../../services/projectService';
 
-Quill.register({ 'blots/mention': MentionBlot, 'modules/mention': Mention });
+const Embed = Quill.import('blots/embed');
+
+class CustomMentionBlot extends Embed {
+    static create(data) {
+        const node = super.create();
+        const denotationChar = document.createElement('span');
+        denotationChar.className = 'ql-mention-denotation-char';
+        denotationChar.innerHTML = data.denotationChar || '@';
+        node.appendChild(denotationChar);
+        node.innerHTML += data.value;
+        node.dataset.id = data.id;
+        node.dataset.value = data.value;
+        node.dataset.denotationChar = data.denotationChar || '@';
+        return node;
+    }
+
+    static value(domNode) {
+        return {
+            id: domNode.dataset.id,
+            value: domNode.dataset.value,
+            denotationChar: domNode.dataset.denotationChar,
+        };
+    }
+}
+CustomMentionBlot.blotName = 'mention';
+CustomMentionBlot.tagName = 'span';
+CustomMentionBlot.className = 'mention';
+
+if (!Quill.imports['blots/mention'] || Quill.imports['blots/mention'].name !== 'CustomMentionBlot') {
+    Quill.register({ 'blots/mention': CustomMentionBlot, 'modules/mention': Mention }, true);
+}
 
 const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const [title, setTitle] = useState('');
@@ -17,25 +47,27 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     useEffect(() => {
         if (projectId) {
             projectService.getProjectUsers(projectId).then((data) => {
-                setProjectUsers(data.map(u => ({ id: u.id, value: u.fullName })));
+                setProjectUsers(data.map(u => ({ id: String(u.id), value: u.fullName })));
             }).catch(err => console.error("Failed to fetch project users", err));
         }
     }, [projectId]);
+
+    const mentionSource = React.useCallback((searchTerm, renderList, mentionChar) => {
+        if (searchTerm.length === 0) {
+            renderList(projectUsers, searchTerm);
+        } else {
+            const matches = projectUsers.filter(user =>
+                user.value.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            renderList(matches, searchTerm);
+        }
+    }, [projectUsers]);
 
     const quillModules = useMemo(() => ({
         mention: {
             allowedChars: /^[A-Za-z\sÅÄÖåäö]*$/,
             mentionDenotationChars: ['@'],
-            source: function (searchTerm, renderList, mentionChar) {
-                if (searchTerm.length === 0) {
-                    renderList(projectUsers, searchTerm);
-                } else {
-                    const matches = projectUsers.filter(user =>
-                        user.value.toLowerCase().includes(searchTerm.toLowerCase())
-                    );
-                    renderList(matches, searchTerm);
-                }
-            },
+            source: mentionSource
         },
         toolbar: {
             container: [
@@ -74,7 +106,12 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                 }
             }
         }
-    }), [projectUsers]);
+    }), [mentionSource]);
+
+    const formats = useMemo(() => [
+        'header', 'bold', 'italic', 'underline', 'strike', 'blockquote',
+        'list', 'link', 'image', 'mention'
+    ], []);
 
     const uploadFileAndInsert = async (file, quillRef) => {
         if (!file || !quillRef.current) return;
@@ -180,9 +217,10 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                                 ref={descriptionQuillRef}
                                 theme="snow"
                                 className="h-full"
-                                value={description}
+                                defaultValue={description}
                                 onChange={setDescription}
                                 modules={quillModules}
+                                formats={formats}
                                 placeholder="Add a description..."
                             />
                         </div>
