@@ -2,6 +2,7 @@
 using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Notification;
 using Flowey.CORE.Constants;
+using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -18,14 +19,25 @@ namespace Flowey.BUSINESS.Concrete
     {
         private readonly IUserNotificationRepository _userNotificationRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ITaskRepository _taskRepository;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly IRealTimeNotificationService _realTimeNotificationService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserNotificationManager(IUserNotificationRepository userNotificationRepository, IUserRepository userRepository, IMapper mapper, IRealTimeNotificationService realTimeNotificationService, IUnitOfWork unitOfWork)
+        public UserNotificationManager(
+            IUserNotificationRepository userNotificationRepository, 
+            IUserRepository userRepository, 
+            ITaskRepository taskRepository,
+            ICurrentUserService currentUserService,
+            IMapper mapper, 
+            IRealTimeNotificationService realTimeNotificationService, 
+            IUnitOfWork unitOfWork)
         {
             _userNotificationRepository = userNotificationRepository;
             _userRepository = userRepository;
+            _taskRepository = taskRepository;
+            _currentUserService = currentUserService;
             _mapper = mapper;
             _realTimeNotificationService = realTimeNotificationService;
             _unitOfWork = unitOfWork;
@@ -69,6 +81,36 @@ namespace Flowey.BUSINESS.Concrete
             }
 
             return new Result(ResultStatus.Error, Messages.UserNotificationCreateError);
+        }
+
+        public async System.Threading.Tasks.Task SendMentionNotificationsAsync(string content, Guid taskId, Guid projectId)
+        {
+            if (string.IsNullOrWhiteSpace(content)) return;
+
+            var currentUserId = _currentUserService.GetUserId().Value;
+            var senderUser = await _userRepository.GetByIdAsync(currentUserId);
+            string senderName = senderUser != null ? $"{senderUser.Name} {senderUser.Surname}" : "System";
+
+            var mentionedUserIds = ExtractMentionedUserIds(content);
+            if (!mentionedUserIds.Any()) return;
+
+            var existingTask = await _taskRepository.GetByIdAsync(taskId);
+            string taskIdentifier = existingTask?.TaskKey != null ? $"task #{existingTask.TaskKey}" : "a task";
+
+            foreach (var mentionedUserId in mentionedUserIds)
+            {
+                if (mentionedUserId != currentUserId)
+                {
+                    await AddUserNotificationAsync(new UserNotificationAddDTO
+                    {
+                        UserId = mentionedUserId,
+                        SenderId = currentUserId,
+                        Title = Messages.NewMentionTitle,
+                        Message = string.Format(Messages.NewMentionMessage, senderName, taskIdentifier),
+                        ActionUrl = $"/board/{projectId}?taskId={taskId}"
+                    });
+                }
+            }
         }
 
         #endregion
@@ -119,6 +161,31 @@ namespace Flowey.BUSINESS.Concrete
         #region Delete Methods
 
 
+
+        #endregion
+
+        #region Helper Methods
+
+        private List<Guid> ExtractMentionedUserIds(string htmlContent)
+        {
+            var userIds = new List<Guid>();
+            if (string.IsNullOrWhiteSpace(htmlContent)) return userIds;
+
+            var regex = new System.Text.RegularExpressions.Regex(@"data-id=""([a-fA-F0-9\-]{36})""");
+            var matches = regex.Matches(htmlContent);
+
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                if (match.Groups.Count > 1 && Guid.TryParse(match.Groups[1].Value, out Guid parsedId))
+                {
+                    if (!userIds.Contains(parsedId))
+                    {
+                        userIds.Add(parsedId);
+                    }
+                }
+            }
+            return userIds;
+        }
 
         #endregion
     }

@@ -1,12 +1,13 @@
 using AutoMapper;
+using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Task;
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Constants;
+using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
-using Flowey.CORE.DataAccess.Abstract;
 using MediatR;
 using System.Collections.Generic;
 using System.Threading;
@@ -29,6 +30,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IStepRepository _stepRepository;
+        private readonly IUserNotificationService _userNotificationService;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
@@ -37,6 +39,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             ITaskRepository taskRepository,
             IProjectRepository projectRepository,
             IStepRepository stepRepository,
+            IUserNotificationService userNotificationService,
             IMapper mapper,
             ICurrentUserService currentUserService,
             IUnitOfWork unitOfWork)
@@ -44,6 +47,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _stepRepository = stepRepository;
+            _userNotificationService = userNotificationService;
             _mapper = mapper;
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
@@ -86,7 +90,10 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
+            {
+                await _userNotificationService.SendMentionNotificationsAsync(task.Description, task.Id, task.ProjectId);
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));
+            }
 
             return new Result(ResultStatus.Error, Messages.TaskCreateError);
         }

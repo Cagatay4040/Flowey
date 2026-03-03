@@ -19,6 +19,7 @@ namespace Flowey.BUSINESS.Abstract
         #region Insert Methods
 
         Task<IResult> AddUserNotificationAsync(UserNotificationAddDTO dto);
+        Task SendMentionNotificationsAsync(string content, Guid taskId, Guid projectId);
 
         #endregion
 
