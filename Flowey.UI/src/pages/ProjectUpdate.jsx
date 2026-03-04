@@ -7,8 +7,13 @@ const ProjectUpdate = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const currentUserRole = location.state?.currentUserRole || 'EDITOR';
+    const [currentUserRole] = useState(location.state?.currentUserRole || localStorage.getItem(`role_${projectId}`) || 'EDITOR');
 
+    useEffect(() => {
+        if (location.state?.currentUserRole) {
+            localStorage.setItem(`role_${projectId}`, location.state.currentUserRole);
+        }
+    }, [location.state?.currentUserRole, projectId]);
     const [activeTab, setActiveTab] = useState('general');
 
     // General Tab State

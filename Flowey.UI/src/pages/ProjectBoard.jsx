@@ -19,7 +19,14 @@ const ProjectBoard = () => {
     const location = useLocation();
     const { user } = useAuth();
 
-    const currentUserRole = location.state?.currentUserRole;
+    const [currentUserRole] = useState(location.state?.currentUserRole || localStorage.getItem(`role_${projectId}`));
+
+    useEffect(() => {
+        if (location.state?.currentUserRole) {
+            localStorage.setItem(`role_${projectId}`, location.state.currentUserRole);
+        }
+    }, [location.state?.currentUserRole, projectId]);
+
     const canUpdateProject = currentUserRole === 'ADMIN' || currentUserRole === 'EDITOR';
     const [steps, setSteps] = useState([]);
     const [activeTask, setActiveTask] = useState(null);
