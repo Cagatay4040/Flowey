@@ -1,11 +1,12 @@
+using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.Enums;
+using Flowey.DOMAIN.Model.Abstract;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Flowey.CORE.DataAccess.Abstract;
-using Flowey.DOMAIN.Model.Abstract;
 
 namespace Flowey.DOMAIN.Model.Concrete
 {
@@ -19,6 +20,7 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string Title { get; set; }
         public string TaskKey { get; set; }
         public string Description { get; set; }
+        public PriorityType Priority { get; set; } = PriorityType.Medium;
         public Guid ProjectId { get; set; }
         public Guid CurrentStepId { get; set; }
         public Guid? AssigneeId { get; set; }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flowey.CORE.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace Flowey.BUSINESS.DTO.Task
         public string Title { get; set; }
         public string TaskKey { get; set; }
         public string Description { get; set; }
+        public PriorityType Priority { get; set; }
         public Guid? AssigneeId { get; set; }
     }
 }

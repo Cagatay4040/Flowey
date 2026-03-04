@@ -1,10 +1,11 @@
+using AutoMapper;
 using Flowey.BUSINESS.DTO.Step;
 using Flowey.CORE.Constants;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
 using MediatR;
-using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,12 +18,14 @@ namespace Flowey.BUSINESS.Features.Steps.Queries
         public Guid ProjectId { get; set; }
         public List<Guid> UserIds { get; set; }
         public bool IncludeUnassigned { get; set; }
+        public List<PriorityType>? Priorities { get; set; }
 
-        public GetBoardDataQuery(Guid projectId, List<Guid> userIds, bool includeUnassigned)
+        public GetBoardDataQuery(Guid projectId, List<Guid> userIds, bool includeUnassigned, List<PriorityType>? priorities)
         {
             ProjectId = projectId;
             UserIds = userIds;
             IncludeUnassigned = includeUnassigned;
+            Priorities = priorities;
         }
     }
 
@@ -49,7 +52,7 @@ namespace Flowey.BUSINESS.Features.Steps.Queries
             if (!existingProject)
                 return new DataResult<List<StepGetDTO>>(ResultStatus.Error, Messages.ProjectNotFound, new List<StepGetDTO>());
 
-            var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(request.ProjectId, request.UserIds, request.IncludeUnassigned);
+            var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(request.ProjectId, request.UserIds, request.IncludeUnassigned, request.Priorities);
 
             var data = _mapper.Map<List<StepGetDTO>>(steps);
 

@@ -1,4 +1,5 @@
 using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.Enums;
 using Flowey.DOMAIN.Model.Concrete;
 
 namespace Flowey.DATACCESS.Abstract
@@ -9,7 +10,7 @@ namespace Flowey.DATACCESS.Abstract
 
         Task<List<Step>> GetProjectStepsAsync(Guid projectId);
         Task<Step> GetProjectFirstStepAsync(Guid projectId);
-        Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned);
+        Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned, List<PriorityType>? Priorities);
 
         #endregion
 

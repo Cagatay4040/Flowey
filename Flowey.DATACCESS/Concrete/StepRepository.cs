@@ -1,4 +1,5 @@
 using Flowey.CORE.DataAccess.Concrete;
+using Flowey.CORE.Enums;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
 using Flowey.DOMAIN.Model.Concrete;
@@ -39,24 +40,32 @@ namespace Flowey.DATACCESS.Concrete
             return data;
         }
 
-        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned)
+        public async Task<List<Step>> GetStepsWithFilteredTasksAsync(Guid projectId, List<Guid> userIds, bool includeUnassigned, List<PriorityType>? Priorities)
         {
             var targetUserIds = userIds ?? new List<Guid>();
             bool hasUsers = targetUserIds.Any();
+            bool hasPriorities = Priorities != null && Priorities.Any();
+
+            bool applyUserFilter = hasUsers || includeUnassigned;
 
             var query = _context.Steps
-                                .AsNoTracking()
-                                .Where(s => s.ProjectId == projectId)
-                                .OrderBy(s => s.Order)
-                                .AsQueryable();
-
-            query = query.Include(s => s.Tasks
-                         .Where(t =>
-                             (hasUsers && t.AssigneeId != null && targetUserIds.Contains(t.AssigneeId.Value))
-                             ||
-                             (includeUnassigned && t.AssigneeId == null)
-                         )
-                         .OrderBy(t => t.CreatedDate));
+                .AsNoTracking()
+                .Where(s => s.ProjectId == projectId)
+                .OrderBy(s => s.Order)
+                .Include(s => s.Tasks
+                    .Where(t =>
+                        (
+                            !applyUserFilter ||
+                            (hasUsers && t.AssigneeId != null && targetUserIds.Contains(t.AssigneeId.Value)) ||
+                            (includeUnassigned && t.AssigneeId == null)
+                        )
+                        &&
+                        (
+                            !hasPriorities || Priorities.Contains(t.Priority)
+                        )
+                    )
+                    .OrderBy(t => t.CreatedDate)
+                );
 
             return await query.ToListAsync();
         }

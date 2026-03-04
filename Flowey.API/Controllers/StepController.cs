@@ -27,9 +27,13 @@ namespace Flowey.API.Controllers
 
         [HttpGet("GetBoardData")]
         [StepAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
-        public async Task<IActionResult> GetBoardData([FromQuery] Guid projectId, [FromQuery] List<Guid> userIds, [FromQuery] bool includeUnassigned = false)
+        public async Task<IActionResult> GetBoardData(
+            [FromQuery] Guid projectId, 
+            [FromQuery] List<Guid> userIds, 
+            [FromQuery] bool includeUnassigned = false, 
+            [FromQuery] List<PriorityType>? priorities = null)
         {
-            var result = await _sender.Send(new GetBoardDataQuery(projectId, userIds, includeUnassigned));
+            var result = await _sender.Send(new GetBoardDataQuery(projectId, userIds, includeUnassigned, priorities));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
