@@ -52,7 +52,7 @@ namespace Flowey.BUSINESS.Features.Projects.Commands
                     new ProjectUserRole
                     {
                         UserId = _currentUserService.GetUserId().Value,
-                        RoleId = (int)RoleType.Admin
+                        RoleId = RoleType.Admin
                     }
                 }
             };

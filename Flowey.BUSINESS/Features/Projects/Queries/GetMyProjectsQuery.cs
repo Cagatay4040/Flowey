@@ -35,11 +35,10 @@ namespace Flowey.BUSINESS.Features.Projects.Queries
         public async Task<IDataResult<List<ProjectGetDTO>>> Handle(GetMyProjectsQuery request, CancellationToken cancellationToken)
         {
             var entityList = await _projectUserRoleRepository.GetList(
-                x => x.UserId == _currentUserService.GetUserId().Value && x.RoleId == (int)RoleType.Admin, 
+                x => x.UserId == _currentUserService.GetUserId().Value && x.RoleId == RoleType.Admin, 
                 true, 
                 null, 
-                x => x.Project, 
-                x => x.Role);
+                x => x.Project);
                 
             var data = _mapper.Map<List<ProjectGetDTO>>(entityList);
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);

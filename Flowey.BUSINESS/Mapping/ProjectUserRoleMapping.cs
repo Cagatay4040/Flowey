@@ -23,7 +23,7 @@ namespace Flowey.BUSINESS.Mapping
             CreateMap<ProjectUserRole, ProjectGetDTO>()
                 .IncludeMembers(src => src.Project)
                 .ForMember(dest => dest.ProjectId, opt => opt.MapFrom(src => src.ProjectId))
-                .ForMember(dest => dest.CurrentUserRole, opt => opt.MapFrom(src => src.Role.Code));
+                .ForMember(dest => dest.CurrentUserRole, opt => opt.MapFrom(src => src.RoleId.ToString().ToUpperInvariant()));
         }
     }
 }

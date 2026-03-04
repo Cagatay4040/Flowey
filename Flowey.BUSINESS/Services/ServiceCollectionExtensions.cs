@@ -28,7 +28,6 @@ namespace Flowey.BUSINESS.Services
 
             serviceCollection.AddScoped(typeof(IEntityRepository<>), typeof(EfEntityRepositoryBase<>));
             serviceCollection.AddScoped<IUserRepository, UserRepository>();
-            serviceCollection.AddScoped<IRoleRepository, RoleRepository>();
             serviceCollection.AddScoped<IProjectRepository, ProjectRepository>();
             serviceCollection.AddScoped<IStepRepository, StepRepository>();
             serviceCollection.AddScoped<ITaskRepository, TaskRepository>();
@@ -37,7 +36,6 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
             serviceCollection.AddScoped<IAuthService, AuthManager>();
-            serviceCollection.AddScoped<IRoleService, RoleManager>();
             serviceCollection.AddScoped<IUserService, UserManager>();
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();
             serviceCollection.AddScoped<IFileService, FileManager>();

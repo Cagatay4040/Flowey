@@ -1,4 +1,5 @@
 ﻿
+using Flowey.CORE.Enums;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,7 +13,6 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
     public class FloweyDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
-        public DbSet<Role> Roles { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Step> Steps { get; set; }
         public DbSet<Task> Tasks { get; set; }
@@ -65,12 +65,6 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
                       .HasForeignKey(un => un.SenderId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
-
-            modelBuilder.Entity<Role>().HasData(
-                new Role { Id = 1, Name = "Admin", Code = "ADMIN" },
-                new Role {Id = 2, Name = "Editor", Code = "EDITOR" },
-                new Role {Id = 3, Name = "Member", Code = "MEMBER" }
-            );
 
             modelBuilder.Entity<Comment>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<CommentAttachment>().HasQueryFilter(x => x.IsActive);

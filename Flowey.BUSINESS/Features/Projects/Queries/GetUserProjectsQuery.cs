@@ -37,8 +37,7 @@ namespace Flowey.BUSINESS.Features.Projects.Queries
                 x => x.UserId == _currentUserService.GetUserId().Value, 
                 true, 
                 null, 
-                x => x.Project, 
-                x => x.Role);
+                x => x.Project);
             
             var data = _mapper.Map<List<ProjectGetDTO>>(entityList);
             return new DataResult<List<ProjectGetDTO>>(ResultStatus.Success, data);
