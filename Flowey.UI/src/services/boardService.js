@@ -1,7 +1,7 @@
 import api from './api';
 
 export const boardService = {
-    getBoard: async (projectId, userIds = [], includeUnassigned = false) => {
+    getBoard: async (projectId, userIds = [], includeUnassigned = false, priorities = []) => {
         const params = new URLSearchParams();
         params.append('projectId', projectId);
         if (userIds && userIds.length > 0) {
@@ -9,6 +9,9 @@ export const boardService = {
         }
         if (includeUnassigned) {
             params.append('includeUnassigned', 'true');
+        }
+        if (priorities && priorities.length > 0) {
+            priorities.forEach(id => params.append('priorities', id));
         }
 
         const response = await api.get(`/Step/GetBoardData?${params.toString()}`);

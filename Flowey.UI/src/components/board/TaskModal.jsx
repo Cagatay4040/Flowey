@@ -225,7 +225,8 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                 ...task,
                 taskId: task.id,
                 title: title,
-                description: description
+                description: description,
+                priority: Number(priority)
             };
 
             await boardService.updateTask(updated);
@@ -248,8 +249,21 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                 value={title}
                                 onChange={e => setTitle(e.target.value)}
                             />
-                            <div className="text-xs text-gray-500">
-                                {task.taskKey}
+                            <div className="text-xs text-gray-500 flex items-center space-x-4 mt-2">
+                                <span>{task.taskKey}</span>
+                                <div className="flex items-center space-x-2">
+                                    <span className="font-semibold text-gray-700">Priority:</span>
+                                    <select
+                                        value={priority}
+                                        onChange={(e) => setPriority(Number(e.target.value))}
+                                        className="p-1 border rounded bg-white text-xs text-gray-700 focus:border-blue-500 focus:outline-none"
+                                    >
+                                        <option value={1}>Low</option>
+                                        <option value={2}>Medium</option>
+                                        <option value={3}>High</option>
+                                        <option value={4}>Critical</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div className="flex space-x-2 shrink-0">

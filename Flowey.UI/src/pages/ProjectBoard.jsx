@@ -8,6 +8,7 @@ import TaskCard from '../components/board/TaskCard';
 import TaskModal from '../components/board/TaskModal';
 import CreateTaskModal from '../components/board/CreateTaskModal';
 import MultiSelectUserDropdown from '../components/common/MultiSelectUserDropdown';
+import MultiSelectPriorityDropdown from '../components/common/MultiSelectPriorityDropdown';
 import { useAuth } from '../context/AuthContext';
 import { getCookie, setCookie } from '../utils/cookieUtils';
 
@@ -33,6 +34,13 @@ const ProjectBoard = () => {
         return user ? [user.id] : [];
     });
 
+    const [selectedPriorities, setSelectedPriorities] = useState(() => {
+        const saved = getCookie(`board_priority_filter_${projectId}`);
+        // Ensure parsing to numbers
+        if (saved) return Array.isArray(saved) ? saved.map(Number) : [Number(saved)];
+        return [];
+    });
+
     const initializedUrlTaskId = useRef(null);
 
     useEffect(() => {
@@ -40,6 +48,12 @@ const ProjectBoard = () => {
             setCookie(`board_filter_${projectId}`, selectedUserIds);
         }
     }, [selectedUserIds, projectId]);
+
+    useEffect(() => {
+        if (selectedPriorities) {
+            setCookie(`board_priority_filter_${projectId}`, selectedPriorities);
+        }
+    }, [selectedPriorities, projectId]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -55,7 +69,7 @@ const ProjectBoard = () => {
             const includeUnassigned = selectedUserIds.includes('unassigned');
             const validUserIds = selectedUserIds.filter(id => id !== 'unassigned');
 
-            const data = await boardService.getBoard(projectId, validUserIds, includeUnassigned);
+            const data = await boardService.getBoard(projectId, validUserIds, includeUnassigned, selectedPriorities);
             setSteps(data);
         } catch (error) {
             console.error("Failed to fetch board", error);
@@ -79,7 +93,7 @@ const ProjectBoard = () => {
     useEffect(() => {
         fetchBoard();
         fetchProjectUsers();
-    }, [projectId, selectedUserIds]);
+    }, [projectId, selectedUserIds, selectedPriorities]);
 
     useEffect(() => {
         const urlTaskId = searchParams.get('taskId');
@@ -222,6 +236,10 @@ const ProjectBoard = () => {
                         users={projectUsers}
                         selectedUserIds={selectedUserIds}
                         onChange={setSelectedUserIds}
+                    />
+                    <MultiSelectPriorityDropdown
+                        selectedPriorities={selectedPriorities}
+                        onChange={setSelectedPriorities}
                     />
                 </div>
                 <div className="flex items-center space-x-3">

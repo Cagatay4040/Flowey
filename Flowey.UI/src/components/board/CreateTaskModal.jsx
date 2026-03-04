@@ -41,6 +41,7 @@ if (!Quill.imports['blots/mention'] || Quill.imports['blots/mention'].name !== '
 const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [priority, setPriority] = useState(2); // Default to Medium
     const descriptionQuillRef = useRef(null);
     const [projectUsers, setProjectUsers] = useState([]);
 
@@ -174,7 +175,7 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
         if (!title.trim()) return;
-        onCreate({ title, description });
+        onCreate({ title, description, priority: Number(priority) });
     };
 
     return (
@@ -204,6 +205,20 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                                 Create Task
                             </button>
                         </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
+                        <select
+                            value={priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                            className="p-2 border rounded bg-white text-sm text-gray-700 w-48 focus:border-blue-500 focus:outline-none"
+                        >
+                            <option value={1}>Low</option>
+                            <option value={2}>Medium</option>
+                            <option value={3}>High</option>
+                            <option value={4}>Critical</option>
+                        </select>
                     </div>
 
                     <div className="flex-1 flex flex-col min-h-[300px]">
