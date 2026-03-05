@@ -20,8 +20,8 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] UserLoginDTO dto)
     {
         var result = await _authService.LoginAsync(dto);
-
-        return Ok(result);
+        if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+        return BadRequest(result);
     }
 
     [HttpPost("Register")]

@@ -67,12 +67,12 @@ namespace Flowey.BUSINESS.Concrete
             var user = await _userService.GetUserByEmailAsync(dto.Email);
 
             if (user == null)
-                return new DataResult<string>(ResultStatus.Error, Messages.InvalidCredentials);
+                return new DataResult<string>(ResultStatus.Error, Messages.InvalidCredentials, string.Empty);
 
             var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Password, dto.Password);
 
             if (verificationResult != PasswordVerificationResult.Success)
-                return new DataResult<string>(ResultStatus.Error, Messages.InvalidCredentials);
+                return new DataResult<string>(ResultStatus.Error, Messages.InvalidCredentials, string.Empty);
 
             string token = GetToken(user);
             return new DataResult<string>(ResultStatus.Success, Messages.LoginSuccessful, token);
