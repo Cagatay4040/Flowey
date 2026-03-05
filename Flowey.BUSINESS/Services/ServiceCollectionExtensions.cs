@@ -37,6 +37,7 @@ namespace Flowey.BUSINESS.Services
 
             serviceCollection.AddScoped<IAuthService, AuthManager>();
             serviceCollection.AddScoped<IUserService, UserManager>();
+            serviceCollection.AddScoped<IInternalUserService, UserManager>();
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();
             serviceCollection.AddScoped<IFileService, FileManager>();
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionManager>();

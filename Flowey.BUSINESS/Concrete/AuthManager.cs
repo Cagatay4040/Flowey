@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
 using Flowey.BUSINESS.Abstract;
-using Flowey.CORE.Constants;
 using Flowey.BUSINESS.DTO.User;
+using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -21,13 +22,15 @@ namespace Flowey.BUSINESS.Concrete
     {
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasher<User> _passwordHasher;
-        private readonly IUserService _userService;
+        private readonly IInternalUserService _userService;
+        private readonly IMapper _mapper;
 
-        public AuthManager(IConfiguration configuration, IPasswordHasher<User> passwordHasher, IUserService userService)
+        public AuthManager(IConfiguration configuration, IPasswordHasher<User> passwordHasher, IInternalUserService userService, IMapper mapper)
         {
             _configuration = configuration;
             _passwordHasher = passwordHasher;
             _userService = userService;
+            _mapper = mapper;
         }
 
         #region Get Methods
@@ -79,13 +82,34 @@ namespace Flowey.BUSINESS.Concrete
 
         #region Insert Methods
 
+        public async Task<IResult> RegisterAsync(UserAddDTO dto)
+        {
+            var user = _mapper.Map<User>(dto);
+            user.Password = _passwordHasher.HashPassword(user, dto.Password);
 
+            return await _userService.AddAsync(user);
+        }
 
         #endregion
 
         #region Update Methods
 
+        public async Task<IResult> ChangePasswordAsync(UserPasswordChangeDTO dto)
+        {
+            var user = await _userService.GetUserByIdAsync(dto.UserId);
 
+            if (user == null)
+                return new Result(ResultStatus.Error, Messages.UserNotFound);
+
+            var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Password, dto.OldPassword);
+
+            if (verificationResult == PasswordVerificationResult.Failed)
+                return new Result(ResultStatus.Error, Messages.UserOldPasswordIncorrect);
+
+            user.Password = _passwordHasher.HashPassword(user, dto.NewPassword);
+
+            return await _userService.UpdateAsync(user);
+        }
 
         #endregion
 

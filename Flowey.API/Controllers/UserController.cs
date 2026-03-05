@@ -19,23 +19,6 @@ namespace Flowey.API.Controllers
             _userService = userService;
         }
 
-        [HttpPost("Register")]
-        public async Task<IActionResult> Register([FromBody] UserAddDTO dto)
-        {
-            var result = await _userService.AddAsync(dto);
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
-        [Authorize]
-        [HttpPost("ChangePassword")]
-        public async Task<IActionResult> ChangePassword([FromBody] UserPasswordChangeDTO dto)
-        {
-            var result = await _userService.ChangePasswordAsync(dto);
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
         [Authorize]
         [HttpPost("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDTO dto)

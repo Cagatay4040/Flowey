@@ -1,5 +1,7 @@
 ﻿using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.User;
+using Flowey.CORE.Result.Concrete;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -20,5 +22,22 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginAsync(dto);
 
         return Ok(result);
+    }
+
+    [HttpPost("Register")]
+    public async Task<IActionResult> Register([FromBody] UserAddDTO dto)
+    {
+        var result = await _authService.RegisterAsync(dto);
+        if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+        return BadRequest(result);
+    }
+
+    [Authorize]
+    [HttpPost("ChangePassword")]
+    public async Task<IActionResult> ChangePassword([FromBody] UserPasswordChangeDTO dto)
+    {
+        var result = await _authService.ChangePasswordAsync(dto);
+        if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+        return BadRequest(result);
     }
 }

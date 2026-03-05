@@ -21,13 +21,13 @@ namespace Flowey.BUSINESS.Abstract
 
         #region Insert Methods
 
-
+        Task<IResult> RegisterAsync(UserAddDTO dto);
 
         #endregion
 
         #region Update Methods
 
-
+        Task<IResult> ChangePasswordAsync(UserPasswordChangeDTO dto);
 
         #endregion
 

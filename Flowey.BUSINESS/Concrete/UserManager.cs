@@ -5,7 +5,6 @@ using Flowey.BUSINESS.DTO.User;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
-using Flowey.DATACCESS.Concrete;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -15,7 +14,7 @@ using System.Linq.Expressions;
 
 namespace Flowey.BUSINESS.Concrete
 {
-    public class UserManager : IUserService
+    public class UserManager : IUserService, IInternalUserService
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
@@ -32,7 +31,13 @@ namespace Flowey.BUSINESS.Concrete
 
         #region Get Methods
 
-        public async Task<User> GetUserByEmailAsync(string email)
+        async Task<User> IInternalUserService.GetUserByIdAsync(Guid id)
+        {
+            var userEntity = await _userRepository.FirstOrDefaultAsync(x => x.Id == id);
+            return userEntity;
+        }
+
+        async Task<User> IInternalUserService.GetUserByEmailAsync(string email)
         {
             var userEntity = await _userRepository.FirstOrDefaultAsync(x => x.Email == email);
             return userEntity;
@@ -47,32 +52,23 @@ namespace Flowey.BUSINESS.Concrete
 
         #region Insert Methods
 
-        public async Task<IResult> AddAsync(UserAddDTO dto)
+        async Task<IResult> IInternalUserService.AddAsync(User user)
         {
-            if (!await IsThisEmailUsedAsync(dto.Email))
-            {
-                var user = _mapper.Map<User>(dto);
-                user.Password = _passwordHasher.HashPassword(user, dto.Password);
-
-                await _userRepository.AddAsync(user);
-                int effectedRow = await _unitOfWork.SaveChangesAsync();
-                
-                if (effectedRow > 0)
-                    return new Result(ResultStatus.Success, Messages.UserAdded);
-
-                return new Result(ResultStatus.Error, Messages.UserCreateError);
-            }
-
-            else
-            {
+            if (await IsThisEmailUsedAsync(user.Email))
                 return new Result(ResultStatus.Error, Messages.UserEmailAlreadyUsed);
-            }
+
+            await _userRepository.AddAsync(user);
+            int effectedRow = await _unitOfWork.SaveChangesAsync();
+
+            if (effectedRow > 0)
+                return new Result(ResultStatus.Success, Messages.UserAdded);
+
+            return new Result(ResultStatus.Error, Messages.UserCreateError);
         }
 
         #endregion
 
         #region Update Methods
-
 
         public async Task<IResult> UpdateAsync(UserUpdateDTO dto)
         {
@@ -83,38 +79,18 @@ namespace Flowey.BUSINESS.Concrete
 
             _mapper.Map(dto, existingUser);
 
-            await _userRepository.UpdateAsync(existingUser);
-            int effectedRow = await _unitOfWork.SaveChangesAsync();
-            
-            if (effectedRow > 0)
-                return new Result(ResultStatus.Success, Messages.UserUpdated);
-
-            return new Result(ResultStatus.Error, Messages.UserUpdateError);
+            return await ((IInternalUserService)this).UpdateAsync(existingUser);
         }
 
-        public async Task<IResult> ChangePasswordAsync(UserPasswordChangeDTO dto)
+        async Task<IResult> IInternalUserService.UpdateAsync(User user)
         {
-            var user = await _userRepository.GetByIdAsync(dto.UserId);
-
-            if (user == null)
-                return new Result(ResultStatus.Error, Messages.UserNotFound);
-
-            var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Password, dto.OldPassword);
-
-            if (verificationResult == PasswordVerificationResult.Failed)
-                return new Result(ResultStatus.Error, Messages.UserOldPasswordIncorrect);
-
-            string newPasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword);
-
-            user.Password = newPasswordHash;
-
             await _userRepository.UpdateAsync(user);
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
-                return new Result(ResultStatus.Success, Messages.UserPasswordChangeSuccess);
+                return new Result(ResultStatus.Success, Messages.UserUpdated);
 
-            return new Result(ResultStatus.Error, Messages.UserPasswordUpdateFailed);
+            return new Result(ResultStatus.Error, Messages.UserUpdateError);
         }
 
         #endregion
@@ -137,7 +113,7 @@ namespace Flowey.BUSINESS.Concrete
                 return new Result(ResultStatus.Success, Messages.UserDeleted);
 
             return new Result(ResultStatus.Error, Messages.UserDeleteError);
-        }   
+        }
 
         #endregion
     }

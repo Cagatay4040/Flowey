@@ -12,21 +12,19 @@ namespace Flowey.BUSINESS.Abstract
     {
         #region Get Methods
 
-        Task<User> GetUserByEmailAsync(string email);
         Task<bool> IsThisEmailUsedAsync(string email);
 
         #endregion
 
         #region Add Methods
 
-        Task<IResult> AddAsync(UserAddDTO dto);
+
 
         #endregion
 
         #region Update Methods
 
         Task<IResult> UpdateAsync(UserUpdateDTO dto);
-        Task<IResult> ChangePasswordAsync(UserPasswordChangeDTO dto);
 
         #endregion
 
