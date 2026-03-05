@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const Profile = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateToken } = useAuth();
+    const navigate = useNavigate();
 
     const [activeTab, setActiveTab] = useState('general');
 
@@ -66,14 +68,30 @@ const Profile = () => {
         setInfoMessage({ type: '', text: '' });
 
         try {
-            await api.post('/User/UpdateUser', {
+            const response = await api.post('/User/UpdateUser', {
                 id: user.id || user.nameid || user.sub,
                 name: infoData.name,
                 surname: infoData.surname,
                 email: infoData.email,
                 modifiedBy: user.id || user.nameid || user.sub
             });
-            setInfoMessage({ type: 'success', text: 'Profile information updated successfully. You might need to log in again.' });
+
+            const isEmailChanged = infoData.email !== (user.email || '');
+
+            if (isEmailChanged) {
+                setInfoMessage({ type: 'success', text: 'Email updated successfully. You will be logged out in 3 seconds to re-login.' });
+                setTimeout(() => {
+                    logout();
+                    navigate('/login');
+                }, 3000);
+                return;
+            }
+
+            if (response.data && response.data.data) {
+                updateToken(response.data.data);
+            }
+
+            setInfoMessage({ type: 'success', text: 'Profile information updated successfully.' });
         } catch (error) {
             setInfoMessage({ type: 'error', text: error.response?.data?.message || 'An error occurred while updating information.' });
         }
