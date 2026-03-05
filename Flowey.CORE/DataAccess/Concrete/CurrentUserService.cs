@@ -28,5 +28,15 @@ namespace Flowey.CORE.DataAccess.Concrete
 
             return userId;
         }
+
+        public Guid? GetUserIdOrDefault()
+        {
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+                return null;
+
+            return userId;
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Flowey.DATACCESS.Services
             var context = eventData.Context;
             if (context == null) return base.SavingChangesAsync(eventData, result, cancellationToken);
 
-            var currentUserId = _currentUserService.GetUserId();
+            var currentUserId = _currentUserService.GetUserIdOrDefault();
 
             foreach (var entry in context.ChangeTracker.Entries<BaseEntity>())
             {
