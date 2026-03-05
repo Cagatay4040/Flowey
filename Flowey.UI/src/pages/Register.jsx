@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const RegisterPage = () => {
-    const [fullName, setFullName] = useState('');
+    const [name, setName] = useState('');
+    const [surname, setSurname] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { register } = useAuth();
@@ -12,7 +13,7 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await register(email, password, fullName);
+            await register(email, password, name, surname);
             navigate('/');
         } catch (error) {
             console.error("Registration failed", error);
@@ -25,12 +26,22 @@ const RegisterPage = () => {
                 <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Register</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                        <label className="block text-sm font-medium text-gray-700">Name</label>
                         <input
                             type="text"
                             className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Surname</label>
+                        <input
+                            type="text"
+                            className="w-full mt-1 p-2 border rounded focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={surname}
+                            onChange={(e) => setSurname(e.target.value)}
                             required
                         />
                     </div>

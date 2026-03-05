@@ -89,7 +89,7 @@ const Profile = () => {
         }
 
         try {
-            await api.post('/User/ChangePassword', {
+            await api.post('/Auth/ChangePassword', {
                 userId: user.id || user.nameid || user.sub,
                 oldPassword: passwordData.oldPassword,
                 newPassword: passwordData.newPassword,
