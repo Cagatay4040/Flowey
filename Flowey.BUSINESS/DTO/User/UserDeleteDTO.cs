@@ -10,7 +10,7 @@ namespace Flowey.BUSINESS.DTO.User
     {
         public Guid Id { get; set; }
         public bool IsActive { get; set; }
-        public DateTime? ModifiedDate { get; set; } = DateTime.Now;
+        public DateTime? ModifiedDate { get; set; } = DateTime.UtcNow;
         public Guid? ModifiedBy { get; set; }
     }
 }

@@ -35,7 +35,7 @@ namespace Flowey.DATACCESS.Services
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.IsActive = true;
-                    entry.Entity.CreatedDate = DateTime.Now;
+                    entry.Entity.CreatedDate = DateTime.UtcNow;
 
                     if (currentUserId.HasValue)
                     {
@@ -56,13 +56,14 @@ namespace Flowey.DATACCESS.Services
                 else if (entry.State == EntityState.Modified)
                 {
                     entry.Entity.ModifiedBy = currentUserId;
-                    entry.Entity.ModifiedDate = DateTime.Now;
+                    entry.Entity.ModifiedDate = DateTime.UtcNow;
                 }
                 else if (entry.State == EntityState.Deleted)
                 {
+                    entry.State = EntityState.Modified;
                     entry.Entity.IsActive = false;
                     entry.Entity.ModifiedBy = currentUserId;
-                    entry.Entity.ModifiedDate = DateTime.Now;
+                    entry.Entity.ModifiedDate = DateTime.UtcNow;
                 }
             }
 

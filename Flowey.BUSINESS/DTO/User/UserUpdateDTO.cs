@@ -12,7 +12,7 @@ namespace Flowey.BUSINESS.DTO.User
         public string Email { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime? ModifiedDate { get; set; } = DateTime.Now;
+        public DateTime? ModifiedDate { get; set; } = DateTime.UtcNow;
         public Guid? ModifiedBy { get; set; }
     }
 }
