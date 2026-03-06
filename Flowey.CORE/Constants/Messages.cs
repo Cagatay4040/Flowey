@@ -114,6 +114,7 @@ namespace Flowey.CORE.Constants
         public const string FileRequired = "Please select a file";
         public const string FileTooLarge = "File size must not exceed {0} MB";
         public const string InvalidFileType = "Invalid file type. Allowed types: {0}";
+        public const string DeadlineCannotBeInThePast = "Deadline cannot be in the past.";
 
         public const string SubscriptionFailed = "Failed to process the subscription. Please try again.";
         public const string PaymentSuccessful = "Payment successful. Premium activated.";

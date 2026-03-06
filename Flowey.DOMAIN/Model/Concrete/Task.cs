@@ -21,6 +21,7 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string TaskKey { get; set; }
         public string Description { get; set; }
         public PriorityType Priority { get; set; } = PriorityType.Medium;
+        public DateTime? Deadline { get; set; }
         public Guid ProjectId { get; set; }
         public Guid CurrentStepId { get; set; }
         public Guid? AssigneeId { get; set; }

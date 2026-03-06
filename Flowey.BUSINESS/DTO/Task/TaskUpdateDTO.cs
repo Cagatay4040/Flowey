@@ -13,5 +13,6 @@ namespace Flowey.BUSINESS.DTO.Task
         public string Title { get; set; }
         public string Description { get; set; }
         public PriorityType Priority { get; set; }
+        public DateTime? Deadline { get; set; }
     }
 }
