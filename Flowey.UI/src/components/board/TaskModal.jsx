@@ -53,6 +53,7 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
     const [status, setStatus] = useState(task.status);
     const [assignedToUserId, setAssignedToUserId] = useState(task.assignedToUserId);
     const [priority, setPriority] = useState(task.priority);
+    const [deadline, setDeadline] = useState(task.deadline && task.deadline.includes('T') ? task.deadline.substring(0, 16) : (task.deadline || ''));
     const [storyPoints, setStoryPoints] = useState(task.storyPoints);
     const [attachments, setAttachments] = useState(task.attachments || []);
     const [activeTab, setActiveTab] = useState('comments');
@@ -226,7 +227,8 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                 taskId: task.id,
                 title: title,
                 description: description,
-                priority: Number(priority)
+                priority: Number(priority),
+                deadline: deadline || null
             };
 
             await boardService.updateTask(updated);
@@ -249,20 +251,29 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                 value={title}
                                 onChange={e => setTitle(e.target.value)}
                             />
-                            <div className="text-xs text-gray-500 flex items-center space-x-4 mt-2">
-                                <span>{task.taskKey}</span>
+                            <div className="flex flex-wrap items-center gap-4 mt-3 bg-gray-50 p-3 rounded-md border border-gray-200">
+                                <span className="text-sm font-semibold text-gray-500 border-r border-gray-300 pr-4 py-1">{task.taskKey}</span>
                                 <div className="flex items-center space-x-2">
-                                    <span className="font-semibold text-gray-700">Priority:</span>
+                                    <span className="font-bold text-sm text-gray-700">Priority:</span>
                                     <select
                                         value={priority}
                                         onChange={(e) => setPriority(Number(e.target.value))}
-                                        className="p-1 border rounded bg-white text-xs text-gray-700 focus:border-blue-500 focus:outline-none"
+                                        className="p-1.5 border border-gray-300 rounded-md bg-white text-sm text-gray-800 cursor-pointer focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm"
                                     >
                                         <option value={1}>Low</option>
                                         <option value={2}>Medium</option>
                                         <option value={3}>High</option>
                                         <option value={4}>Critical</option>
                                     </select>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <span className="font-bold text-sm text-gray-700">Deadline:</span>
+                                    <input
+                                        type="datetime-local"
+                                        value={deadline}
+                                        onChange={(e) => setDeadline(e.target.value)}
+                                        className="p-1.5 border border-gray-300 rounded-md bg-white text-sm text-gray-800 cursor-pointer focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -373,10 +384,10 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
 
                     {activeTab === 'history' && (
                         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-                            {taskHistory.length === 0 && (
+                            {history.length === 0 && (
                                 <div className="text-gray-400 text-center py-4 text-sm">No history available.</div>
                             )}
-                            {taskHistory.map((h, i) => (
+                            {history.map((h, i) => (
                                 <div key={i} className="flex items-start space-x-3 text-sm">
                                     <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-400 shrink-0"></div>
                                     <div className="flex-1 bg-white p-3 rounded shadow-sm border border-gray-100">

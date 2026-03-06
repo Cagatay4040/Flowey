@@ -210,7 +210,9 @@ const ProjectBoard = () => {
                 description: taskData.description,
                 stepId: firstStep.id,
                 projectId: projectId,
-                order: 0
+                order: 0,
+                priority: taskData.priority,
+                deadline: taskData.deadline
             };
 
             await boardService.createTask(newTaskPayload);

@@ -42,6 +42,7 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState(2); // Default to Medium
+    const [deadline, setDeadline] = useState('');
     const descriptionQuillRef = useRef(null);
     const [projectUsers, setProjectUsers] = useState([]);
 
@@ -175,7 +176,7 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
         if (!title.trim()) return;
-        onCreate({ title, description, priority: Number(priority) });
+        onCreate({ title, description, priority: Number(priority), deadline: deadline || null });
     };
 
     return (
@@ -207,18 +208,29 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                         </div>
                     </div>
 
-                    <div className="mb-4">
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">Priority</label>
-                        <select
-                            value={priority}
-                            onChange={(e) => setPriority(e.target.value)}
-                            className="p-2 border rounded bg-white text-sm text-gray-700 w-48 focus:border-blue-500 focus:outline-none"
-                        >
-                            <option value={1}>Low</option>
-                            <option value={2}>Medium</option>
-                            <option value={3}>High</option>
-                            <option value={4}>Critical</option>
-                        </select>
+                    <div className="flex flex-wrap gap-6 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Priority</label>
+                            <select
+                                value={priority}
+                                onChange={(e) => setPriority(e.target.value)}
+                                className="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors cursor-pointer"
+                            >
+                                <option value={1}>Low</option>
+                                <option value={2}>Medium</option>
+                                <option value={3}>High</option>
+                                <option value={4}>Critical</option>
+                            </select>
+                        </div>
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Deadline (Optional)</label>
+                            <input
+                                type="datetime-local"
+                                value={deadline}
+                                onChange={(e) => setDeadline(e.target.value)}
+                                className="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors cursor-pointer"
+                            />
+                        </div>
                     </div>
 
                     <div className="flex-1 flex flex-col min-h-[300px]">
