@@ -16,6 +16,11 @@ const ProjectUpdate = () => {
     }, [location.state?.currentUserRole, projectId]);
     const [activeTab, setActiveTab] = useState('general');
 
+    // Users Tab State
+    const [projectUsers, setProjectUsers] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [usersMessage, setUsersMessage] = useState({ type: '', text: '' });
+
     // General Tab State
     const [projectData, setProjectData] = useState({ projectId: '', name: '', projectKey: '' });
     const [generalMessage, setGeneralMessage] = useState({ type: '', text: '' });
@@ -43,6 +48,7 @@ const ProjectUpdate = () => {
     useEffect(() => {
         fetchProjectData();
         fetchStepsData();
+        fetchProjectUsers();
     }, [projectId]);
 
     const fetchProjectData = async () => {
@@ -78,6 +84,32 @@ const ProjectUpdate = () => {
             setStepsMessage({ type: 'error', text: 'Failed to load project steps.' });
         } finally {
             setLoadingSteps(false);
+        }
+    };
+
+    const fetchProjectUsers = async () => {
+        setLoadingUsers(true);
+        try {
+            const data = await projectService.getProjectUsers(projectId);
+            setProjectUsers(data || []);
+        } catch (error) {
+            console.error('Error fetching project users:', error);
+            setUsersMessage({ type: 'error', text: 'Failed to load project users.' });
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
+
+    const handleRemoveUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to remove this user from the project?")) return;
+
+        setUsersMessage({ type: '', text: '' });
+        try {
+            await projectService.removeUser(projectId, userId);
+            setUsersMessage({ type: 'success', text: 'User removed successfully.' });
+            fetchProjectUsers();
+        } catch (error) {
+            setUsersMessage({ type: 'error', text: error.response?.data?.message || 'Failed to remove user.' });
         }
     };
 
@@ -234,6 +266,13 @@ const ProjectUpdate = () => {
                         <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                         Steps Management
                     </button>
+                    <button
+                        onClick={() => setActiveTab('users')}
+                        className={`w-full text-left px-4 py-3 rounded-md font-medium text-sm flex items-center transition-colors ${activeTab === 'users' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+                    >
+                        <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        Project Users
+                    </button>
                 </div>
 
                 {/* Content Area */}
@@ -377,6 +416,80 @@ const ProjectUpdate = () => {
                             ) : (
                                 <div className="mt-6 text-gray-500">No steps found.</div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Project Users Tab */}
+                    {activeTab === 'users' && (
+                        <div className="animate-fadeIn">
+                            <h3 className="text-xl leading-6 font-semibold text-gray-900 border-b border-gray-100 pb-4">Project Users</h3>
+                            <div className="mt-4 text-sm text-gray-500 mb-6">
+                                <p>Manage users who have access to this project.</p>
+                            </div>
+
+                            {usersMessage.text && (
+                                <div className={`mb-6 p-4 rounded-md ${usersMessage.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                                    {usersMessage.text}
+                                </div>
+                            )}
+
+                            {/* Dummy Add User Searchbox */}
+                            <div className="mb-8 p-4 border border-gray-200 rounded-md bg-gray-50 flex items-end space-x-3">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Add User to Project</label>
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Search a user by name or email..."
+                                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                    <p className="mt-1 flex text-xs text-gray-400">Search functionality will be added soon.</p>
+                                </div>
+                                <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium cursor-not-allowed opacity-70">
+                                    Add User
+                                </button>
+                            </div>
+
+                            {/* User List */}
+                            <div className="mt-6 border border-gray-200 rounded-md overflow-hidden">
+                                {loadingUsers ? (
+                                    <div className="p-4 text-gray-500">Loading users...</div>
+                                ) : projectUsers.length > 0 ? (
+                                    <ul className="divide-y divide-gray-200">
+                                        {projectUsers.map((user) => (
+                                            <li key={user.id} className="flex items-center justify-between p-4 bg-white hover:bg-gray-50">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                                        {user.fullName ? user.fullName.charAt(0).toUpperCase() : '?'}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-medium text-gray-900">{user.fullName || 'Unknown User'}</div>
+                                                        <div className="text-sm text-gray-500">{user.email}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex space-x-2">
+                                                    {currentUserRole !== 'VIEWER' && (
+                                                        <button
+                                                            onClick={() => handleRemoveUser(user.id)}
+                                                            className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded border border-transparent hover:border-red-200 transition-colors"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <div className="p-4 text-gray-500">No users found in this project.</div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

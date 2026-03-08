@@ -27,5 +27,14 @@ export const projectService = {
             }
         });
         return response.data;
+    },
+    removeUser: async (projectId, userId) => {
+        const response = await api.delete('/Project/RemoveUserFromProject', {
+            data: { projectId, userId },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data;
     }
 };
