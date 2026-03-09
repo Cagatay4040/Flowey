@@ -49,6 +49,15 @@ namespace Flowey.API.Controllers
             return BadRequest(result);
         }
 
+        [HttpPut("UpdateRole")]
+        [ProjectAuthorize(RoleType.Admin)]
+        public async Task<IActionResult> UpdateRole([FromBody] ProjectUserUpdateRoleDTO dto)
+        {
+            var result = await _sender.Send(new UpdateRoleCommand(dto.ProjectId, dto.UserId, dto.RoleId));
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
+        }
+
         [HttpDelete("RemoveUserFromProject")]
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> RemoveUserFromProject([FromBody] ProjectRemoveUserDTO projectUser)

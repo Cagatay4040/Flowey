@@ -38,9 +38,12 @@ namespace Flowey.CORE.Constants
         public const string ProjectAssigned = "User assigned to project successfully";
         public const string ProjectAssignError = "Could not assign user to project";
         public const string ProjectUserNotFound = "User is not assigned to this project";
+        public const string ProjectStepsNotFound = "No steps found for this project";
+
         public const string ProjectRemoveUser = "User removed from project";
         public const string ProjectRemoveUserError = "Could not remove user";
-        public const string ProjectStepsNotFound = "No steps found for this project";
+        public const string UserRoleUpdated = "User role has been successfully updated.";
+        public const string UserRoleUpdateFailed = "An error occurred while updating the user role.";
 
         public const string ProjectOwnershipTransferred = "Project ownership has been successfully transferred.";
         public const string ProjectOwnershipTransferFailed = "An error occurred while transferring project ownership.";
