@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { projectService } from '../services/projectService';
 import { stepService } from '../services/stepService';
+import { userService } from '../services/userService';
+import { useDebounce } from '../hooks/useDebounce';
 
 const ProjectUpdate = () => {
     const { projectId } = useParams();
@@ -27,6 +29,13 @@ const ProjectUpdate = () => {
     const [projectUsers, setProjectUsers] = useState([]);
     const [loadingUsers, setLoadingUsers] = useState(false);
     const [usersMessage, setUsersMessage] = useState({ type: '', text: '' });
+
+    // User Search State
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
     // General Tab State
     const [projectData, setProjectData] = useState({ projectId: '', name: '', projectKey: '' });
@@ -144,6 +153,43 @@ const ProjectUpdate = () => {
             fetchProjectUsers();
         } catch (error) {
             setUsersMessage({ type: 'error', text: error.response?.data?.message || 'Failed to transfer ownership.' });
+        }
+    };
+
+    useEffect(() => {
+        if (debouncedSearchTerm) {
+            searchUsers(debouncedSearchTerm);
+        } else {
+            setSearchResults([]);
+            setSelectedUser(null);
+        }
+    }, [debouncedSearchTerm]);
+
+    const searchUsers = async (term) => {
+        setIsSearching(true);
+        try {
+            const results = await userService.searchUsers(term);
+            const filteredResults = results.filter(u => !projectUsers.some(pu => pu.id === u.id));
+            setSearchResults(filteredResults || []);
+        } catch (error) {
+            console.error('Error searching users:', error);
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const handleAddUser = async () => {
+        if (!selectedUser) return;
+        setUsersMessage({ type: '', text: '' });
+        try {
+            await projectService.addUser(projectId, selectedUser.id, 3); // 3 = Member Role
+            setUsersMessage({ type: 'success', text: 'User added successfully.' });
+            setSearchTerm('');
+            setSelectedUser(null);
+            setSearchResults([]);
+            fetchProjectUsers();
+        } catch (error) {
+            setUsersMessage({ type: 'error', text: error.response?.data?.message || 'Failed to add user.' });
         }
     };
 
@@ -467,10 +513,10 @@ const ProjectUpdate = () => {
                                 </div>
                             )}
 
-                            {/* Dummy Add User Searchbox */}
+                            {/* Add User Searchbox */}
                             {['ADMIN', 'EDITOR'].includes(currentUserRole) && (
-                                <div className="mb-8 p-4 border border-gray-200 rounded-md bg-gray-50 flex items-end space-x-3">
-                                    <div className="flex-1">
+                                <div className="mb-8 p-4 border border-gray-200 rounded-md bg-gray-50 flex items-start space-x-3">
+                                    <div className="flex-1 relative">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Add User to Project</label>
                                         <div className="relative">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -480,15 +526,59 @@ const ProjectUpdate = () => {
                                             </div>
                                             <input
                                                 type="text"
+                                                value={searchTerm}
+                                                onChange={(e) => {
+                                                    setSearchTerm(e.target.value);
+                                                    if (selectedUser) setSelectedUser(null);
+                                                }}
                                                 placeholder="Search a user by name or email..."
                                                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                             />
+                                            {isSearching && (
+                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                    <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                                                </div>
+                                            )}
                                         </div>
-                                        <p className="mt-1 flex text-xs text-gray-400">Search functionality will be added soon.</p>
+
+                                        {/* Dropdown Results */}
+                                        {searchTerm && searchResults.length > 0 && !selectedUser && (
+                                            <ul className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto sm:text-sm">
+                                                {searchResults.map((user) => (
+                                                    <li
+                                                        key={user.id}
+                                                        onClick={() => {
+                                                            setSelectedUser(user);
+                                                            setSearchTerm(user.fullName || user.email);
+                                                        }}
+                                                        className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-blue-50 text-gray-900"
+                                                    >
+                                                        <div className="flex items-center">
+                                                            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-2">
+                                                                {user.fullName ? user.fullName.charAt(0).toUpperCase() : '?'}
+                                                            </div>
+                                                            <span className="font-normal block truncate">{user.fullName} <span className="text-gray-500 text-sm">({user.email})</span></span>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                        {searchTerm && debouncedSearchTerm === searchTerm && searchResults.length === 0 && !isSearching && !selectedUser && (
+                                            <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-2 px-3 text-sm text-gray-500 ring-1 ring-black ring-opacity-5">
+                                                No users found.
+                                            </div>
+                                        )}
                                     </div>
-                                    <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium cursor-not-allowed opacity-70">
-                                        Add User
-                                    </button>
+                                    <div className="pt-6">
+                                        <button
+                                            type="button"
+                                            onClick={handleAddUser}
+                                            disabled={!selectedUser}
+                                            className={`px-4 py-2 text-white rounded text-sm font-medium transition-colors ${selectedUser ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-400 cursor-not-allowed'}`}
+                                        >
+                                            Add User
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 

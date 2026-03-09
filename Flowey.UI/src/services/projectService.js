@@ -28,6 +28,14 @@ export const projectService = {
         });
         return response.data;
     },
+    addUser: async (projectId, userId, roleId) => {
+        const response = await api.post('/ProjectUsers/AddUserToProject', {
+            projectId,
+            userId,
+            roleId
+        });
+        return response.data;
+    },
     removeUser: async (projectId, userId) => {
         const response = await api.delete('/ProjectUsers/RemoveUserFromProject', {
             data: { projectId, userId },
