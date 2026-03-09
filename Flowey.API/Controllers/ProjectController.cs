@@ -1,6 +1,5 @@
 ﻿using Flowey.API.Attributes;
 using Flowey.BUSINESS.DTO.Project;
-using Flowey.BUSINESS.DTO.ProjectUser;
 using Flowey.BUSINESS.Features.Projects.Commands;
 using Flowey.BUSINESS.Features.Projects.Queries;
 using Flowey.CORE.Enums;
@@ -41,28 +40,11 @@ namespace Flowey.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpGet("ProjectUsers")]
-        public async Task<IActionResult> ProjectUsers([FromQuery] Guid projectId)
-        {
-            var result = await _sender.Send(new GetProjectUsersQuery(projectId));
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
         [HttpPost("AddProject")]
         [Authorize(Policy = "RequirePremium")]
         public async Task<IActionResult> AddProject([FromBody] ProjectAddDTO project)
         {
             var result = await _sender.Send(new AddProjectWithCreatorCommand(project));
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
-        [HttpPost("AddUserToProject")]
-        [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
-        public async Task<IActionResult> AddUserToProject([FromBody] ProjectUserAddDTO projectUser)
-        {
-            var result = await _sender.Send(new AddUserToProjectCommand(projectUser));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -81,15 +63,6 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> DeleteProject([FromBody] Guid projectId)
         {
             var result = await _sender.Send(new SoftDeleteProjectCommand(projectId));
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
-        [HttpDelete("RemoveUserFromProject")]
-        [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
-        public async Task<IActionResult> RemoveUserFromProject([FromBody] ProjectRemoveUserDTO projectUser)
-        {
-            var result = await _sender.Send(new RemoveUserFromProjectCommand(projectUser));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

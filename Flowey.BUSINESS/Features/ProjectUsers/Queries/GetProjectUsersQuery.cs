@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Flowey.BUSINESS.Features.Projects.Queries
+namespace Flowey.BUSINESS.Features.ProjectUsers.Queries
 {
     public class GetProjectUsersQuery : IRequest<IDataResult<List<UserSelectDTO>>>
     {

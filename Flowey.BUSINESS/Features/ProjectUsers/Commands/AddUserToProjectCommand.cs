@@ -10,7 +10,7 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Flowey.BUSINESS.Features.Projects.Commands
+namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
 {
     public class AddUserToProjectCommand : IRequest<IResult>
     {

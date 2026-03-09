@@ -1,16 +1,14 @@
 using Flowey.BUSINESS.DTO.ProjectUser;
 using Flowey.CORE.Constants;
-using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.CORE.DataAccess.Abstract;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Flowey.BUSINESS.Features.Projects.Commands
+namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
 {
     public class RemoveUserFromProjectCommand : IRequest<IResult>
     {

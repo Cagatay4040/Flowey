@@ -42,6 +42,11 @@ namespace Flowey.CORE.Constants
         public const string ProjectRemoveUserError = "Could not remove user";
         public const string ProjectStepsNotFound = "No steps found for this project";
 
+        public const string ProjectOwnershipTransferred = "Project ownership has been successfully transferred.";
+        public const string ProjectOwnershipTransferFailed = "An error occurred while transferring project ownership.";
+        public const string CannotTransferOwnershipToYourself = "You cannot transfer project ownership to yourself.";
+        public const string UnauthorizedToTransferOwnership = "You are not authorized to transfer the ownership of this project.";
+
         public const string UserAdded = "User added successfully";
         public const string UserUpdated = "User updated successfully";
         public const string UserDeleted = "User deleted successfully";
