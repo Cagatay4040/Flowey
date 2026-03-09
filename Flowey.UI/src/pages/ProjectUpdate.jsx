@@ -7,7 +7,14 @@ const ProjectUpdate = () => {
     const { projectId } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const [currentUserRole] = useState(location.state?.currentUserRole || localStorage.getItem(`role_${projectId}`) || 'EDITOR');
+
+    // Maintain state for currentUserRole. Update localStorage if location.state provides it.
+    const [currentUserRole, setCurrentUserRole] = useState(
+        location.state?.currentUserRole || localStorage.getItem(`role_${projectId}`) || 'EDITOR'
+    );
+
+    // Helper to get current user info if needed
+    const currentUserId = localStorage.getItem('userId');
 
     useEffect(() => {
         if (location.state?.currentUserRole) {
@@ -110,6 +117,33 @@ const ProjectUpdate = () => {
             fetchProjectUsers();
         } catch (error) {
             setUsersMessage({ type: 'error', text: error.response?.data?.message || 'Failed to remove user.' });
+        }
+    };
+
+    const handleRoleChange = async (userId, newRoleId) => {
+        setUsersMessage({ type: '', text: '' });
+        try {
+            await projectService.updateRole(projectId, userId, newRoleId);
+            setUsersMessage({ type: 'success', text: 'User role updated successfully.' });
+            fetchProjectUsers();
+        } catch (error) {
+            setUsersMessage({ type: 'error', text: error.response?.data?.message || 'Failed to update user role.' });
+        }
+    };
+
+    const handleTransferOwnership = async (newOwnerId) => {
+        if (!window.confirm("Are you sure you want to transfer ownership to this user? You will lose Admin privileges.")) return;
+
+        setUsersMessage({ type: '', text: '' });
+        try {
+            await projectService.transferOwnership(projectId, newOwnerId);
+            setUsersMessage({ type: 'success', text: 'Ownership transferred successfully.' });
+            // The current user lost admin, so we need to refresh role or redirect.
+            setCurrentUserRole('EDITOR'); // Downgrade locally to reflect changes
+            localStorage.setItem(`role_${projectId}`, 'EDITOR');
+            fetchProjectUsers();
+        } catch (error) {
+            setUsersMessage({ type: 'error', text: error.response?.data?.message || 'Failed to transfer ownership.' });
         }
     };
 
@@ -434,27 +468,29 @@ const ProjectUpdate = () => {
                             )}
 
                             {/* Dummy Add User Searchbox */}
-                            <div className="mb-8 p-4 border border-gray-200 rounded-md bg-gray-50 flex items-end space-x-3">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Add User to Project</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                            <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
+                            {['ADMIN', 'EDITOR'].includes(currentUserRole) && (
+                                <div className="mb-8 p-4 border border-gray-200 rounded-md bg-gray-50 flex items-end space-x-3">
+                                    <div className="flex-1">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Add User to Project</label>
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                placeholder="Search a user by name or email..."
+                                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            />
                                         </div>
-                                        <input
-                                            type="text"
-                                            placeholder="Search a user by name or email..."
-                                            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                        />
+                                        <p className="mt-1 flex text-xs text-gray-400">Search functionality will be added soon.</p>
                                     </div>
-                                    <p className="mt-1 flex text-xs text-gray-400">Search functionality will be added soon.</p>
+                                    <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium cursor-not-allowed opacity-70">
+                                        Add User
+                                    </button>
                                 </div>
-                                <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium cursor-not-allowed opacity-70">
-                                    Add User
-                                </button>
-                            </div>
+                            )}
 
                             {/* User List */}
                             <div className="mt-6 border border-gray-200 rounded-md overflow-hidden">
@@ -473,8 +509,32 @@ const ProjectUpdate = () => {
                                                         <div className="text-sm text-gray-500">{user.email}</div>
                                                     </div>
                                                 </div>
-                                                <div className="flex space-x-2">
-                                                    {currentUserRole !== 'VIEWER' && (
+                                                <div className="flex space-x-3 items-center">
+                                                    {currentUserRole === 'ADMIN' && user.roleId !== 1 ? (
+                                                        <select
+                                                            value={user.roleId}
+                                                            onChange={(e) => handleRoleChange(user.id, parseInt(e.target.value))}
+                                                            className="text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-1 border outline-none"
+                                                        >
+                                                            <option value={2}>Editor</option>
+                                                            <option value={3}>Member</option>
+                                                        </select>
+                                                    ) : (
+                                                        <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                                                            {user.roleName || 'Unknown'}
+                                                        </span>
+                                                    )}
+
+                                                    {currentUserRole === 'ADMIN' && user.roleId !== 1 && (
+                                                        <button
+                                                            onClick={() => handleTransferOwnership(user.id)}
+                                                            className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded border border-transparent hover:border-blue-200 transition-colors"
+                                                        >
+                                                            Transfer Ownership
+                                                        </button>
+                                                    )}
+
+                                                    {['ADMIN', 'EDITOR'].includes(currentUserRole) && user.roleId !== 1 && (
                                                         <button
                                                             onClick={() => handleRemoveUser(user.id)}
                                                             className="px-3 py-1 text-sm text-red-600 hover:bg-red-50 rounded border border-transparent hover:border-red-200 transition-colors"

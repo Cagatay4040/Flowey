@@ -67,7 +67,7 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
                 return new Result(ResultStatus.Error, Messages.ProjectUserNotFound);
 
             newOwner.RoleId = RoleType.Admin;
-            oldOwner.RoleId = RoleType.Member;
+            oldOwner.RoleId = RoleType.Editor;
 
             await _projectUserRoleRepository.UpdateAsync(newOwner);
             await _projectUserRoleRepository.UpdateAsync(oldOwner);

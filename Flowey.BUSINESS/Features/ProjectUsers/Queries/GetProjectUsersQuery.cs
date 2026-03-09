@@ -42,7 +42,9 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Queries
             {
                 Id = role.User.Id,
                 FullName = $"{role.User.Name} {role.User.Surname}",
-                Email = role.User.Email
+                Email = role.User.Email,
+                RoleId = (int)role.RoleId,
+                RoleName = role.RoleId.ToString().ToUpper()
             }).ToList();
 
             return new DataResult<List<UserSelectDTO>>(ResultStatus.Success, data);

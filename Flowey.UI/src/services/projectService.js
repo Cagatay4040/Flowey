@@ -36,5 +36,20 @@ export const projectService = {
             }
         });
         return response.data;
+    },
+    updateRole: async (projectId, userId, roleId) => {
+        const response = await api.put('/ProjectUsers/UpdateRole', {
+            projectId,
+            userId,
+            roleId
+        });
+        return response.data;
+    },
+    transferOwnership: async (projectId, newOwnerId) => {
+        const response = await api.post('/ProjectUsers/Transfer-ownership', {
+            projectId,
+            newOwnerId
+        });
+        return response.data;
     }
 };
