@@ -13,6 +13,7 @@ namespace Flowey.BUSINESS.Abstract
         #region Get Methods
 
         Task<bool> IsThisEmailUsedAsync(string email);
+        Task<List<UserSelectDTO>> SearchUsersAsync(string searchTerm);
 
         #endregion
 

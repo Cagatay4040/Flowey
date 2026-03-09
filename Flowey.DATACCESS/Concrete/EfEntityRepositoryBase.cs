@@ -182,6 +182,19 @@ namespace Flowey.DATACCESS.Concrete
             return await query.ToListAsync();
         }
 
+        public virtual IQueryable<TEntity> GetQueryable(Expression<Func<TEntity, bool>> predicate = null, bool noTracking = true)
+        {
+            IQueryable<TEntity> query = entity;
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            return query;
+        }
+
         public virtual async Task<List<TEntity>> GetAll(bool noTracking = true)
         {
             if (noTracking)

@@ -19,6 +19,17 @@ namespace Flowey.API.Controllers
             _userService = userService;
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return Ok(new List<UserSelectDTO>());
+
+            var users = await _userService.SearchUsersAsync(searchTerm);
+
+            return Ok(users);
+        }
+
         [Authorize]
         [HttpPost("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDTO dto)

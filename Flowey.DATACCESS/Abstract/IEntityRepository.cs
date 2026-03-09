@@ -41,6 +41,7 @@ namespace Flowey.DATACCESS.Abstract
         #region Get Methods
         Task<List<TEntity>> GetAll(bool noTracking = true);
         Task<List<TEntity>> GetList(Expression<Func<TEntity, bool>> predicate, bool noTracking = true, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, params Expression<Func<TEntity, object>>[] includes);
+        IQueryable<TEntity> GetQueryable(Expression<Func<TEntity, bool>> predicate = null, bool noTracking = true);
         Task<TEntity> GetByIdAsync(Guid id, bool noTracking = true, params Expression<Func<TEntity, object>>[] includes);
         bool Any(Expression<Func<TEntity, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);

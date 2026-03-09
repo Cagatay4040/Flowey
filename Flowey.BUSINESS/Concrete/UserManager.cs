@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -18,14 +19,12 @@ namespace Flowey.BUSINESS.Concrete
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserManager(IMapper mapper, IPasswordHasher<User> passwordHasher, IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserManager(IMapper mapper, IUserRepository userRepository, IUnitOfWork unitOfWork)
         {
             _mapper = mapper;
             _userRepository = userRepository;
-            _passwordHasher = passwordHasher;
             _unitOfWork = unitOfWork;
         }
 
@@ -46,6 +45,30 @@ namespace Flowey.BUSINESS.Concrete
         public async Task<bool> IsThisEmailUsedAsync(string email)
         {
             return await _userRepository.AnyAsync(x => x.Email == email);
+        }
+
+        public async Task<List<UserSelectDTO>> SearchUsersAsync(string searchTerm)
+        {
+            var term = searchTerm.Trim().ToLower();
+
+            var users = await _userRepository.
+                GetQueryable(u =>  u.Name.ToLower().Contains(term) ||
+                        u.Surname.ToLower().Contains(term) ||
+                        u.Email.ToLower().Contains(term),
+                        true
+                        )
+                .OrderBy(x => x.Name)
+                .ThenBy(x => x.Surname)
+                .Select(u => new UserSelectDTO 
+                {
+                    Id = u.Id,
+                    FullName = $"{u.Name} {u.Surname}", 
+                    Email = u.Email,
+                })
+                .Take(10)
+                .ToListAsync();
+
+            return users;
         }
 
         #endregion
