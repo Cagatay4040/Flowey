@@ -1,5 +1,4 @@
-﻿using Flowey.BUSINESS.DTO.ProjectUser;
-using Flowey.CORE.Constants;
+﻿using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
@@ -17,11 +16,13 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
 {
     public class TransferOwnershipCommand : IRequest<IResult>
     {
-        public TransferOwnershipDTO TransferOwnershipDTO { get; set; }
+        public Guid ProjectId { get; set; }
+        public Guid NewOwnerId { get; set; }
 
-        public TransferOwnershipCommand(TransferOwnershipDTO transferOwnershipDTO)
+        public TransferOwnershipCommand(Guid projectId, Guid newOwnerId)
         {
-            TransferOwnershipDTO = transferOwnershipDTO;
+            ProjectId = projectId;
+            NewOwnerId = newOwnerId;
         }
     }
 
@@ -45,11 +46,11 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
         {
             var currentUserId = _currentUserService.GetUserId();
 
-            if(currentUserId == request.TransferOwnershipDTO.NewOwnerId)
+            if(currentUserId == request.NewOwnerId)
                 return new Result(ResultStatus.Error, Messages.CannotTransferOwnershipToYourself);
 
             var oldOwner = await _projectUserRoleRepository.FirstOrDefaultAsync(
-                x => x.ProjectId == request.TransferOwnershipDTO.ProjectId &&
+                x => x.ProjectId == request.ProjectId &&
                      x.UserId == currentUserId);
 
             if (oldOwner == null)
@@ -59,8 +60,8 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
                 return new Result(ResultStatus.Error, Messages.UnauthorizedToTransferOwnership);
 
             var newOwner = await _projectUserRoleRepository.FirstOrDefaultAsync(
-                x => x.ProjectId == request.TransferOwnershipDTO.ProjectId &&
-                     x.UserId == request.TransferOwnershipDTO.NewOwnerId);
+                x => x.ProjectId == request.ProjectId &&
+                     x.UserId == request.NewOwnerId);
 
             if (newOwner == null)
                 return new Result(ResultStatus.Error, Messages.ProjectUserNotFound);

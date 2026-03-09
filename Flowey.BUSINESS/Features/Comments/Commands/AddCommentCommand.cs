@@ -1,6 +1,4 @@
-using AutoMapper;
 using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.Comment;
 using Flowey.BUSINESS.DTO.Notification;
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Constants;
@@ -21,11 +19,15 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
 {
     public class AddCommentCommand : IRequest<IResult>
     {
-        public CommentAddDTO Dto { get; set; }
+        public string Content { get; set; }
+        public Guid TaskId { get; set; }
+        public Guid UserId { get; set; }
 
-        public AddCommentCommand(CommentAddDTO dto)
+        public AddCommentCommand(string content, Guid taskId, Guid userId)
         {
-            Dto = dto;
+            Content = content;
+            TaskId = taskId;
+            UserId = userId;
         }
     }
 
@@ -33,7 +35,6 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
     {
         private readonly ICommentRepository _commentRepository;
         private readonly ITaskRepository _taskRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserNotificationService _userNotificationService;
         private readonly ICurrentUserService _currentUserService;
@@ -42,7 +43,6 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
         public AddCommentCommandHandler(
             ICommentRepository commentRepository,
             ITaskRepository taskRepository,
-            IMapper mapper,
             IUnitOfWork unitOfWork,
             IUserNotificationService userNotificationService,
             ICurrentUserService currentUserService,
@@ -50,7 +50,6 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
         {
             _commentRepository = commentRepository;
             _taskRepository = taskRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
             _userNotificationService = userNotificationService;
             _currentUserService = currentUserService;
@@ -59,22 +58,26 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
 
         public async Task<IResult> Handle(AddCommentCommand request, CancellationToken cancellationToken)
         {
-            var existingTask = await _taskRepository.AnyAsync(x => x.Id == request.Dto.TaskId);
+            var existingTask = await _taskRepository.AnyAsync(x => x.Id == request.TaskId);
 
             if (!existingTask)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            var cleanContent = request.Dto.Content.ToSafeRichText();
+            var cleanContent = request.Content.ToSafeRichText();
 
-            var comment = _mapper.Map<Comment>(request.Dto);
-            comment.Content = cleanContent;
+            var comment = new Comment
+            {
+                Content = cleanContent,
+                TaskId = request.TaskId,
+                UserId = request.UserId
+            };
 
             await _commentRepository.AddAsync(comment);
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
             {
-                await SendMentionNotificationsAsync(cleanContent, request.Dto.TaskId);
+                await SendMentionNotificationsAsync(cleanContent, request.TaskId);
                 return new Result(ResultStatus.Success, Messages.CommentAdded);
             }
 

@@ -44,7 +44,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)
         {
-            var result = await _sender.Send(new AddTaskCommand(task));
+            var result = await _sender.Send(new AddTaskCommand(task.Title, task.Description, task.Priority, task.Deadline, task.ProjectId, task.UserId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -53,7 +53,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> ChangeAssignTask([FromBody] TaskAssignDTO task)
         {
-            var result = await _sender.Send(new ChangeAssignTaskCommand(task));
+            var result = await _sender.Send(new ChangeAssignTaskCommand(task.TaskId, task.UserId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -62,7 +62,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> ChangeStepTask([FromBody] TaskStepDTO task)
         {
-            var result = await _sender.Send(new ChangeStepTaskCommand(task));
+            var result = await _sender.Send(new ChangeStepTaskCommand(task.TaskId, task.NewStepId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -71,7 +71,7 @@ namespace Flowey.API.Controllers
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateTask([FromBody] TaskUpdateDTO task)
         {
-            var result = await _sender.Send(new UpdateTaskCommand(task));
+            var result = await _sender.Send(new UpdateTaskCommand(task.TaskId, task.Title, task.Description, task.Priority, task.Deadline));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

@@ -51,16 +51,7 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddStep([FromBody] StepAddDTO step)
         {
-            var result = await _sender.Send(new AddStepCommand(step));
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
-        [HttpPost("AddSteps")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
-        public async Task<IActionResult> AddSteps([FromBody] List<StepAddDTO> steps)
-        {
-            var result = await _sender.Send(new AddRangeStepCommand(steps));
+            var result = await _sender.Send(new AddStepCommand(step.Name, step.Order, step.ProjectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -69,25 +60,16 @@ namespace Flowey.API.Controllers
         [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateStep([FromBody] StepUpdateDTO step)
         {
-            var result = await _sender.Send(new UpdateStepCommand(step));
-            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
-            return BadRequest(result);
-        }
-
-        [HttpPut("UpdateSteps")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
-        public async Task<IActionResult> UpdateSteps([FromBody] List<StepUpdateDTO> steps)
-        {
-            var result = await _sender.Send(new UpdateRangeStepCommand(steps));
+            var result = await _sender.Send(new UpdateStepCommand(step.StepId, step.Name, step.Order));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
 
         [HttpDelete("DeleteStep")]
         [StepAuthorize(RoleType.Admin, RoleType.Editor)]
-        public async Task<IActionResult> DeleteStep([FromBody] StepDeleteDTO stepDto)
+        public async Task<IActionResult> DeleteStep([FromBody] StepDeleteDTO step)
         {
-            var result = await _sender.Send(new SoftDeleteStepCommand(stepDto));
+            var result = await _sender.Send(new SoftDeleteStepCommand(step.StepId, step.TargetStepId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

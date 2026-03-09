@@ -1,4 +1,3 @@
-using Flowey.BUSINESS.DTO.Project;
 using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Enums;
@@ -16,11 +15,13 @@ namespace Flowey.BUSINESS.Features.Projects.Commands
 {
     public class AddProjectWithCreatorCommand : IRequest<IResult>
     {
-        public ProjectAddDTO ProjectAddDTO { get; set; }
+        public string Name { get; set; }
+        public string ProjectKey { get; set; }
 
-        public AddProjectWithCreatorCommand(ProjectAddDTO projectAddDTO)
+        public AddProjectWithCreatorCommand(string name, string projectKey)
         {
-            ProjectAddDTO = projectAddDTO;
+            Name = name;
+            ProjectKey = projectKey;
         }
     }
 
@@ -45,8 +46,8 @@ namespace Flowey.BUSINESS.Features.Projects.Commands
             var newProject = new Project
             {
                 Id = Guid.NewGuid(),
-                Name = request.ProjectAddDTO.Name,
-                ProjectKey = request.ProjectAddDTO.ProjectKey,
+                Name = request.Name,
+                ProjectKey = request.ProjectKey,
                 ProjectUserRoles = new List<ProjectUserRole>
                 {
                     new ProjectUserRole

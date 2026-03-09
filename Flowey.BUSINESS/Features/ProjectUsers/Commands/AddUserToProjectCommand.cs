@@ -1,7 +1,5 @@
-using AutoMapper;
-using Flowey.BUSINESS.DTO.ProjectUser;
 using Flowey.CORE.Constants;
-using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -14,11 +12,15 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
 {
     public class AddUserToProjectCommand : IRequest<IResult>
     {
-        public ProjectUserAddDTO ProjectUserAddDTO { get; set; }
+        public Guid UserId { get; set; }
+        public Guid ProjectId { get; set; }
+        public RoleType RoleId { get; set; }
 
-        public AddUserToProjectCommand(ProjectUserAddDTO projectUserAddDTO)
+        public AddUserToProjectCommand(Guid userId, Guid projectId, RoleType role)
         {
-            ProjectUserAddDTO = projectUserAddDTO;
+            UserId = userId;
+            ProjectId = projectId;
+            RoleId = role;
         }
     }
 
@@ -26,26 +28,29 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IEntityRepository<ProjectUserRole> _projectUserRoleRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public AddUserToProjectCommandHandler(
             IProjectRepository projectRepository, 
             IEntityRepository<ProjectUserRole> projectUserRoleRepository, 
-            IMapper mapper, 
             IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
             _projectUserRoleRepository = projectUserRoleRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IResult> Handle(AddUserToProjectCommand request, CancellationToken cancellationToken)
         {
-            var projectUser = _mapper.Map<ProjectUserRole>(request.ProjectUserAddDTO);
+            var projectUser = new ProjectUserRole
+            {
+                UserId = request.UserId,
+                ProjectId = request.ProjectId,
+                RoleId = request.RoleId,
+            };
 
             bool isExists = await _projectRepository.IsUserInProjectAsync(projectUser.ProjectId, projectUser.UserId);
+
             if (isExists)
                 return new Result(ResultStatus.Error, Messages.ProjectAlreadyAssignedToUser);
 

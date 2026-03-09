@@ -1,5 +1,3 @@
-using AutoMapper;
-using Flowey.BUSINESS.DTO.Step;
 using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -12,38 +10,40 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
 {
     public class UpdateStepCommand : IRequest<IResult>
     {
-        public StepUpdateDTO StepUpdateDTO { get; set; }
+        public Guid StepId { get; set; }
+        public string Name { get; set; }
+        public int Order { get; set; }
 
-        public UpdateStepCommand(StepUpdateDTO stepUpdateDTO)
+        public UpdateStepCommand(Guid stepId, string name, int order)
         {
-            StepUpdateDTO = stepUpdateDTO;
+            StepId = stepId;    
+            Name = name;
+            Order = order;
         }
     }
 
     public class UpdateStepCommandHandler : IRequestHandler<UpdateStepCommand, IResult>
     {
         private readonly IStepRepository _stepRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateStepCommandHandler(
             IStepRepository stepRepository, 
-            IMapper mapper, 
             IUnitOfWork unitOfWork)
         {
             _stepRepository = stepRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IResult> Handle(UpdateStepCommand request, CancellationToken cancellationToken)
         {
-            var existingStep = await _stepRepository.GetByIdAsync(request.StepUpdateDTO.StepId);
+            var existingStep = await _stepRepository.GetByIdAsync(request.StepId);
 
             if (existingStep == null)
                 return new Result(ResultStatus.Error, Messages.StepNotFound);
 
-            _mapper.Map(request.StepUpdateDTO, existingStep);
+            existingStep.Name = request.Name;
+            existingStep.Order = request.Order;
 
             await _stepRepository.UpdateAsync(existingStep);
             int effectedRow = await _unitOfWork.SaveChangesAsync();

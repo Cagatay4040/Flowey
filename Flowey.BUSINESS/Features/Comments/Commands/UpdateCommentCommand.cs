@@ -1,8 +1,5 @@
-using AutoMapper;
-using Flowey.BUSINESS.DTO.Comment;
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Constants;
-using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -14,37 +11,35 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
 {
     public class UpdateCommentCommand : IRequest<IResult>
     {
-        public CommentUpdateDTO Dto { get; set; }
+        public Guid CommentId { get; set; }
+        public string Content { get; set; }
 
-        public UpdateCommentCommand(CommentUpdateDTO dto)
+        public UpdateCommentCommand(Guid commentId, string content)
         {
-            Dto = dto;
+            CommentId = commentId;
+            Content = content;
         }
     }
 
     public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand, IResult>
     {
         private readonly ICommentRepository _commentRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateCommentCommandHandler(ICommentRepository commentRepository, IMapper mapper, IUnitOfWork unitOfWork)
+        public UpdateCommentCommandHandler(ICommentRepository commentRepository, IUnitOfWork unitOfWork)
         {
             _commentRepository = commentRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IResult> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
         {
-            var existingComment = await _commentRepository.GetByIdAsync(request.Dto.CommentId);
+            var existingComment = await _commentRepository.GetByIdAsync(request.CommentId);
 
             if (existingComment == null)
                 return new Result(ResultStatus.Error, Messages.CommentNotFound);
 
-            var cleanContent = request.Dto.Content.ToSafeRichText();
-
-            _mapper.Map(request.Dto, existingComment);
+            var cleanContent = request.Content.ToSafeRichText();
 
             existingComment.Content = cleanContent;
 

@@ -37,7 +37,7 @@ namespace Flowey.API.Controllers
         [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddComment([FromBody] CommentAddDTO dto)
         {
-            var result = await _sender.Send(new AddCommentCommand(dto));
+            var result = await _sender.Send(new AddCommentCommand(dto.Content, dto.TaskId, dto.UserId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -46,7 +46,7 @@ namespace Flowey.API.Controllers
         [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateDTO dto)
         {
-            var result = await _sender.Send(new UpdateCommentCommand(dto));
+            var result = await _sender.Send(new UpdateCommentCommand(dto.CommentId, dto.Content));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

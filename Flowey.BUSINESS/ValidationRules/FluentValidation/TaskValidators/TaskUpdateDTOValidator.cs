@@ -21,13 +21,6 @@ namespace Flowey.BUSINESS.ValidationRules.FluentValidation.TaskValidators
             RuleFor(x => x.Description)
                 .NotEmptyHtml().WithMessage(Messages.RequiredField)
                 .MaximumLength(500).WithMessage(Messages.MaxLengthExceeded);
-
-            When(x => x.Deadline.HasValue, () =>
-            {
-                RuleFor(x => x.Deadline)
-                    .Must(d => d.Value >= DateTime.UtcNow)
-                    .WithMessage(Messages.DeadlineCannotBeInThePast);
-            });
         }
     }
 }

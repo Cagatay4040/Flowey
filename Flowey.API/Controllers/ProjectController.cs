@@ -44,7 +44,7 @@ namespace Flowey.API.Controllers
         [Authorize(Policy = "RequirePremium")]
         public async Task<IActionResult> AddProject([FromBody] ProjectAddDTO project)
         {
-            var result = await _sender.Send(new AddProjectWithCreatorCommand(project));
+            var result = await _sender.Send(new AddProjectWithCreatorCommand(project.Name, project.ProjectKey));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -53,7 +53,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectUpdateDTO project)
         {
-            var result = await _sender.Send(new UpdateProjectCommand(project));
+            var result = await _sender.Send(new UpdateProjectCommand(project.ProjectId, project.Name, project.ProjectKey));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

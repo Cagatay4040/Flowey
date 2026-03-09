@@ -1,8 +1,7 @@
-using AutoMapper;
 using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.Task;
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Constants;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -18,45 +17,50 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
     public class UpdateTaskCommand : IRequest<IResult>
     {
-        public TaskUpdateDTO TaskUpdateDTO { get; set; }
+        public Guid TaskId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public PriorityType Priority { get; set; }
+        public DateTime? Deadline { get; set; }
 
-        public UpdateTaskCommand(TaskUpdateDTO taskUpdateDTO)
+        public UpdateTaskCommand(Guid taskId, string title, string description, PriorityType priority, DateTime? deadline)
         {
-            TaskUpdateDTO = taskUpdateDTO;
+            TaskId = taskId;
+            Title = title;
+            Description = description;
+            Priority = priority;
+            Deadline = deadline;
         }
     }
 
     public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, IResult>
     {
         private readonly ITaskRepository _taskRepository;
-        private readonly IMapper _mapper;
         private readonly IUserNotificationService _userNotificationService;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateTaskCommandHandler(
             ITaskRepository taskRepository,
-            IMapper mapper,
             IUserNotificationService userNotificationService,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
-            _mapper = mapper;
             _userNotificationService = userNotificationService;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IResult> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
         {
-            var dto = request.TaskUpdateDTO;
-            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId, false, x => x.TaskHistories);
+            var existingTask = await _taskRepository.GetByIdAsync(request.TaskId, false, x => x.TaskHistories);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
-
-            _mapper.Map(dto, existingTask);
-
-            existingTask.Description = dto.Description.ToSafeRichText();
+  
+            existingTask.Title = request.Title;
+            existingTask.Description = request.Description.ToSafeRichText();
+            existingTask.Priority = request.Priority;
+            existingTask.Deadline = request.Deadline;   
 
             existingTask.TaskHistories.Add(new TaskHistory
             {

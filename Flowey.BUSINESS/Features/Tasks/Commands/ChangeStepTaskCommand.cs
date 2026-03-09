@@ -1,4 +1,3 @@
-using Flowey.BUSINESS.DTO.Task;
 using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -12,11 +11,13 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
     public class ChangeStepTaskCommand : IRequest<IResult>
     {
-        public TaskStepDTO TaskStepDTO { get; set; }
+        public Guid TaskId { get; set; }
+        public Guid NewStepId { get; set; }
 
-        public ChangeStepTaskCommand(TaskStepDTO taskStepDTO)
+        public ChangeStepTaskCommand(Guid taskId, Guid newStepId)
         {
-            TaskStepDTO = taskStepDTO;
+            TaskId = taskId;
+            NewStepId = newStepId;
         }
     }
 
@@ -33,13 +34,12 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
         public async Task<IResult> Handle(ChangeStepTaskCommand request, CancellationToken cancellationToken)
         {
-            var dto = request.TaskStepDTO;
-            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId, false, x => x.TaskHistories);
+            var existingTask = await _taskRepository.GetByIdAsync(request.TaskId, false, x => x.TaskHistories);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            existingTask.CurrentStepId = dto.NewStepId;
+            existingTask.CurrentStepId = request.NewStepId;
 
             existingTask.TaskHistories.Add(new TaskHistory
             {

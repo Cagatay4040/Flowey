@@ -6,7 +6,7 @@ export const projectService = {
         return response.data.data || response.data;
     },
     getProjectUsers: async (projectId) => {
-        const response = await api.get(`/Project/ProjectUsers`, {
+        const response = await api.get(`/ProjectUsers/ProjectUsers`, {
             params: { projectId }
         });
         return response.data.data || response.data;
@@ -29,7 +29,7 @@ export const projectService = {
         return response.data;
     },
     removeUser: async (projectId, userId) => {
-        const response = await api.delete('/Project/RemoveUserFromProject', {
+        const response = await api.delete('/ProjectUsers/RemoveUserFromProject', {
             data: { projectId, userId },
             headers: {
                 'Content-Type': 'application/json'

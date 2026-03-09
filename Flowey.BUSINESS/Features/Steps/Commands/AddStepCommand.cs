@@ -1,5 +1,3 @@
-using AutoMapper;
-using Flowey.BUSINESS.DTO.Step;
 using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -13,11 +11,15 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
 {
     public class AddStepCommand : IRequest<IResult>
     {
-        public StepAddDTO StepAddDTO { get; set; }
+        public string Name { get; set; }
+        public int Order { get; set; }
+        public Guid ProjectId { get; set; }
 
-        public AddStepCommand(StepAddDTO stepAddDTO)
+        public AddStepCommand(string name, int order, Guid projectId)
         {
-            StepAddDTO = stepAddDTO;
+            Name = name;
+            Order = order;
+            ProjectId = projectId;
         }
     }
 
@@ -25,29 +27,31 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
     {
         private readonly IStepRepository _stepRepository;
         private readonly IProjectRepository _projectRepository;
-        private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public AddStepCommandHandler(
             IStepRepository stepRepository, 
             IProjectRepository projectRepository, 
-            IMapper mapper, 
             IUnitOfWork unitOfWork)
         {
             _stepRepository = stepRepository;
             _projectRepository = projectRepository;
-            _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
 
         public async Task<IResult> Handle(AddStepCommand request, CancellationToken cancellationToken)
         {
-            var existingProject = await _projectRepository.AnyAsync(x => x.Id == request.StepAddDTO.ProjectId);
+            var existingProject = await _projectRepository.AnyAsync(x => x.Id == request.ProjectId);
 
             if (!existingProject)
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);
 
-            var step = _mapper.Map<Step>(request.StepAddDTO);
+            var step = new Step
+            {
+                Name = request.Name,
+                Order = request.Order,
+                ProjectId = request.ProjectId
+            };
 
             await _stepRepository.AddAsync(step);
             int effectedRow = await _unitOfWork.SaveChangesAsync();

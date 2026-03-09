@@ -1,6 +1,5 @@
 using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.DTO.Notification;
-using Flowey.BUSINESS.DTO.Task;
 using Flowey.CORE.Constants;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -15,11 +14,13 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
     public class ChangeAssignTaskCommand : IRequest<IResult>
     {
-        public TaskAssignDTO TaskAssignDTO { get; set; }
+        public Guid TaskId { get; set; }
+        public Guid? UserId { get; set; }
 
-        public ChangeAssignTaskCommand(TaskAssignDTO taskAssignDTO)
+        public ChangeAssignTaskCommand(Guid taskId, Guid? userId)
         {
-            TaskAssignDTO = taskAssignDTO;
+            TaskId = taskId;
+            UserId = userId;
         }
     }
 
@@ -47,18 +48,17 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
         public async Task<IResult> Handle(ChangeAssignTaskCommand request, CancellationToken cancellationToken)
         {
-            var dto = request.TaskAssignDTO;
-            var existingTask = await _taskRepository.GetByIdAsync(dto.TaskId, false, x => x.TaskHistories);
+            var existingTask = await _taskRepository.GetByIdAsync(request.TaskId, false, x => x.TaskHistories);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-            existingTask.AssigneeId = dto.UserId;
+            existingTask.AssigneeId = request.UserId;
 
             existingTask.TaskHistories.Add(new TaskHistory
             {
                 TaskId = existingTask.Id,
-                UserId = dto.UserId,
+                UserId = request.UserId,
                 StepId = existingTask.CurrentStepId
             });
 
@@ -67,7 +67,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
             if (effectedRow > 0)
             {
-                if (dto.UserId.HasValue && dto.UserId != _currentUserService.GetUserId().Value)
+                if (request.UserId.HasValue && request.UserId != _currentUserService.GetUserId().Value)
                 {
                     string taskIdentifier = existingTask.TaskKey != null
                                             ? $"task #{existingTask.TaskKey}"
@@ -78,7 +78,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
                     await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
                     {
-                        UserId = dto.UserId.Value,
+                        UserId = request.UserId.Value,
                         SenderId = _currentUserService.GetUserId().Value,
                         Title = Messages.TaskReassignedTitle,
                         Message = string.Format(Messages.TaskReassignedMessage, senderName, taskIdentifier),

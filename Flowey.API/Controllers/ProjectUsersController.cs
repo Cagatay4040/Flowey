@@ -35,7 +35,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddUserToProject([FromBody] ProjectUserAddDTO projectUser)
         {
-            var result = await _sender.Send(new AddUserToProjectCommand(projectUser));
+            var result = await _sender.Send(new AddUserToProjectCommand(projectUser.UserId, projectUser.ProjectId, projectUser.RoleId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -44,7 +44,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin)]
         public async Task<IActionResult> TransferOwnership([FromBody] TransferOwnershipDTO dto)
         {
-            var result = await _sender.Send(new TransferOwnershipCommand(dto));
+            var result = await _sender.Send(new TransferOwnershipCommand(dto.ProjectId, dto.NewOwnerId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
@@ -53,7 +53,7 @@ namespace Flowey.API.Controllers
         [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> RemoveUserFromProject([FromBody] ProjectRemoveUserDTO projectUser)
         {
-            var result = await _sender.Send(new RemoveUserFromProjectCommand(projectUser));
+            var result = await _sender.Send(new RemoveUserFromProjectCommand(projectUser.UserId, projectUser.ProjectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
