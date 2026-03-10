@@ -51,7 +51,7 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
     const [status, setStatus] = useState(task.status);
-    const [assignedToUserId, setAssignedToUserId] = useState(task.assignedToUserId);
+    const [assignedToUserId, setAssignedToUserId] = useState(task.assigneeId || task.assignedToUserId);
     const [priority, setPriority] = useState(task.priority);
     const [deadline, setDeadline] = useState(task.deadline && task.deadline.includes('T') ? task.deadline.substring(0, 16) : (task.deadline || ''));
     const [storyPoints, setStoryPoints] = useState(task.storyPoints);
@@ -228,11 +228,15 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                 title: title,
                 description: description,
                 priority: Number(priority),
-                deadline: deadline || null
+                deadline: deadline || null,
+                assignedToUserId: assignedToUserId || null
             };
 
             await boardService.updateTask(updated);
-            onUpdate(updated);
+            if (task.assignedToUserId !== assignedToUserId && task.assigneeId !== assignedToUserId) {
+                await boardService.changeAssignTask(task.id, assignedToUserId || null);
+            }
+            onUpdate({ ...updated, assigneeId: assignedToUserId || null });
             onClose();
         } catch (error) {
             console.error("Failed to update task", error);
@@ -274,6 +278,19 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                         onChange={(e) => setDeadline(e.target.value)}
                                         className="p-1.5 border border-gray-300 rounded-md bg-white text-sm text-gray-800 cursor-pointer focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm"
                                     />
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <span className="font-bold text-sm text-gray-700">Assignee:</span>
+                                    <select
+                                        value={assignedToUserId || ''}
+                                        onChange={(e) => setAssignedToUserId(e.target.value)}
+                                        className="w-32 p-1.5 border border-gray-300 rounded-md bg-white text-sm text-gray-800 cursor-pointer focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none shadow-sm"
+                                    >
+                                        <option value="">Unassigned</option>
+                                        {projectUsers.map(u => (
+                                            <option key={u.id} value={u.id}>{u.value}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
                         </div>

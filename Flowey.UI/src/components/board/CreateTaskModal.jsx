@@ -43,6 +43,7 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const [description, setDescription] = useState('');
     const [priority, setPriority] = useState(2); // Default to Medium
     const [deadline, setDeadline] = useState('');
+    const [assigneeId, setAssigneeId] = useState('');
     const descriptionQuillRef = useRef(null);
     const [projectUsers, setProjectUsers] = useState([]);
 
@@ -176,7 +177,7 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
         if (!title.trim()) return;
-        onCreate({ title, description, priority: Number(priority), deadline: deadline || null });
+        onCreate({ title, description, priority: Number(priority), deadline: deadline || null, assigneeId: assigneeId || null });
     };
 
     return (
@@ -209,6 +210,21 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                     </div>
 
                     <div className="flex flex-wrap gap-6 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div className="flex-1 min-w-[200px]">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Assignee</label>
+                            <select
+                                value={assigneeId}
+                                onChange={(e) => setAssigneeId(e.target.value)}
+                                className="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors cursor-pointer"
+                            >
+                                <option value="">Unassigned</option>
+                                {projectUsers.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.value}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="flex-1 min-w-[200px]">
                             <label className="block text-sm font-bold text-gray-700 mb-2">Priority</label>
                             <select

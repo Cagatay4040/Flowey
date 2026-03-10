@@ -161,14 +161,8 @@ const ProjectBoard = () => {
         }
     };
 
-    const handleTaskUpdate = (updatedTask) => {
-        const newSteps = steps.map(step => {
-            if (step.tasks?.some(t => t.id === updatedTask.id)) {
-                return { ...step, tasks: step.tasks.map(t => t.id === updatedTask.id ? updatedTask : t) };
-            }
-            return step;
-        });
-        setSteps(newSteps);
+    const handleTaskUpdate = () => {
+        fetchBoard();
     };
 
     const handleDeleteTask = (taskId) => {
@@ -212,7 +206,8 @@ const ProjectBoard = () => {
                 projectId: projectId,
                 order: 0,
                 priority: taskData.priority,
-                deadline: taskData.deadline
+                deadline: taskData.deadline,
+                userId: taskData.assigneeId
             };
 
             await boardService.createTask(newTaskPayload);
