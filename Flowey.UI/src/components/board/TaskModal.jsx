@@ -364,7 +364,7 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                         ref={commentQuillRef}
                                         theme="snow"
                                         className="bg-white h-32"
-                                        defaultValue={newComment}
+                                        value={newComment}
                                         onChange={setNewComment}
                                         modules={quillModules}
                                         formats={formats}
