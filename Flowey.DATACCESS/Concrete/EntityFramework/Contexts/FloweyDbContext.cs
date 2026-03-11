@@ -1,6 +1,4 @@
-﻿
-using Flowey.CORE.Enums;
-using Flowey.DOMAIN.Model.Concrete;
+﻿using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -22,6 +20,7 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
         public DbSet<CommentAttachment> CommentAttachments { get; set; }
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
         public DbSet<UserNotification> UserNotifications { get; set; }
+        public DbSet<TaskLink> TaskLinks { get; set; }
 
         public FloweyDbContext(DbContextOptions<FloweyDbContext> options) : base(options) { }
 
@@ -66,12 +65,29 @@ namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
+            modelBuilder.Entity<TaskLink>(builder =>
+            {
+                builder.HasIndex(tl => new { tl.SourceTaskId, tl.TargetTaskId, tl.LinkType })
+                       .IsUnique();
+
+                builder.HasOne(tl => tl.SourceTask)
+                       .WithMany(t => t.OutgoingLinks)
+                       .HasForeignKey(tl => tl.SourceTaskId)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+                builder.HasOne(tl => tl.TargetTask)
+                       .WithMany(t => t.IncomingLinks)
+                       .HasForeignKey(tl => tl.TargetTaskId)
+                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
             modelBuilder.Entity<Comment>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<CommentAttachment>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Project>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<ProjectUserRole>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Step>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<Task>().HasQueryFilter(x => x.IsActive);
+            modelBuilder.Entity<TaskLink>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<TaskHistory>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<User>().HasQueryFilter(x => x.IsActive);
             modelBuilder.Entity<UserSubscription>().HasQueryFilter(x => x.IsActive);

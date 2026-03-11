@@ -31,6 +31,15 @@ namespace Flowey.API.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet("GetTaskLinks")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
+        public async Task<IActionResult> GetTaskLinks([FromQuery] Guid taskId)
+        {
+            var result = await _sender.Send(new GetTaskLinksQuery(taskId));
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
+        }
+
         [HttpGet("GetTaskHistory")]
         [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetTaskHistory([FromQuery] Guid taskId)
@@ -45,6 +54,15 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> AddTask([FromBody] TaskAddDTO task)
         {
             var result = await _sender.Send(new AddTaskCommand(task.Title, task.Description, task.Priority, task.Deadline, task.ProjectId, task.UserId));
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
+        }
+
+        [HttpPost("LinkTasks")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
+        public async Task<IActionResult> LinkTasks([FromBody] CreateTaskLinkDTO request)
+        {
+            var result = await _sender.Send(new LinkTasksCommand(request.TaskId, request.TargetTaskId, request.LinkType));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

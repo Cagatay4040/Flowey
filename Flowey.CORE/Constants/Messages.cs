@@ -26,6 +26,11 @@ namespace Flowey.CORE.Constants
         public const string TaskStepUpdatedSuccessfully = "Task step successfully updated";
         public const string TaskStepUpdateFailed = "Failed to update task step";
 
+        public const string CannotLinkTaskToItself = "A task cannot be linked to itself.";
+        public const string TaskLinkAlreadyExists = "This exact link between the tasks already exists.";
+        public const string TasksLinkedSuccessfully = "Tasks have been linked successfully.";
+        public const string TaskLinkFailed = "An error occurred while linking the tasks.";
+
         public const string ProjectAdded = "Project added successfully";
         public const string ProjectUpdated = "Project updated successfully";
         public const string ProjectDeleted = "Project deleted successfully";

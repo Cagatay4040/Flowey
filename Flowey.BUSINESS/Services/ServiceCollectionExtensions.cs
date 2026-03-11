@@ -31,6 +31,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IProjectRepository, ProjectRepository>();
             serviceCollection.AddScoped<IStepRepository, StepRepository>();
             serviceCollection.AddScoped<ITaskRepository, TaskRepository>();
+            serviceCollection.AddScoped<ITaskLinkRepository, TaskLinkRepository>();
             serviceCollection.AddScoped<ICommentRepository, CommentRepository>();
             serviceCollection.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();

@@ -34,5 +34,7 @@ namespace Flowey.DOMAIN.Model.Concrete
         [ForeignKey("AssigneeId")]
         public virtual User? User { get; set; }
         public virtual ICollection<TaskHistory> TaskHistories { get; set; }
+        public ICollection<TaskLink> OutgoingLinks { get; set; } = new List<TaskLink>();
+        public ICollection<TaskLink> IncomingLinks { get; set; } = new List<TaskLink>();
     }
 }
