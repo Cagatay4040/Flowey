@@ -106,6 +106,9 @@ namespace Flowey.CORE.Constants
         public const string BulkUpdateAborted = "Some records were not found. Bulk update aborted";
         public const string StepsUpdated = "{0} steps updated successfully";
         public const string StepsUpdateFailed = "Could not update steps";
+        public const string CannotDeleteLastRequiredCategoryStep = "This step cannot be deleted because a project must have at least one starting (To Do) and one completing (Done) step.";
+        public const string MustSelectTargetStep = "This step contains active tasks. A target step must be selected.";
+        public const string CannotDeleteLastRequiredCategoryStepBulk = "Bulk update aborted: The requested changes would leave a project without at least one 'To Do' and one 'Done' step.";
 
         public const string UnauthorizedAccess = "Unauthorized";
         public const string ProjectIdMissing = "ProjectId could not be found in request parameters or body";

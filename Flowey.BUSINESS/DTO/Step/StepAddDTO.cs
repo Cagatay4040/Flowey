@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Flowey.CORE.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Flowey.BUSINESS.DTO.Step
     {
         public string Name { get; set; }
         public int Order { get; set; }
+        public StepCategory Category { get; set; }
         public Guid ProjectId { get; set; }
     }
 }

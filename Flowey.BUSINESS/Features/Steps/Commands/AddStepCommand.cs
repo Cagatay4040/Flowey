@@ -1,4 +1,5 @@
 using Flowey.CORE.Constants;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -13,12 +14,14 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
     {
         public string Name { get; set; }
         public int Order { get; set; }
+        public StepCategory Category { get; set; }
         public Guid ProjectId { get; set; }
 
-        public AddStepCommand(string name, int order, Guid projectId)
+        public AddStepCommand(string name, int order, StepCategory category, Guid projectId)
         {
             Name = name;
             Order = order;
+            Category = category;
             ProjectId = projectId;
         }
     }
@@ -50,6 +53,7 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
             {
                 Name = request.Name,
                 Order = request.Order,
+                Category = request.Category,
                 ProjectId = request.ProjectId
             };
 

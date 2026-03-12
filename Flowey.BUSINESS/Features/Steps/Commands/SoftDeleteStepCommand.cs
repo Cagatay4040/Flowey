@@ -1,4 +1,5 @@
 using Flowey.CORE.Constants;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -44,10 +45,24 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
             if (existingStep == null)
                 return new Result(ResultStatus.Error, Messages.StepNotFound);
 
-            if (request.TargetStepId.HasValue && request.TargetStepId != Guid.Empty)
+            var projectSteps = await _stepRepository.GetList(x => x.ProjectId == existingStep.ProjectId);
+
+            var isLastToDoStep = projectSteps.Count(s => s.Category == StepCategory.ToDo) == 1;
+            if (existingStep.Category == StepCategory.ToDo && isLastToDoStep)
+                return new Result(ResultStatus.Error, Messages.CannotDeleteLastRequiredCategoryStep);
+
+            var isLastDoneStep = projectSteps.Count(s => s.Category == StepCategory.Done) == 1;
+            if (existingStep.Category == StepCategory.Done && isLastDoneStep)
+                return new Result(ResultStatus.Error, Messages.CannotDeleteLastRequiredCategoryStep);
+
+            var tasksInStep = await _taskRepository.GetList(t => t.CurrentStepId == existingStep.Id, noTracking: false);
+
+            if (tasksInStep.Any() && (!request.TargetStepId.HasValue || request.TargetStepId == Guid.Empty))
+                return new Result(ResultStatus.Error, Messages.MustSelectTargetStep);
+
+            if (request.TargetStepId.HasValue && request.TargetStepId != Guid.Empty && tasksInStep.Any())
             {
-                var tasks = await _taskRepository.GetList(t => t.CurrentStepId == existingStep.Id, false);
-                foreach (var task in tasks)
+                foreach (var task in tasksInStep)
                 {
                     task.CurrentStepId = request.TargetStepId.Value;
                 }

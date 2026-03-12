@@ -1,4 +1,5 @@
 using Flowey.CORE.Constants;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -13,12 +14,14 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
         public Guid StepId { get; set; }
         public string Name { get; set; }
         public int Order { get; set; }
+        public StepCategory Category { get; set; }
 
-        public UpdateStepCommand(Guid stepId, string name, int order)
+        public UpdateStepCommand(Guid stepId, string name, int order, StepCategory category)
         {
             StepId = stepId;    
             Name = name;
             Order = order;
+            Category = category;
         }
     }
 
@@ -28,7 +31,7 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateStepCommandHandler(
-            IStepRepository stepRepository, 
+            IStepRepository stepRepository,
             IUnitOfWork unitOfWork)
         {
             _stepRepository = stepRepository;
@@ -42,8 +45,26 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
             if (existingStep == null)
                 return new Result(ResultStatus.Error, Messages.StepNotFound);
 
+            if (existingStep.Category != request.Category)
+            {
+                if (existingStep.Category == StepCategory.ToDo)
+                {
+                    var isLastToDo = await _stepRepository.CountAsync(s => s.ProjectId == existingStep.ProjectId && s.Category == StepCategory.ToDo) == 1;
+                    if (isLastToDo)
+                        return new Result(ResultStatus.Error, Messages.CannotDeleteLastRequiredCategoryStep);
+                }
+
+                if (existingStep.Category == StepCategory.Done)
+                {
+                    var isLastDone = await _stepRepository.CountAsync(s => s.ProjectId == existingStep.ProjectId && s.Category == StepCategory.Done) == 1;
+                    if (isLastDone)
+                        return new Result(ResultStatus.Error, Messages.CannotDeleteLastRequiredCategoryStep);
+                }
+            }
+
             existingStep.Name = request.Name;
             existingStep.Order = request.Order;
+            existingStep.Category = request.Category;
 
             await _stepRepository.UpdateAsync(existingStep);
             int effectedRow = await _unitOfWork.SaveChangesAsync();
