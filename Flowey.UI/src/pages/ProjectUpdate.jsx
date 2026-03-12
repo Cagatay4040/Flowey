@@ -54,12 +54,19 @@ const ProjectUpdate = () => {
     // Add/Update Step State
     const [editingStep, setEditingStep] = useState(null); // null if adding new
     const [stepFormName, setStepFormName] = useState('');
+    const [stepFormCategory, setStepFormCategory] = useState(1);
     const [showStepForm, setShowStepForm] = useState(false);
 
     // Delete Step Modal State
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [stepToDelete, setStepToDelete] = useState(null);
     const [targetStepId, setTargetStepId] = useState('');
+
+    const getCategoryLabel = (cat) => {
+        if (cat === 2) return { label: 'In Progress', color: 'bg-blue-100 text-blue-700' };
+        if (cat === 3) return { label: 'Done', color: 'bg-green-100 text-green-700' };
+        return { label: 'To Do', color: 'bg-gray-100 text-gray-700' };
+    };
 
     useEffect(() => {
         fetchProjectData();
@@ -229,7 +236,8 @@ const ProjectUpdate = () => {
                 await stepService.updateStep({
                     stepId: editingStep.id,
                     name: stepFormName,
-                    order: editingStep.order
+                    order: editingStep.order,
+                    category: stepFormCategory
                 });
                 setStepsMessage({ type: 'success', text: 'Step updated successfully.' });
             } else {
@@ -238,12 +246,14 @@ const ProjectUpdate = () => {
                 await stepService.addStep({
                     projectId: projectId,
                     name: stepFormName,
-                    order: maxOrder + 1
+                    order: maxOrder + 1,
+                    category: stepFormCategory
                 });
                 setStepsMessage({ type: 'success', text: 'Step added successfully.' });
             }
             setShowStepForm(false);
             setStepFormName('');
+            setStepFormCategory(1);
             setEditingStep(null);
             fetchStepsData();
         } catch (error) {
@@ -254,12 +264,14 @@ const ProjectUpdate = () => {
     const openEditStep = (step) => {
         setEditingStep(step);
         setStepFormName(step.name);
+        setStepFormCategory(step.category || 1);
         setShowStepForm(true);
     };
 
     const openAddStep = () => {
         setEditingStep(null);
         setStepFormName('');
+        setStepFormCategory(1);
         setShowStepForm(true);
     };
 
@@ -282,8 +294,8 @@ const ProjectUpdate = () => {
 
         try {
             await stepService.updateSteps([
-                { stepId: current.id, name: current.name, order: current.order },
-                { stepId: swap.id, name: swap.name, order: swap.order }
+                { stepId: current.id, name: current.name, order: current.order, category: current.category || 1 },
+                { stepId: swap.id, name: swap.name, order: swap.order, category: swap.category || 1 }
             ]);
         } catch (error) {
             console.error("Failed to reorder step", error);
@@ -455,6 +467,15 @@ const ProjectUpdate = () => {
                                             className="flex-1 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-4 py-2 border outline-none"
                                             required
                                         />
+                                        <select
+                                            value={stepFormCategory}
+                                            onChange={e => setStepFormCategory(Number(e.target.value))}
+                                            className="w-40 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm px-3 py-2 border outline-none bg-white"
+                                        >
+                                            <option value={1}>To Do</option>
+                                            <option value={2}>In Progress</option>
+                                            <option value={3}>Done</option>
+                                        </select>
                                         <button type="button" onClick={() => setShowStepForm(false)} className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50">Cancel</button>
                                         <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
                                     </form>
@@ -484,6 +505,9 @@ const ProjectUpdate = () => {
                                                         </button>
                                                     </div>
                                                     <span className="font-medium text-gray-800">{step.name}</span>
+                                                    <span className={`text-xs ml-3 px-2 py-1 rounded-full ${getCategoryLabel(step.category).color}`}>
+                                                        {getCategoryLabel(step.category).label}
+                                                    </span>
                                                 </div>
                                                 <div className="flex space-x-2">
                                                     <button onClick={() => openEditStep(step)} className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded border border-transparent hover:border-blue-200">Edit</button>
