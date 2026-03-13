@@ -296,6 +296,7 @@ const ProjectBoard = () => {
 
             {activeTask && (
                 <TaskModal
+                    key={activeTask.id}
                     task={activeTask}
                     onClose={() => {
                         setActiveTask(null);
@@ -305,6 +306,12 @@ const ProjectBoard = () => {
                     }}
                     onUpdate={handleTaskUpdate}
                     onDelete={handleDeleteTask}
+                    onTaskClick={(linkTask) => {
+                        setActiveTask(linkTask);
+                        const newSearchParams = new URLSearchParams(searchParams);
+                        newSearchParams.set('taskId', linkTask.id);
+                        setSearchParams(newSearchParams, { replace: true });
+                    }}
                 />
             )}
 

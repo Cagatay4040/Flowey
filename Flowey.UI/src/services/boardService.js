@@ -18,14 +18,28 @@ export const boardService = {
         return response.data.data || response.data;
     },
 
+    searchTasks: async (searchTerm) => {
+        const response = await api.get(`/Task/search`, {
+            params: { searchTerm }
+        });
+        return response.data.data || response.data;
+    },
+
     moveTask: async (taskId, targetStepId) => {
         await api.post('/Task/ChangeStepTask', { taskId: taskId, newStepId: targetStepId });
     },
     changeAssignTask: async (taskId, userId) => {
         await api.post('/Task/ChangeAssignTask', { taskId: taskId, userId: userId });
     },
-    createTask: async (task) => {
-        const response = await api.post('/Task/AddTask', task);
+    createTask: async (taskData) => {
+        const { linkData, ...payload } = taskData;
+        const response = await api.post('/Task/AddTask', payload);
+        const createdTask = response.data.data;
+
+        if (linkData && createdTask && createdTask.id) {
+            await boardService.linkTasks(createdTask.id, linkData.targetTaskId, linkData.linkType);
+        }
+
         return response.data;
     },
     updateTask: async (task) => {
@@ -38,6 +52,20 @@ export const boardService = {
     getTaskHistory: async (taskId) => {
         const response = await api.get(`/Task/GetTaskHistory?taskId=${taskId}`);
         return response.data.data || response.data;
+    },
+
+    // Task Links
+    getTaskLinks: async (taskId) => {
+        const response = await api.get(`/Task/GetTaskLinks?taskId=${taskId}`);
+        return response.data.data || response.data;
+    },
+    linkTasks: async (taskId, targetTaskId, linkType) => {
+        const response = await api.post('/Task/LinkTasks', { taskId, targetTaskId, linkType });
+        return response.data;
+    },
+    deleteTaskLink: async (sourceTaskId, targetTaskId) => {
+        const response = await api.delete('/Task/DeleteTaskLink', { data: { sourceTaskId, targetTaskId } });
+        return response.data;
     },
 
     // Comments

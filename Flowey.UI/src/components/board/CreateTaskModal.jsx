@@ -5,6 +5,8 @@ import { Mention } from 'quill-mention';
 import 'quill-mention/dist/quill.mention.css';
 import api from '../../services/api';
 import { projectService } from '../../services/projectService';
+import { boardService } from '../../services/boardService';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const Embed = Quill.import('blots/embed');
 
@@ -46,6 +48,22 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
     const [assigneeId, setAssigneeId] = useState('');
     const descriptionQuillRef = useRef(null);
     const [projectUsers, setProjectUsers] = useState([]);
+
+    // Optional Link State
+    const [isLinking, setIsLinking] = useState(false);
+    const [searchLinkTerm, setSearchLinkTerm] = useState('');
+    const debouncedSearchLinkTerm = useDebounce(searchLinkTerm, 500);
+    const [linkSearchResults, setLinkSearchResults] = useState([]);
+    const [selectedLinkTask, setSelectedLinkTask] = useState(null);
+    const [selectedLinkType, setSelectedLinkType] = useState(1);
+    const [isSearchingLink, setIsSearchingLink] = useState(false);
+
+    const linkTypeLabels = {
+        1: 'Relates To',
+        2: 'Blocks',
+        3: 'Is Blocked By',
+        4: 'Duplicates'
+    };
 
     useEffect(() => {
         if (projectId) {
@@ -174,10 +192,47 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
         }
     };
 
+    const searchLinkTasks = async (term) => {
+        setIsSearchingLink(true);
+        try {
+            const data = await boardService.searchTasks(term);
+            const matches = data.slice(0, 5);
+            setLinkSearchResults(matches);
+        } catch (err) {
+            console.error("Failed searching links", err);
+        } finally {
+            setIsSearchingLink(false);
+        }
+    };
+
+    useEffect(() => {
+        if (debouncedSearchLinkTerm && !selectedLinkTask) {
+            searchLinkTasks(debouncedSearchLinkTerm);
+        } else if (!debouncedSearchLinkTerm) {
+            setLinkSearchResults([]);
+        }
+    }, [debouncedSearchLinkTerm, selectedLinkTask]);
+
     const handleSubmit = (e) => {
         if (e) e.preventDefault();
         if (!title.trim()) return;
-        onCreate({ title, description, priority: Number(priority), deadline: deadline || null, assigneeId: assigneeId || null });
+        
+        const payload = { 
+            title, 
+            description, 
+            priority: Number(priority), 
+            deadline: deadline || null, 
+            assigneeId: assigneeId || null 
+        };
+
+        if (isLinking && selectedLinkTask) {
+            payload.linkData = {
+                targetTaskId: selectedLinkTask.id,
+                linkType: selectedLinkType
+            };
+        }
+
+        onCreate(payload);
     };
 
     return (
@@ -247,6 +302,76 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                                 className="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-colors cursor-pointer"
                             />
                         </div>
+                    </div>
+
+                    {/* Linking Section */}
+                    <div className="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <label className="flex items-center space-x-2 cursor-pointer mb-3 w-max">
+                            <input 
+                                type="checkbox" 
+                                checked={isLinking}
+                                onChange={(e) => {
+                                    setIsLinking(e.target.checked);
+                                    if (!e.target.checked) {
+                                        setSelectedLinkTask(null);
+                                        setSearchLinkTerm('');
+                                    }
+                                }}
+                                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-bold text-gray-700">Link to an existing task</span>
+                        </label>
+
+                        {isLinking && (
+                            <div className="flex flex-col md:flex-row gap-4 pl-6 border-l-2 border-blue-200 ml-1">
+                                <div className="w-48">
+                                    <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Relationship</label>
+                                    <select
+                                        value={selectedLinkType}
+                                        onChange={e => setSelectedLinkType(Number(e.target.value))}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:outline-none"
+                                    >
+                                        {Object.entries(linkTypeLabels).map(([val, label]) => (
+                                            <option key={val} value={val}>{label}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="flex-1 relative">
+                                    <label className="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Search Task</label>
+                                    <input
+                                        type="text"
+                                        value={searchLinkTerm}
+                                        onChange={(e) => {
+                                            setSearchLinkTerm(e.target.value);
+                                            setSelectedLinkTask(null);
+                                        }}
+                                        placeholder="Search task by title or key..."
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:outline-none"
+                                    />
+                                    {isSearchingLink && <div className="absolute right-3 top-8 text-xs text-blue-500">Searching...</div>}
+                                    
+                                    {searchLinkTerm && linkSearchResults.length > 0 && !selectedLinkTask && (
+                                        <ul className="absolute z-10 w-full bg-white shadow-lg mt-1 rounded-md border border-gray-200 max-h-48 overflow-y-auto">
+                                            {linkSearchResults.map(res => (
+                                                <li 
+                                                    key={res.id} 
+                                                    className="p-2 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-none"
+                                                    onClick={() => {
+                                                        setSelectedLinkTask(res);
+                                                        setSearchLinkTerm(`${res.taskKey ? res.taskKey + ' - ' : ''}${res.title}`);
+                                                    }}
+                                                >
+                                                    <span className="text-sm font-semibold text-gray-800">{res.taskKey} {res.title}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                    {searchLinkTerm && !isSearchingLink && linkSearchResults.length === 0 && !selectedLinkTask && (
+                                        <div className="absolute z-10 w-full bg-white shadow-lg mt-1 rounded-md border border-gray-200 p-2 text-sm text-gray-500">No tasks found.</div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 flex flex-col min-h-[300px]">

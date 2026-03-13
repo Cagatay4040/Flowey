@@ -8,6 +8,7 @@ import { projectService } from '../../services/projectService';
 import { Mention } from 'quill-mention';
 import 'quill-mention/dist/quill.mention.css';
 import { useParams } from 'react-router-dom';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const Embed = Quill.import('blots/embed');
 
@@ -41,7 +42,7 @@ if (!Quill.imports['blots/mention'] || Quill.imports['blots/mention'].name !== '
     Quill.register({ 'blots/mention': CustomMentionBlot, 'modules/mention': Mention }, true);
 }
 
-const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
+const TaskModal = ({ task, onClose, onUpdate, onDelete, onTaskClick }) => {
     const { user } = useAuth();
     const { projectId } = useParams();
     const descriptionQuillRef = useRef(null);
@@ -60,6 +61,22 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
     const [history, setHistory] = useState([]);
     const [projectUsers, setProjectUsers] = useState([]);
 
+    // Links State
+    const [links, setLinks] = useState([]);
+    const [isSearchingLink, setIsSearchingLink] = useState(false);
+    const [searchLinkTerm, setSearchLinkTerm] = useState('');
+    const debouncedSearchLinkTerm = useDebounce(searchLinkTerm, 500);
+    const [linkSearchResults, setLinkSearchResults] = useState([]);
+    const [selectedLinkTask, setSelectedLinkTask] = useState(null);
+    const [selectedLinkType, setSelectedLinkType] = useState(1);
+
+    const linkTypeLabels = {
+        1: 'Relates To',
+        2: 'Blocks',
+        3: 'Is Blocked By',
+        4: 'Duplicates'
+    };
+
     useEffect(() => {
         boardService.getComments(task.id).then((data) => {
             setComments(data);
@@ -67,6 +84,9 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
         boardService.getTaskHistory(task.id).then((data) => {
             setHistory(data);
         }).catch(err => console.error("Failed to fetch history", err));
+        boardService.getTaskLinks(task.id).then((data) => {
+            setLinks(data || []);
+        }).catch(err => console.error("Failed to fetch links", err));
 
         if (task.projectId) {
             projectService.getProjectUsers(task.projectId).then((data) => {
@@ -229,7 +249,7 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                 description: description,
                 priority: Number(priority),
                 deadline: deadline || null,
-                assignedToUserId: assignedToUserId || null
+                assigneeId: assignedToUserId || null // DTO needs assigneeId and/or assignedToUserId based on backend parsing.
             };
 
             await boardService.updateTask(updated);
@@ -242,6 +262,62 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
             console.error("Failed to update task", error);
         }
     };
+
+    const searchLinkTasks = async (term) => {
+        setIsSearchingLink(true);
+        try {
+            const data = await boardService.searchTasks(term);
+            const matches = data.filter(t => t.id !== task.id).slice(0, 5); // top 5 results
+            setLinkSearchResults(matches);
+        } catch (err) {
+            console.error("Failed searching links", err);
+        } finally {
+            setIsSearchingLink(false);
+        }
+    };
+
+    // Debounce for Link Search
+    useEffect(() => {
+        if (debouncedSearchLinkTerm && !selectedLinkTask) {
+            searchLinkTasks(debouncedSearchLinkTerm);
+        } else if (!debouncedSearchLinkTerm) {
+            setLinkSearchResults([]);
+        }
+    }, [debouncedSearchLinkTerm, selectedLinkTask]);
+
+    const handleAddLink = async () => {
+        if (!selectedLinkTask) return;
+        try {
+            await boardService.linkTasks(task.id, selectedLinkTask.id, Number(selectedLinkType));
+            setSearchLinkTerm('');
+            setSelectedLinkTask(null);
+            setLinkSearchResults([]);
+            const newLinks = await boardService.getTaskLinks(task.id);
+            setLinks(newLinks || []);
+        } catch (err) {
+            console.error("Failed to link task", err);
+        }
+    };
+
+    const handleDeleteLink = async (targetId) => {
+        if (!window.confirm("Remove this link?")) return;
+        try {
+            await boardService.deleteTaskLink(task.id, targetId);
+            const newLinks = await boardService.getTaskLinks(task.id);
+            setLinks(newLinks || []);
+        } catch (err) {
+            console.error("Failed to remove link", err);
+        }
+    };
+
+    const groupedLinks = useMemo(() => {
+        const groups = {};
+        links.forEach(l => {
+            if (!groups[l.relationType]) groups[l.relationType] = [];
+            groups[l.relationType].push(l);
+        });
+        return groups;
+    }, [links]);
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -337,6 +413,12 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                         >
                             History
                         </button>
+                        <button
+                            className={`pb-2 font-semibold ${activeTab === 'links' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                            onClick={() => setActiveTab('links')}
+                        >
+                            Links ({links.length})
+                        </button>
                     </div>
 
                     {activeTab === 'comments' && (
@@ -415,6 +497,118 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete }) => {
                                         <div className="text-gray-600">
                                             {h.displayMessage}
                                         </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {activeTab === 'links' && (
+                        <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+                            {/* Link Addition Section */}
+                            <div className="bg-white p-4 rounded shadow-sm border border-gray-100 mb-4">
+                                <h4 className="text-sm font-semibold text-gray-700 mb-3">Add Link</h4>
+                                <div className="flex flex-col md:flex-row gap-3">
+                                    <select
+                                        value={selectedLinkType}
+                                        onChange={e => setSelectedLinkType(Number(e.target.value))}
+                                        className="p-2 border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:outline-none"
+                                    >
+                                        {Object.entries(linkTypeLabels).map(([val, label]) => (
+                                            <option key={val} value={val}>{label}</option>
+                                        ))}
+                                    </select>
+
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            value={searchLinkTerm}
+                                            onChange={(e) => {
+                                                setSearchLinkTerm(e.target.value);
+                                                setSelectedLinkTask(null);
+                                            }}
+                                            placeholder="Search task by title or key..."
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm focus:border-blue-500 focus:outline-none"
+                                        />
+                                        {isSearchingLink && <div className="absolute right-3 top-2.5 text-xs text-blue-500">Searching...</div>}
+
+                                        {/* Autocomplete Dropdown */}
+                                        {searchLinkTerm && linkSearchResults.length > 0 && !selectedLinkTask && (
+                                            <ul className="absolute z-10 w-full bg-white shadow-lg mt-1 rounded-md border border-gray-200 max-h-48 overflow-y-auto">
+                                                {linkSearchResults.map(res => (
+                                                    <li
+                                                        key={res.id}
+                                                        className="p-2 hover:bg-blue-50 cursor-pointer border-b border-gray-50 last:border-none flex flex-col"
+                                                        onClick={() => {
+                                                            setSelectedLinkTask(res);
+                                                            setSearchLinkTerm(`${res.taskKey ? res.taskKey + ' - ' : ''}${res.title}`);
+                                                        }}
+                                                    >
+                                                        <span className="text-sm font-semibold text-gray-800">{res.taskKey} {res.title}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                        {searchLinkTerm && !isSearchingLink && linkSearchResults.length === 0 && !selectedLinkTask && (
+                                            <div className="absolute z-10 w-full bg-white shadow-lg mt-1 rounded-md border border-gray-200 p-2 text-sm text-gray-500">No tasks found.</div>
+                                        )}
+                                    </div>
+
+                                    <button
+                                        onClick={handleAddLink}
+                                        disabled={!selectedLinkTask}
+                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                                    >
+                                        Link
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Existing Links Grouped */}
+                            {Object.keys(groupedLinks).length === 0 && (
+                                <div className="text-gray-400 text-center py-4 text-sm">No connected links.</div>
+                            )}
+
+                            {Object.entries(groupedLinks).map(([type, typeLinks]) => (
+                                <div key={type} className="mb-4">
+                                    <h5 className="text-sm font-bold text-gray-600 mb-2 uppercase tracking-wider pl-1 border-l-2 border-blue-400">
+                                        {type} ({typeLinks.length})
+                                    </h5>
+                                    <div className="space-y-2">
+                                        {typeLinks.map(l => {
+                                            const targetId = l.taskId;
+                                            const displayTitle = l.title;
+                                            const displayKey = l.taskKey;
+
+                                            return (
+                                                <div key={targetId} className="flex justify-between items-center bg-white p-3 rounded border border-gray-200 shadow-sm hover:border-blue-300 transition-colors">
+                                                    <div 
+                                                        className="flex items-center space-x-3 cursor-pointer group flex-1"
+                                                        onClick={async () => {
+                                                            try {
+                                                                const matches = await boardService.searchTasks(displayKey);
+                                                                const found = matches.find(t => t.taskKey === displayKey);
+                                                                if (found && onTaskClick) {
+                                                                    onTaskClick(found);
+                                                                }
+                                                            } catch (err) {
+                                                                console.error("Failed to open linked task", err);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <span className="text-sm font-medium text-blue-600 group-hover:underline">{displayKey}</span>
+                                                        <span className="text-sm text-gray-700 font-medium group-hover:underline">{displayTitle}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleDeleteLink(targetId)}
+                                                        className="text-gray-400 hover:text-red-500 p-1"
+                                                        title="Remove link"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                    </button>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ))}
