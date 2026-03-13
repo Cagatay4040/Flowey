@@ -25,6 +25,7 @@ namespace Flowey.CORE.Constants
         public const string TaskAssignError = "Could not assign task";
         public const string TaskStepUpdatedSuccessfully = "Task step successfully updated";
         public const string TaskStepUpdateFailed = "Failed to update task step";
+        public const string TaskIsBlocked = "This task is blocked by one or more incomplete tasks and cannot be moved forward.";
 
         public const string CannotLinkTaskToItself = "A task cannot be linked to itself.";
         public const string TaskLinkAlreadyExists = "This exact link between the tasks already exists.";

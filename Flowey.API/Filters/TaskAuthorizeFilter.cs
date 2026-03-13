@@ -92,17 +92,27 @@ namespace Flowey.API.Filters
             await next();
         }
 
-        void CheckProperties(object obj, ref Guid stepId, ref Guid projectId)
+        void CheckProperties(object obj, ref Guid taskId, ref Guid projectId)
         {
             var type = obj.GetType();
 
-            if (stepId == Guid.Empty)
+            if (taskId == Guid.Empty)
             {
                 var stepProp = type.GetProperty("TaskId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                 if (stepProp != null && stepProp.PropertyType == typeof(Guid))
                 {
                     var val = stepProp.GetValue(obj);
-                    if (val is Guid g && g != Guid.Empty) stepId = g;
+                    if (val is Guid g && g != Guid.Empty) taskId = g;
+                }
+            }
+
+            if (taskId == Guid.Empty)
+            {
+                var stepProp = type.GetProperty("SourceTaskId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                if (stepProp != null && stepProp.PropertyType == typeof(Guid))
+                {
+                    var val = stepProp.GetValue(obj);
+                    if (val is Guid g && g != Guid.Empty) taskId = g;
                 }
             }
 

@@ -1,4 +1,4 @@
-﻿using Flowey.BUSINESS.DTO.Task;
+using Flowey.BUSINESS.DTO.Task;
 using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -41,6 +41,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Queries
                 {
                     TaskId = x.TargetTaskId,
                     Title = x.TargetTask.Title,
+                    TaskKey = x.TargetTask.TaskKey,
                     LinkType = x.LinkType
                 })
                 .ToListAsync(cancellationToken); 
@@ -49,6 +50,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Queries
             {
                 TaskId = x.TaskId,
                 Title = x.Title,
+                TaskKey = x.TaskKey,
                 RelationType = GetRelationDisplayName(x.LinkType, true)
             }).ToList();
 
@@ -59,6 +61,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Queries
                 {
                     TaskId = x.SourceTaskId,
                     Title = x.SourceTask.Title,
+                    TaskKey = x.SourceTask.TaskKey,
                     LinkType = x.LinkType
                 })
                 .ToListAsync(cancellationToken);
@@ -67,6 +70,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Queries
             {
                 TaskId = x.TaskId,
                 Title = x.Title,
+                TaskKey = x.TaskKey,
                 RelationType = GetRelationDisplayName(x.LinkType, false)
             }).ToList();
 

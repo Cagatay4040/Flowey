@@ -1,4 +1,6 @@
 using Flowey.CORE.Constants;
+using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
@@ -24,11 +26,22 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
     public class ChangeStepTaskCommandHandler : IRequestHandler<ChangeStepTaskCommand, IResult>
     {
         private readonly ITaskRepository _taskRepository;
+        private readonly IStepRepository _stepRepository;
+        private readonly ITaskLinkRepository _taskLinkRepository;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public ChangeStepTaskCommandHandler(ITaskRepository taskRepository, IUnitOfWork unitOfWork)
+        public ChangeStepTaskCommandHandler(
+            ITaskRepository taskRepository,
+            IStepRepository stepRepository,
+            ITaskLinkRepository taskLinkRepository,
+            ICurrentUserService currentUserService,
+            IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
+            _stepRepository = stepRepository;
+            _taskLinkRepository = taskLinkRepository;
+            _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
         }
 
@@ -39,12 +52,28 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
+            var newStep = await _stepRepository.GetByIdAsync(request.NewStepId);
+
+            if (newStep == null)
+                return new Result(ResultStatus.Error, Messages.StepNotFound);
+
+            if (newStep.Category == StepCategory.InProgress || newStep.Category == StepCategory.Done)
+            {
+                var isBlocked = await _taskLinkRepository.AnyAsync(link =>
+                    link.TargetTaskId == request.TaskId &&
+                    link.LinkType == LinkType.Blocks &&
+                    link.SourceTask.Step.Category != StepCategory.Done);
+
+                if (isBlocked)
+                    return new Result(ResultStatus.Error, Messages.TaskIsBlocked);
+            }
+
             existingTask.CurrentStepId = request.NewStepId;
 
             existingTask.TaskHistories.Add(new TaskHistory
             {
                 TaskId = existingTask.Id,
-                UserId = existingTask.AssigneeId,
+                UserId = _currentUserService.GetUserId().Value,
                 StepId = existingTask.CurrentStepId
             });
 

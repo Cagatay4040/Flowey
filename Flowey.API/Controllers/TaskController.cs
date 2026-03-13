@@ -1,4 +1,4 @@
-﻿using Flowey.API.Attributes;
+using Flowey.API.Attributes;
 using Flowey.BUSINESS.DTO.Task;
 using Flowey.BUSINESS.Features.Tasks.Commands;
 using Flowey.BUSINESS.Features.Tasks.Queries;
@@ -29,6 +29,16 @@ namespace Flowey.API.Controllers
             var result = await _sender.Send(new GetProjectTasksQuery(projectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProjectTasks([FromQuery] string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm))
+                return Ok(new List<TaskGetDTO>());
+
+            var result = await _sender.Send(new SearchProjectTasksQuery(searchTerm));
+            return Ok(result);
         }
 
         [HttpGet("GetTaskLinks")]
@@ -99,6 +109,15 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> DeleteTask([FromQuery] Guid taskId)
         {
             var result = await _sender.Send(new SoftDeleteTaskCommand(taskId));
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
+        }
+
+        [HttpDelete("DeleteTaskLink")]
+        [TaskAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
+        public async Task<IActionResult> DeleteTaskLink([FromBody] DeleteTaskLinkDTO request)
+        {
+            var result = await _sender.Send(new DeleteTaskLinkCommand(request.SourceTaskId, request.TargetTaskId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

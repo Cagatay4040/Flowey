@@ -5,6 +5,7 @@ using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,22 +54,32 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
                 if (!sourceExists || !targetExists)
                     return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
-                var linkExists = await _taskLinkRepository.AnyAsync(x =>
+                var existingLink = await _taskLinkRepository.GetQueryable(x =>
                     x.SourceTaskId == request.SourceTaskId &&
                     x.TargetTaskId == request.TargetTaskId &&
-                    x.LinkType == request.LinkType);
+                    x.LinkType == request.LinkType)
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(cancellationToken);
 
-                if (linkExists)
-                    return new Result(ResultStatus.Error, Messages.TaskLinkAlreadyExists);
-
-                var taskLink = new TaskLink
+                if (existingLink != null)
                 {
-                    SourceTaskId = request.SourceTaskId,
-                    TargetTaskId = request.TargetTaskId,
-                    LinkType = request.LinkType
-                };
+                    if (existingLink.IsActive)
+                        return new Result(ResultStatus.Error, Messages.TaskLinkAlreadyExists);
 
-                await _taskLinkRepository.AddAsync(taskLink);
+                    existingLink.IsActive = true;
+                    await _taskLinkRepository.UpdateAsync(existingLink);
+                }
+                else
+                {
+                    var taskLink = new TaskLink
+                    {
+                        SourceTaskId = request.SourceTaskId,
+                        TargetTaskId = request.TargetTaskId,
+                        LinkType = request.LinkType
+                    };
+
+                    await _taskLinkRepository.AddAsync(taskLink);
+                }
 
                 int effectedRows = await _unitOfWork.SaveChangesAsync();
 
