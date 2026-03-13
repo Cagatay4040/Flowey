@@ -1,3 +1,4 @@
+using Flowey.BUSINESS.Features.Tasks.Events;
 using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Enums;
@@ -29,6 +30,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         private readonly IStepRepository _stepRepository;
         private readonly ITaskLinkRepository _taskLinkRepository;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IPublisher _publisher;
         private readonly IUnitOfWork _unitOfWork;
 
         public ChangeStepTaskCommandHandler(
@@ -36,12 +38,14 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             IStepRepository stepRepository,
             ITaskLinkRepository taskLinkRepository,
             ICurrentUserService currentUserService,
+            IPublisher publisher,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
             _stepRepository = stepRepository;
             _taskLinkRepository = taskLinkRepository;
             _currentUserService = currentUserService;
+            _publisher = publisher;
             _unitOfWork = unitOfWork;
         }
 
@@ -81,7 +85,15 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 
             if (effectedRow > 0)
+            {
+                if (newStep.Category == StepCategory.Done)
+                {
+                    var userId = _currentUserService.GetUserId().Value;
+                    await _publisher.Publish(new TaskCompletedEvent(existingTask.Id, request.NewStepId, userId), cancellationToken);
+                }
+
                 return new Result(ResultStatus.Success, Messages.TaskStepUpdatedSuccessfully);
+            }
 
             return new Result(ResultStatus.Error, Messages.TaskStepUpdateFailed);
         }
