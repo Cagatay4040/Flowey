@@ -70,7 +70,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             if (firstStep == null)
                 return new Result(ResultStatus.Error, Messages.ProjectStepsNotFound);
 
-            int currentCount = await _taskRepository.CountAsync(t => t.ProjectId == request.ProjectId);
+            int currentCount = await _taskRepository.CountAsync(t => t.ProjectId == request.ProjectId, true);
             string newTaskKey = $"{project.ProjectKey}-{currentCount + 1}";
 
             var task = new DOMAIN.Model.Concrete.Task
