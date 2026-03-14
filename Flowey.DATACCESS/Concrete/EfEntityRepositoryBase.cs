@@ -21,6 +21,192 @@ namespace Flowey.DATACCESS.Concrete
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
+        #region Get Methods
+        public virtual IQueryable<TEntity> AsQueryable() => entity.AsQueryable();
+
+        public virtual IQueryable<TEntity> Get(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool noTracking = true, 
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            var query = entity.AsQueryable();
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            query = ApplyIncludes(query, includes);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            return query;
+        }
+
+        public virtual Task<TEntity> FirstOrDefaultAsync(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool noTracking = true, 
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            return Get(predicate, noTracking, includes).FirstOrDefaultAsync();
+        }
+
+        public virtual async Task<List<TEntity>> GetList(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool noTracking = true, 
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, 
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = entity;
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            query = ApplyIncludes(query, includes);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            return await query.ToListAsync();
+        }
+
+        public virtual async Task<(List<TEntity> Items, int TotalCount)> GetPagedListAsync(
+            Expression<Func<TEntity, bool>> predicate = null,
+            int pageIndex = 0,
+            int pageSize = 10,
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
+            bool noTracking = true,
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = entity;
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            query = ApplyIncludes(query, includes);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            int totalCount = await query.CountAsync();
+
+            var items = await query.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public virtual IQueryable<TEntity> GetQueryable(
+            Expression<Func<TEntity, bool>> predicate = null, 
+            bool noTracking = true)
+        {
+            IQueryable<TEntity> query = entity;
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            return query;
+        }
+
+        public virtual async Task<List<TEntity>> GetAll(bool noTracking = true)
+        {
+            if (noTracking)
+                return await entity.AsNoTracking().ToListAsync();
+
+            return await entity.ToListAsync();
+        }
+
+        public virtual async Task<TEntity> GetByIdAsync(
+            Guid id, 
+            bool noTracking = true, 
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = dbContext.Set<TEntity>().AsQueryable();
+
+            query = ApplyIncludes(query, includes);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+        }
+
+        public virtual bool Any(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool ignoreQueryFilter = false)
+        {
+            return ignoreQueryFilter
+                ? entity.IgnoreQueryFilters().Any(predicate)
+                : entity.Any(predicate);
+        }
+
+        public virtual async Task<bool> AnyAsync(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool ignoreQueryFilter = false)
+        {
+            return ignoreQueryFilter
+                ? await entity.IgnoreQueryFilters().AnyAsync(predicate)
+                : await entity.AnyAsync(predicate);
+        }
+
+        public virtual int Count(
+            Expression<Func<TEntity, bool>> predicate,
+            bool ignoreQueryFilter = false)
+        {
+            return ignoreQueryFilter
+                ? entity.IgnoreQueryFilters().Count(predicate)
+                : entity.Count(predicate);
+        }
+
+        public virtual async Task<int> CountAsync(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool ignoreQueryFilter = false)
+        {
+            return ignoreQueryFilter
+                ? await entity.IgnoreQueryFilters().CountAsync(predicate)
+                : await entity.CountAsync(predicate);
+        }
+
+        public virtual async Task<TEntity> GetSingleAsync(
+            Expression<Func<TEntity, bool>> predicate, 
+            bool noTracking = true, 
+            params Expression<Func<TEntity, object>>[] includes)
+        {
+            IQueryable<TEntity> query = entity;
+
+            if (predicate != null)
+                query = query.Where(predicate);
+
+            query = ApplyIncludes(query, includes);
+
+            if (noTracking)
+                query = query.AsNoTracking();
+
+            return await query.SingleOrDefaultAsync();
+
+        }
+
+        private static IQueryable<TEntity> ApplyIncludes(IQueryable<TEntity> query, params Expression<Func<TEntity, object>>[] includes)
+        {
+            if (includes != null)
+            {
+                foreach (var includeItem in includes)
+                {
+                    query = query.Include(includeItem);
+                }
+            }
+
+            return query;
+        }
+        #endregion
+
         #region Insert Methods
         public virtual async Task AddAsync(TEntity entity)
         {
@@ -134,138 +320,6 @@ namespace Flowey.DATACCESS.Concrete
         {
             dbContext.RemoveRange(entity.Where(predicate));
             await Task.CompletedTask;
-        }
-        #endregion
-
-        #region Get Methods
-        public virtual IQueryable<TEntity> AsQueryable() => entity.AsQueryable();
-
-        public virtual IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate, bool noTracking = true, params Expression<Func<TEntity, object>>[] includes)
-        {
-            var query = entity.AsQueryable();
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            query = ApplyIncludes(query, includes);
-
-            if (noTracking)
-                query = query.AsNoTracking();
-
-            return query;
-        }
-
-        public virtual Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate, bool noTracking = true, params Expression<Func<TEntity, object>>[] includes)
-        {
-            return Get(predicate, noTracking, includes).FirstOrDefaultAsync();
-        }
-
-        public virtual async Task<List<TEntity>> GetList(Expression<Func<TEntity, bool>> predicate, bool noTracking = true, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, params Expression<Func<TEntity, object>>[] includes)
-        {
-            IQueryable<TEntity> query = entity;
-
-            if (predicate != null)
-            {
-                query = query.Where(predicate);
-            }
-
-            query = ApplyIncludes(query, includes);
-
-            if (orderBy != null)
-            {
-                query = orderBy(query);
-            }
-
-            if (noTracking)
-                query = query.AsNoTracking();
-
-            return await query.ToListAsync();
-        }
-
-        public virtual IQueryable<TEntity> GetQueryable(Expression<Func<TEntity, bool>> predicate = null, bool noTracking = true)
-        {
-            IQueryable<TEntity> query = entity;
-
-            if (predicate != null)
-                query = query.Where(predicate);
-
-            if (noTracking)
-                query = query.AsNoTracking();
-
-            return query;
-        }
-
-        public virtual async Task<List<TEntity>> GetAll(bool noTracking = true)
-        {
-            if (noTracking)
-                return await entity.AsNoTracking().ToListAsync();
-
-            return await entity.ToListAsync();
-        }
-
-        public virtual async Task<TEntity> GetByIdAsync(Guid id, bool noTracking = true, params Expression<Func<TEntity, object>>[] includes)
-        {
-            IQueryable<TEntity> query = dbContext.Set<TEntity>().AsQueryable();
-
-            query = ApplyIncludes(query, includes);
-
-            if (noTracking)
-            {
-                query = query.AsNoTracking();
-            }
-
-            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
-        }
-
-        public virtual bool Any(Expression<Func<TEntity, bool>> predicate)
-        {
-            return entity.Any(predicate);
-        }
-
-        public virtual async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            return await entity.AnyAsync(predicate);
-        }
-
-        public virtual int Count(Expression<Func<TEntity, bool>> predicate)
-        {
-            return entity.Count(predicate);
-        }
-
-        public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
-        {
-            return await entity.CountAsync(predicate);
-        }
-
-        public virtual async Task<TEntity> GetSingleAsync(Expression<Func<TEntity, bool>> predicate, bool noTracking = true, params Expression<Func<TEntity, object>>[] includes)
-        {
-            IQueryable<TEntity> query = entity;
-
-            if (predicate != null)
-            {
-                query = query.Where(predicate);
-            }
-
-            query = ApplyIncludes(query, includes);
-
-            if (noTracking)
-                query = query.AsNoTracking();
-
-            return await query.SingleOrDefaultAsync();
-
-        }
-
-        private static IQueryable<TEntity> ApplyIncludes(IQueryable<TEntity> query, params Expression<Func<TEntity, object>>[] includes)
-        {
-            if (includes != null)
-            {
-                foreach (var includeItem in includes)
-                {
-                    query = query.Include(includeItem);
-                }
-            }
-
-            return query;
         }
         #endregion
     }
