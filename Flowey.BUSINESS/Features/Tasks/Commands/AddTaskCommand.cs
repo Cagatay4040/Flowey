@@ -1,4 +1,5 @@
 using Flowey.BUSINESS.Abstract;
+using Flowey.BUSINESS.DTO.Task;
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Constants;
 using Flowey.CORE.Enums;
@@ -21,8 +22,9 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         public DateTime? Deadline { get; set; }
         public Guid ProjectId { get; set; }
         public Guid? UserId { get; set; }
+        public List<TaskAddLinkItemDTO> Links { get; set; } = new List<TaskAddLinkItemDTO>();
 
-        public AddTaskCommand(string title, string description, PriorityType priority, DateTime? deadline, Guid projectId, Guid? userId)
+        public AddTaskCommand(string title, string description, PriorityType priority, DateTime? deadline, Guid projectId, Guid? userId, List<TaskAddLinkItemDTO> links)
         {
             Title = title;
             Description = description;
@@ -30,6 +32,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             Deadline = deadline;
             ProjectId = projectId;
             UserId = userId;
+            Links = links;
         }
     }
 
@@ -63,7 +66,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);
 
             var firstStep = await _stepRepository.GetProjectFirstStepAsync(request.ProjectId);
-            
+
             if (firstStep == null)
                 return new Result(ResultStatus.Error, Messages.ProjectStepsNotFound);
 
@@ -80,17 +83,26 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
                 ProjectId = request.ProjectId,
                 AssigneeId = request.UserId,
                 CurrentStepId = firstStep.Id,
-                Description = request.Description.ToSafeRichText()
+                Description = request.Description.ToSafeRichText()      
             };
 
-            task.TaskHistories = new List<TaskHistory>
+            task.TaskHistories.Add(new TaskHistory
             {
-                new TaskHistory
+                TaskId = task.Id,
+                StepId = task.CurrentStepId,
+            });
+
+            if (request.Links != null && request.Links.Any())
+            {
+                foreach (var linkDto in request.Links)
                 {
-                    TaskId = task.Id,
-                    StepId = task.CurrentStepId
+                    task.OutgoingLinks.Add(new TaskLink
+                    {
+                        TargetTaskId = linkDto.TargetTaskId,
+                        LinkType = linkDto.LinkType
+                    });
                 }
-            };
+            }
 
             await _taskRepository.AddAsync(task);
             int effectedRow = await _unitOfWork.SaveChangesAsync();

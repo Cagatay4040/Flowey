@@ -15,5 +15,6 @@ namespace Flowey.BUSINESS.DTO.Task
         public DateTime? Deadline { get; set; }
         public Guid ProjectId { get; set; }
         public Guid? UserId { get; set; }
+        public List<TaskAddLinkItemDTO> Links { get; set; } = new List<TaskAddLinkItemDTO>();
     }
 }
