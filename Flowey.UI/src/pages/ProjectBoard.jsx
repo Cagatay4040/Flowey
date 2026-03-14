@@ -134,9 +134,10 @@ const ProjectBoard = () => {
         const targetStepId = over.id;
 
         const sourceStep = steps.find(s => s.tasks?.some(t => t.id === taskId));
+        const targetStep = steps.find(s => s.id === targetStepId);
         const task = sourceStep?.tasks?.find(t => t.id === taskId);
 
-        if (!task || !sourceStep) return;
+        if (!task || !sourceStep || !targetStep) return;
 
         if (sourceStep.id === targetStepId) {
             return;
@@ -155,6 +156,11 @@ const ProjectBoard = () => {
 
         try {
             await boardService.moveTask(taskId, targetStepId);
+
+            if (targetStep.category === 3) {
+                fetchBoard();
+            }
+
         } catch (error) {
             console.error("Failed to move task", error);
             fetchBoard();
