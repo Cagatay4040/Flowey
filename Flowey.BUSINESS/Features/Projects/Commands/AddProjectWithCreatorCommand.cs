@@ -28,18 +28,15 @@ namespace Flowey.BUSINESS.Features.Projects.Commands
     public class AddProjectWithCreatorCommandHandler : IRequestHandler<AddProjectWithCreatorCommand, IResult>
     {
         private readonly IProjectRepository _projectRepository;
-        private readonly IStepRepository _stepRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
 
         public AddProjectWithCreatorCommandHandler(
             IProjectRepository projectRepository,
-            IStepRepository stepRepository,
             ICurrentUserService currentUserService,
             IUnitOfWork unitOfWork)
         {
             _projectRepository = projectRepository;
-            _stepRepository = stepRepository;
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
         }
@@ -54,25 +51,22 @@ namespace Flowey.BUSINESS.Features.Projects.Commands
                 Name = request.Name,
                 ProjectKey = request.ProjectKey,
                 ProjectUserRoles = new List<ProjectUserRole>
-            {
-                new ProjectUserRole
                 {
-                    UserId = _currentUserService.GetUserId().Value,
-                    RoleId = RoleType.Admin
+                    new ProjectUserRole
+                    {
+                        UserId = _currentUserService.GetUserId().Value,
+                        RoleId = RoleType.Admin
+                    }
+                },
+                Steps = new List<Step>
+                {
+                    new Step { ProjectId = projectId, Name = "To Do", Order = 1, Category = StepCategory.ToDo },
+                    new Step { ProjectId = projectId, Name = "In Progress", Order = 2, Category = StepCategory.InProgress },
+                    new Step { ProjectId = projectId, Name = "Done", Order = 3, Category = StepCategory.Done }
                 }
-            }
             };
 
             await _projectRepository.AddAsync(newProject);
-
-            var defaultSteps = new List<Step>
-            {
-                new Step { ProjectId = projectId, Name = "To Do", Order = 1, Category = StepCategory.ToDo },
-                new Step { ProjectId = projectId, Name = "In Progress", Order = 2, Category = StepCategory.InProgress },
-                new Step { ProjectId = projectId, Name = "Done", Order = 3, Category = StepCategory.Done }
-            };
-
-            await _stepRepository.AddRangeAsync(defaultSteps);
 
             int effectedRow = await _unitOfWork.SaveChangesAsync();
 

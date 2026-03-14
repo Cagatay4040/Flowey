@@ -1,7 +1,6 @@
 using AutoMapper;
 using Flowey.BUSINESS.DTO.Project;
 using Flowey.CORE.Constants;
-using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DATACCESS.Abstract;
