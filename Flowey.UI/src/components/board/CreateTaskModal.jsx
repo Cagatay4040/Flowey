@@ -65,6 +65,34 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
         4: 'Duplicates'
     };
 
+    const [taskLinks, setTaskLinks] = useState([]);
+
+    const handleAddLink = () => {
+        if (!selectedLinkTask) return;
+        
+        // Prevent duplicate links to same task
+        if (taskLinks.some(link => link.targetTaskId === selectedLinkTask.id)) {
+            setSelectedLinkTask(null);
+            setSearchLinkTerm('');
+            return;
+        }
+
+        setTaskLinks([...taskLinks, {
+            targetTaskId: selectedLinkTask.id,
+            title: selectedLinkTask.title,
+            taskKey: selectedLinkTask.taskKey,
+            linkType: selectedLinkType
+        }]);
+        
+        setSelectedLinkTask(null);
+        setSearchLinkTerm('');
+        setLinkSearchResults([]);
+    };
+
+    const handleRemoveLink = (targetId) => {
+        setTaskLinks(taskLinks.filter(l => l.targetTaskId !== targetId));
+    };
+
     useEffect(() => {
         if (projectId) {
             projectService.getProjectUsers(projectId).then((data) => {
@@ -225,11 +253,11 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
             assigneeId: assigneeId || null 
         };
 
-        if (isLinking && selectedLinkTask) {
-            payload.linkData = {
-                targetTaskId: selectedLinkTask.id,
-                linkType: selectedLinkType
-            };
+        if (isLinking && taskLinks.length > 0) {
+            payload.links = taskLinks.map(l => ({
+                targetTaskId: l.targetTaskId,
+                linkType: l.linkType
+            }));
         }
 
         onCreate(payload);
@@ -369,6 +397,40 @@ const CreateTaskModal = ({ onClose, onCreate, projectId }) => {
                                     {searchLinkTerm && !isSearchingLink && linkSearchResults.length === 0 && !selectedLinkTask && (
                                         <div className="absolute z-10 w-full bg-white shadow-lg mt-1 rounded-md border border-gray-200 p-2 text-sm text-gray-500">No tasks found.</div>
                                     )}
+                                </div>
+                                
+                                <div className="flex items-end">
+                                    <button
+                                        onClick={handleAddLink}
+                                        disabled={!selectedLinkTask}
+                                        className="px-4 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 h-[38px]"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {isLinking && taskLinks.length > 0 && (
+                            <div className="mt-4 pl-6">
+                                <h5 className="text-xs font-bold text-gray-600 mb-2 uppercase tracking-wider">Added Links</h5>
+                                <div className="space-y-2">
+                                    {taskLinks.map(link => (
+                                        <div key={link.targetTaskId} className="flex justify-between items-center bg-white p-2 rounded border border-gray-200 shadow-sm text-sm">
+                                            <div className="flex items-center space-x-3">
+                                                <span className="font-semibold text-gray-600 w-24">{linkTypeLabels[link.linkType]}</span>
+                                                <span className="font-medium text-blue-600">{link.taskKey}</span>
+                                                <span className="text-gray-700">{link.title}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleRemoveLink(link.targetTaskId)}
+                                                className="text-gray-400 hover:text-red-500 p-1"
+                                                title="Remove link"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}

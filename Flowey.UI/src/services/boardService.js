@@ -32,14 +32,7 @@ export const boardService = {
         await api.post('/Task/ChangeAssignTask', { taskId: taskId, userId: userId });
     },
     createTask: async (taskData) => {
-        const { linkData, ...payload } = taskData;
-        const response = await api.post('/Task/AddTask', payload);
-        const createdTask = response.data.data;
-
-        if (linkData && createdTask && createdTask.id) {
-            await boardService.linkTasks(createdTask.id, linkData.targetTaskId, linkData.linkType);
-        }
-
+        const response = await api.post('/Task/AddTask', taskData);
         return response.data;
     },
     updateTask: async (task) => {

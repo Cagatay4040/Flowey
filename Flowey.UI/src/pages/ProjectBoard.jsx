@@ -213,7 +213,8 @@ const ProjectBoard = () => {
                 order: 0,
                 priority: taskData.priority,
                 deadline: taskData.deadline,
-                userId: taskData.assigneeId
+                userId: taskData.assigneeId,
+                links: taskData.links || []
             };
 
             await boardService.createTask(newTaskPayload);
