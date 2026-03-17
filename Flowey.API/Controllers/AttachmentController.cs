@@ -2,12 +2,7 @@ using Flowey.CORE.DTO.Attachment;
 using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Flowey.API.Controllers
 {
@@ -16,9 +11,9 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class AttachmentController : ControllerBase
     {
-        private readonly IFileService _fileService;
+        private readonly ILocalFileStorageService _fileService;
 
-        public AttachmentController(IFileService fileService)
+        public AttachmentController(ILocalFileStorageService fileService)
         {
             _fileService = fileService;
         }

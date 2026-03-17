@@ -32,8 +32,7 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            serviceCollection.AddScoped<IPermissionService, PermissionManager>();
-            serviceCollection.AddScoped<IFileService, FileManager>();
+            serviceCollection.AddScoped<IPermissionService, PermissionManager>();  
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionManager>();
             serviceCollection.AddScoped<IUserNotificationService, UserNotificationManager>();
 

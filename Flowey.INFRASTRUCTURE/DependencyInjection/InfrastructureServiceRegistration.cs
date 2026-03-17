@@ -1,5 +1,6 @@
 ﻿using Flowey.CORE.Interfaces.Services;
 using Flowey.Infrastructure.Services.Security;
+using Flowey.INFRASTRUCTURE.Services.Storage;
 using Flowey.INFRASTRUCTURE.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,7 @@ namespace Flowey.Infrastructure.DependencyInjection
 
             services.AddScoped<IImageService, CloudinaryImageService>();
             services.AddScoped<ITokenService, JwtTokenService>();
+            services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
 
             return services;
         }

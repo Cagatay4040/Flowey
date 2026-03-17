@@ -4,20 +4,15 @@ using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Flowey.BUSINESS.Concrete
+namespace Flowey.INFRASTRUCTURE.Services.Storage
 {
-    public class FileManager : IFileService
+    public class LocalFileStorageService : ILocalFileStorageService
     {
         private readonly IWebHostEnvironment _env;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public FileManager(IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        public LocalFileStorageService(IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
             _env = env;
             _httpContextAccessor = httpContextAccessor;

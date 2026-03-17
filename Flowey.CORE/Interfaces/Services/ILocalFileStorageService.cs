@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Flowey.CORE.Interfaces.Services
 {
-    public interface IFileService
+    public interface ILocalFileStorageService
     {
         Task<IDataResult<string>> UploadAsync(IFormFile file);
     }
