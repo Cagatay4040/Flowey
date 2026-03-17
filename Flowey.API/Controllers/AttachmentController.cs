@@ -27,12 +27,7 @@ namespace Flowey.API.Controllers
         public async Task<IActionResult> Upload([FromForm] FileUploadDTO uploadDto)
         {
             var result = await _fileService.UploadAsync(uploadDto.File);
-
-            if (result.ResultStatus == ResultStatus.Success)
-            {
-                return Ok(new { url = result.Data });
-            }
-
+            if (result.ResultStatus == ResultStatus.Success) return Ok(new { url = result.Data });
             return BadRequest(result.Message);
         }
     }
