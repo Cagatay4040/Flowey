@@ -398,6 +398,9 @@ namespace Flowey.DATACCESS.Migrations
                     b.Property<DateTime?>("PremiumExpirationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
