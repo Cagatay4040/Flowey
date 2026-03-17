@@ -1,11 +1,13 @@
 
+using AngleSharp;
 using Flowey.API.Extensions;
 using Flowey.API.Hubs;
 using Flowey.API.Services;
-using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.Services;
-using Flowey.CORE.Constants;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
+using Flowey.Infrastructure.DependencyInjection;
+using Flowey.SHARED.Constants;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -93,6 +95,7 @@ namespace Flowey.API
 
                 builder.Services.ConfigureAuth(builder.Configuration);
                 builder.Services.AddMyServices(builder.Configuration);
+                builder.Services.AddInfrastructureServices(builder.Configuration);
                 builder.Services.AddFluentValidationAutoValidation();
 
                 builder.Services.AddScoped<IRealTimeNotificationService, SignalRNotificationManager>();

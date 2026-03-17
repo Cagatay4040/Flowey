@@ -1,8 +1,7 @@
 ﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.DTO.Step;
+using Flowey.CORE.DTO.Step;
 using Flowey.BUSINESS.Features.Steps.Commands;
 using Flowey.BUSINESS.Features.Steps.Queries;
-using Flowey.CORE.Enums;
 using Flowey.CORE.Result.Concrete;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Flowey.SHARED.Enums;
 
 namespace Flowey.API.Controllers
 {

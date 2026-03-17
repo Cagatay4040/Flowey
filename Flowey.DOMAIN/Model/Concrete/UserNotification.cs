@@ -1,5 +1,4 @@
-﻿using Flowey.CORE.DataAccess.Abstract;
-using Flowey.DOMAIN.Model.Abstract;
+﻿using Flowey.DOMAIN.Model.Abstract;
 using System;
 using System.Collections.Generic;
 using System.Linq;

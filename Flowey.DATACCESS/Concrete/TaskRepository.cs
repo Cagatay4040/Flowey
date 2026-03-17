@@ -1,7 +1,5 @@
-using Flowey.DATACCESS.Abstract;
+using Flowey.CORE.Interfaces.Repositories;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
-using Flowey.DOMAIN.Model.Concrete;
-using Microsoft.EntityFrameworkCore;
 using Task = Flowey.DOMAIN.Model.Concrete.Task;
 
 namespace Flowey.DATACCESS.Concrete

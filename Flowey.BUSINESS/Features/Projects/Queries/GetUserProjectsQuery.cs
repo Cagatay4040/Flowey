@@ -1,13 +1,11 @@
-using Flowey.BUSINESS.DTO.Project;
+using AutoMapper;
 using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.DTO.Project;
+using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DATACCESS.Abstract;
+using Flowey.DOMAIN.Model.Concrete;
 using MediatR;
-using AutoMapper;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Features.Projects.Queries
 {
@@ -17,12 +15,12 @@ namespace Flowey.BUSINESS.Features.Projects.Queries
 
     public class GetUserProjectsQueryHandler : IRequestHandler<GetUserProjectsQuery, IDataResult<List<ProjectGetDTO>>>
     {
-        private readonly IEntityRepository<Flowey.DOMAIN.Model.Concrete.ProjectUserRole> _projectUserRoleRepository;
+        private readonly IEntityRepository<ProjectUserRole> _projectUserRoleRepository;
         private readonly IMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
 
         public GetUserProjectsQueryHandler(
-            IEntityRepository<Flowey.DOMAIN.Model.Concrete.ProjectUserRole> projectUserRoleRepository,
+            IEntityRepository<ProjectUserRole> projectUserRoleRepository,
             IMapper mapper,
             ICurrentUserService currentUserService)
         {

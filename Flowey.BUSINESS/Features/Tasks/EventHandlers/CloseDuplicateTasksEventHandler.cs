@@ -1,14 +1,10 @@
 ﻿using Flowey.BUSINESS.Features.Tasks.Events;
-using Flowey.CORE.Enums;
-using Flowey.DATACCESS.Abstract;
+using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.DOMAIN.Model.Concrete;
+using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Features.Tasks.EventHandlers
 {

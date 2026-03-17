@@ -1,17 +1,13 @@
 ﻿using AutoMapper;
-using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.Notification;
-using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.DTO.Notification;
+using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Flowey.SHARED.Constants;
 
 namespace Flowey.BUSINESS.Concrete
 {

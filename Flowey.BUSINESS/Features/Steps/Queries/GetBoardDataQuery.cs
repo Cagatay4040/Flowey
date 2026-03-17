@@ -1,15 +1,11 @@
 using AutoMapper;
-using Flowey.BUSINESS.DTO.Step;
-using Flowey.CORE.Constants;
-using Flowey.CORE.Enums;
+using Flowey.CORE.DTO.Step;
+using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DATACCESS.Abstract;
+using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Features.Steps.Queries
 {

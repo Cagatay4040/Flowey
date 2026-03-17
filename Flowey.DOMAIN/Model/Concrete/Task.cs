@@ -1,6 +1,5 @@
-using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.Enums;
 using Flowey.DOMAIN.Model.Abstract;
+using Flowey.SHARED.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;

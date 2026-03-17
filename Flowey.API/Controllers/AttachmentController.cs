@@ -1,5 +1,5 @@
-using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.Attachment;
+using Flowey.CORE.DTO.Attachment;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;

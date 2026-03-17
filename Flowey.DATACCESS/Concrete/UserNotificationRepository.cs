@@ -1,12 +1,7 @@
-﻿using Flowey.DATACCESS.Abstract;
+﻿using Flowey.CORE.Interfaces.Repositories;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flowey.DATACCESS.Concrete
 {

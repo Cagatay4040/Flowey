@@ -1,5 +1,5 @@
-﻿using Flowey.CORE.Constants;
-using Flowey.CORE.Result.Concrete;
+﻿using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -20,7 +20,7 @@ namespace Flowey.API.Extensions
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["AuthConfig:Secret"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"])),
                     NameClaimType = ClaimTypes.Name
                 };
 

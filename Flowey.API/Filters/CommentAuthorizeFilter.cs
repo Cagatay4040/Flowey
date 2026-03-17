@@ -1,13 +1,12 @@
-﻿using Flowey.BUSINESS.Abstract;
-using Flowey.CORE.Constants;
-using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.Enums;
+﻿using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Reflection;
 using System.Collections;
+using Flowey.SHARED.Enums;
+using Flowey.CORE.Interfaces.Services;
+using Flowey.SHARED.Constants;
 
 namespace Flowey.API.Filters
 {

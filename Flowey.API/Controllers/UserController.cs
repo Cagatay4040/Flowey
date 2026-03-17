@@ -1,6 +1,8 @@
-﻿using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.User;
+﻿using Flowey.CORE.DTO.User;
+using Flowey.BUSINESS.Features.Users.Commands;
+using Flowey.BUSINESS.Features.Users.Queries;
 using Flowey.CORE.Result.Concrete;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +14,11 @@ namespace Flowey.API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly ISender _sender;
 
-        public UserController(IUserService userService)
+        public UserController(ISender sender)
         {
-            _userService = userService;
+            _sender = sender;
         }
 
         [HttpGet("search")]
@@ -25,7 +27,7 @@ namespace Flowey.API.Controllers
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return Ok(new List<UserSelectDTO>());
 
-            var users = await _userService.SearchUsersAsync(searchTerm);
+            var users = await _sender.Send(new SearchUsersQuery(searchTerm));
 
             return Ok(users);
         }
@@ -34,7 +36,7 @@ namespace Flowey.API.Controllers
         [HttpPost("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDTO dto)
         {
-            var result = await _userService.UpdateAsync(dto);
+            var result = await _sender.Send(new UpdateUserCommand(dto.Id, dto.Email, dto.Name, dto.Surname));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

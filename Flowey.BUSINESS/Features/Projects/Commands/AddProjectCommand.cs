@@ -1,13 +1,12 @@
 using AutoMapper;
-using Flowey.BUSINESS.DTO.Project;
-using Flowey.CORE.Constants;
+using Flowey.CORE.DTO.Project;
+using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
+using Flowey.SHARED.Constants;
 using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Features.Projects.Commands
 {

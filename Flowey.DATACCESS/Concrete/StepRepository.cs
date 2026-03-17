@@ -1,7 +1,6 @@
-using Flowey.CORE.DataAccess.Concrete;
-using Flowey.CORE.Enums;
-using Flowey.DATACCESS.Abstract;
+using Flowey.CORE.Interfaces.Repositories;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
+using Flowey.SHARED.Enums;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,4 @@
-using Flowey.DATACCESS.Abstract;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
 using System;
 using System.Threading.Tasks;

@@ -19,8 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Flowey.CORE\Flowey.CORE.csproj" />
     <ProjectReference Include="..\Flowey.DATACCESS\Flowey.DATACCESS.csproj" />
     <ProjectReference Include="..\Flowey.DOMAIN\Flowey.DOMAIN.csproj" />
+    <ProjectReference Include="..\Flowey.Shared\Flowey.SHARED.csproj" />
   </ItemGroup>
 
 </Project>

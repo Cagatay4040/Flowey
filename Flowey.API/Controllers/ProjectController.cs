@@ -1,8 +1,8 @@
 ﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.DTO.Project;
+using Flowey.CORE.DTO.Project;
 using Flowey.BUSINESS.Features.Projects.Commands;
 using Flowey.BUSINESS.Features.Projects.Queries;
-using Flowey.CORE.Enums;
+using Flowey.SHARED.Enums;
 using Flowey.CORE.Result.Concrete;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

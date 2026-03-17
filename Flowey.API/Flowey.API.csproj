@@ -22,9 +22,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Flowey.BUSINESS\Flowey.BUSINESS.csproj" />
     <ProjectReference Include="..\Flowey.CORE\Flowey.CORE.csproj" />
+    <ProjectReference Include="..\Flowey.INFRASTRUCTURE\Flowey.INFRASTRUCTURE.csproj" />
+    <ProjectReference Include="..\Flowey.Shared\Flowey.SHARED.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="logs\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

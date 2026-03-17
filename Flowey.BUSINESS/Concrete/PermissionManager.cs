@@ -1,13 +1,7 @@
-﻿using Flowey.BUSINESS.Abstract;
-using Flowey.CORE.Enums;
-using Flowey.DATACCESS.Abstract;
-using Flowey.DATACCESS.Concrete;
+﻿using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.DOMAIN.Model.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Flowey.SHARED.Enums;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -36,7 +30,7 @@ namespace Flowey.BUSINESS.Concrete
             if (allowedRoles == null || !allowedRoles.Any())
                 return true;
 
-            return allowedRoles.Contains((RoleType)projectUser.RoleId);
+            return allowedRoles.Contains(projectUser.RoleId);
         }
 
         public async Task<bool> HasTaskPermissionAsync(Guid userId, Guid taskId, params RoleType[] allowedRoles)

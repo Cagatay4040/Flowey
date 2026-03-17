@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Flowey.BUSINESS.DTO.Notification;
-using Flowey.BUSINESS.DTO.User;
+using Flowey.CORE.DTO.Notification;
+using Flowey.CORE.DTO.User;
 using Flowey.DOMAIN.Model.Concrete;
 using System;
 using System.Collections.Generic;

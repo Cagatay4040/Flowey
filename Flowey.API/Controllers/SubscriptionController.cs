@@ -1,5 +1,5 @@
-﻿using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.User;
+﻿using Flowey.CORE.DTO.User;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

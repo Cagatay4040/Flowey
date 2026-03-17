@@ -4,7 +4,6 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using Flowey.CORE.DataAccess.Abstract;
 using Flowey.DOMAIN.Model.Abstract;
 
 namespace Flowey.DOMAIN.Model.Concrete

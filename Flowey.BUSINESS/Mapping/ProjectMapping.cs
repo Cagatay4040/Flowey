@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Flowey.BUSINESS.DTO.Project;
-using Flowey.BUSINESS.DTO.ProjectUser;
+using Flowey.CORE.DTO.Project;
+using Flowey.CORE.DTO.ProjectUser;
 using Flowey.DOMAIN.Model.Concrete;
 
 namespace Flowey.BUSINESS.Mapping

@@ -1,13 +1,12 @@
-﻿using Flowey.CORE.Constants;
-using Flowey.BUSINESS.DTO.Attachment;
+﻿using Flowey.CORE.DTO.Attachment;
 using FluentValidation;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flowey.SHARED.Constants;
 
 namespace Flowey.BUSINESS.ValidationRules.FluentValidation.AttachmentValidators
 {

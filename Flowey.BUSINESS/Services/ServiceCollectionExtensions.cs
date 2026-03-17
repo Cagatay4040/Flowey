@@ -1,6 +1,7 @@
-﻿using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.Concrete;
-using Flowey.DATACCESS.Abstract;
+﻿using Flowey.BUSINESS.Concrete;
+using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.DATACCESS.Concrete;
 using Flowey.DATACCESS.Services;
 using Flowey.DOMAIN.Model.Concrete;
@@ -8,12 +9,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Services
 {
@@ -36,9 +32,6 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            serviceCollection.AddScoped<IAuthService, AuthManager>();
-            serviceCollection.AddScoped<IUserService, UserManager>();
-            serviceCollection.AddScoped<IInternalUserService, UserManager>();
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();
             serviceCollection.AddScoped<IFileService, FileManager>();
             serviceCollection.AddScoped<ISubscriptionService, SubscriptionManager>();

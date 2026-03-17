@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.Enums;
 using Flowey.DOMAIN.Model.Abstract;
+using Flowey.SHARED.Enums;
 
 namespace Flowey.DOMAIN.Model.Concrete
 {

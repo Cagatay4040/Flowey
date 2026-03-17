@@ -1,17 +1,13 @@
-using Flowey.BUSINESS.Abstract;
 using Flowey.BUSINESS.Extensions;
-using Flowey.CORE.Constants;
-using Flowey.CORE.Enums;
+using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
+using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
@@ -42,7 +38,6 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         public UpdateTaskCommandHandler(
             ITaskRepository taskRepository,
             IUserNotificationService userNotificationService,
-            IUserRepository userRepository,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;

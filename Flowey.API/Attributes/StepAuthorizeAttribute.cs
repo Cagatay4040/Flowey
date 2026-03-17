@@ -1,5 +1,5 @@
 ﻿using Flowey.API.Filters;
-using Flowey.CORE.Enums;
+using Flowey.SHARED.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Flowey.API.Attributes

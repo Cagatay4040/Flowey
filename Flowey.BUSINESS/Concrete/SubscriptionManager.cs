@@ -1,17 +1,13 @@
 ﻿using AutoMapper;
-using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.User;
-using Flowey.CORE.Constants;
 using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.DTO.User;
+using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
-using Flowey.DATACCESS.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Flowey.SHARED.Constants;
 
 namespace Flowey.BUSINESS.Concrete
 {
@@ -19,16 +15,16 @@ namespace Flowey.BUSINESS.Concrete
     {
         private readonly IUserRepository _userRepository;
         private readonly IEntityRepository<UserSubscription> _userSubscriptionRepository;
-        private readonly IAuthService _authService;
+        private readonly ITokenService _tokenService;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
-        public SubscriptionManager(IUserRepository userRepository, IEntityRepository<UserSubscription> userSubscriptionRepository, IAuthService authService, ICurrentUserService currentUserService, IMapper mapper, IUnitOfWork unitOfWork)
+        public SubscriptionManager(IUserRepository userRepository, IEntityRepository<UserSubscription> userSubscriptionRepository, ITokenService tokenService, ICurrentUserService currentUserService, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _userSubscriptionRepository = userSubscriptionRepository;
-            _authService = authService;
+            _tokenService = tokenService;
             _currentUserService = currentUserService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -94,7 +90,7 @@ namespace Flowey.BUSINESS.Concrete
             if (effectedRow <= 0)
                 return new DataResult<string>(ResultStatus.Error, Messages.SubscriptionFailed, null);
 
-            var newToken = _authService.GetToken(user);
+            var newToken = _tokenService.GenerateToken(user);
 
             return new DataResult<string>(ResultStatus.Success, Messages.PaymentSuccessful, newToken);
         }

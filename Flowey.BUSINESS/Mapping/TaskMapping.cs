@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AutoMapper;
-using Flowey.BUSINESS.DTO.Task;
+using Flowey.CORE.DTO.Task;
 
 namespace Flowey.BUSINESS.Mapping
 {

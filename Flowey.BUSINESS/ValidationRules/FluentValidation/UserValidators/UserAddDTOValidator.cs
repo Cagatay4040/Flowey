@@ -1,5 +1,4 @@
-﻿using Flowey.CORE.Constants;
-using Flowey.BUSINESS.DTO.User;
+﻿using Flowey.CORE.DTO.User;
 using Flowey.BUSINESS.Extensions;
 using FluentValidation;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Flowey.SHARED.Constants;
 
 namespace Flowey.BUSINESS.ValidationRules.FluentValidation.UserValidators
 {

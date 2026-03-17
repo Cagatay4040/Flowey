@@ -1,6 +1,6 @@
 ﻿using Flowey.API.Hubs;
-using Flowey.BUSINESS.Abstract;
-using Flowey.BUSINESS.DTO.Notification;
+using Flowey.CORE.DTO.Notification;
+using Flowey.CORE.Interfaces.Services;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Flowey.API.Services
