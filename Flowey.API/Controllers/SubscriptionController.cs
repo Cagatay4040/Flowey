@@ -1,5 +1,5 @@
-﻿using Flowey.BUSINESS.Features.Subscription.Commands;
-using Flowey.BUSINESS.Features.Subscription.Queries;
+﻿using Flowey.BUSINESS.Features.Subscriptions.Commands;
+using Flowey.BUSINESS.Features.Subscriptions.Queries;
 using Flowey.CORE.DTO.User;
 using Flowey.CORE.Result.Concrete;
 using MediatR;
