@@ -10,6 +10,7 @@ using System.Text;
 
 namespace Flowey.API.Controllers
 {
+    [Authorize]
     [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -32,11 +33,18 @@ namespace Flowey.API.Controllers
             return Ok(users);
         }
 
-        [Authorize]
         [HttpPost("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UserUpdateDTO dto)
         {
             var result = await _sender.Send(new UpdateUserCommand(dto.Id, dto.Email, dto.Name, dto.Surname));
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
+        }
+
+        [HttpPut("ProfileImage")]
+        public async Task<IActionResult> UploadProfileImage(IFormFile file)
+        {
+            var result = await _sender.Send(new UpdateProfileImageCommand(file));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

@@ -77,6 +77,12 @@ namespace Flowey.SHARED.Constants
         public const string PasswordsDoNotMatch = "Passwords do not match";
         public const string NewPasswordCannotBeSame = "New password cannot be the same as the old password";
 
+        public const string ImageNotSelected = "Please select an image file to upload.";
+        public const string InvalidImageFormat = "Only JPG and PNG formats are supported.";
+        public const string FileSizeExceeded = "The file size cannot exceed the maximum allowed limit of 5MB.";
+        public const string ImageUploadFailed = "An error occurred while uploading the image. Please try again.";
+        public const string ProfileImageUpdated = "Your profile image has been successfully updated.";
+
         public const string UserNotificationAdded = "User notification added successfully";
         public const string UserNotificationCreateError = "Could not create user notification";
         public const string UserNotificationNotFound = "User notification not found";

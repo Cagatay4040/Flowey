@@ -15,6 +15,7 @@ namespace Flowey.DOMAIN.Model.Concrete
         public string Name { get; set; }
         public string Surname { get; set; }
         public DateTime? PremiumExpirationDate { get; set; }
+        public string? ProfileImageUrl { get; set; }
 
         public virtual ICollection<TaskHistory> TaskHistories { get; set; }
         public virtual ICollection<ProjectUserRole> ProjectUserRoles { get; set; }

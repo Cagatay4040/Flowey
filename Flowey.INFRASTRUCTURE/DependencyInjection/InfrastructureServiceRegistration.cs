@@ -11,7 +11,9 @@ namespace Flowey.Infrastructure.DependencyInjection
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+            services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
+            services.AddScoped<IImageService, CloudinaryImageService>();
             services.AddScoped<ITokenService, JwtTokenService>();
 
             return services;
