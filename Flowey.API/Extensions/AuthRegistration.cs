@@ -1,4 +1,5 @@
 ﻿using Flowey.CORE.Result.Concrete;
+using Flowey.INFRASTRUCTURE.Settings;
 using Flowey.SHARED.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -11,16 +12,23 @@ namespace Flowey.API.Extensions
     {
         public static IServiceCollection ConfigureAuth(this IServiceCollection services, IConfiguration configuration)
         {
+            var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
+
+            if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Secret))
+                throw new ArgumentNullException("JwtSettings", AuthMessages.JwtSettingsNotFound);
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Secret"])),
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
                     NameClaimType = ClaimTypes.Name
                 };
 
@@ -31,10 +39,8 @@ namespace Flowey.API.Extensions
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
 
-                        if (!string.IsNullOrEmpty(accessToken))
-                        {
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hub"))
                             context.Token = accessToken;
-                        }
 
                         return Task.CompletedTask;
                     },
