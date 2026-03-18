@@ -1,9 +1,9 @@
-﻿using Flowey.API.Hubs;
-using Flowey.CORE.DTO.Notification;
+﻿using Flowey.CORE.DTO.Notification;
 using Flowey.CORE.Interfaces.Services;
+using Flowey.INFRASTRUCTURE.Services.Notifications.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Flowey.API.Services
+namespace Flowey.INFRASTRUCTURE.Services.Notifications
 {
     public class SignalRNotificationManager : IRealTimeNotificationService
     {

@@ -1,7 +1,6 @@
+using Flowey.BUSINESS.Features.Tasks.Events;
 using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.DTO.Notification;
 using Flowey.CORE.Interfaces.Repositories;
-using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -28,20 +27,20 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         private readonly ITaskRepository _taskRepository;
         private readonly IUserRepository _userRepository;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUserNotificationService _userNotificationService;
+        private readonly IPublisher _publisher;
         private readonly IUnitOfWork _unitOfWork;
 
         public ChangeAssignTaskCommandHandler(
             ITaskRepository taskRepository,
             IUserRepository userRepository,
             ICurrentUserService currentUserService,
-            IUserNotificationService userNotificationService,
+            IPublisher publisher,
             IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
             _userRepository = userRepository;
             _currentUserService = currentUserService;
-            _userNotificationService = userNotificationService;
+            _publisher = publisher;
             _unitOfWork = unitOfWork;
         }
 
@@ -66,24 +65,27 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
             if (effectedRow > 0)
             {
-                if (request.UserId.HasValue && request.UserId != _currentUserService.GetUserId().Value)
+                var assignerId = _currentUserService.GetUserId().Value;
+
+                if (request.UserId.HasValue && request.UserId != assignerId)
                 {
                     string taskIdentifier = existingTask.TaskKey != null
                                             ? $"task #{existingTask.TaskKey}"
                                             : "a task";
 
-                    var senderUser = await _userRepository.GetByIdAsync(_currentUserService.GetUserId().Value);
+                    var senderUser = await _userRepository.GetByIdAsync(assignerId);
                     string senderName = senderUser != null ? $"{senderUser.Name} {senderUser.Surname}" : "System";
 
-                    await _userNotificationService.AddUserNotificationAsync(new UserNotificationAddDTO
-                    {
-                        UserId = request.UserId.Value,
-                        SenderId = _currentUserService.GetUserId().Value,
-                        Title = Messages.TaskReassignedTitle,
-                        Message = string.Format(Messages.TaskReassignedMessage, senderName, taskIdentifier),
-                        ActionUrl = $"/board/{existingTask.ProjectId}?taskId={existingTask.Id}"
-                    });
+                    var taskEvent = new TaskAssigneeChangedEvent(
+                                        existingTask.Id,
+                                        request.UserId,
+                                        assignerId,
+                                        existingTask.ProjectId,
+                                        existingTask.TaskKey);
+
+                    await _publisher.Publish(taskEvent, cancellationToken);
                 }
+
                 return new Result(ResultStatus.Success, Messages.TaskAssignedSuccessfully);
             }
 

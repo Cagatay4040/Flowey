@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Flowey.API.Hubs
+namespace Flowey.INFRASTRUCTURE.Services.Notifications.Hubs
 {
     [Authorize]
     public class NotificationHub : Hub

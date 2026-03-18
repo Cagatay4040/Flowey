@@ -1,6 +1,7 @@
 using Flowey.BUSINESS.Extensions;
+using Flowey.BUSINESS.Features.Tasks.Events;
+using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Interfaces.Repositories;
-using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -32,16 +33,15 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
     public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, IResult>
     {
         private readonly ITaskRepository _taskRepository;
-        private readonly IUserNotificationService _userNotificationService;
+        private readonly IPublisher _publisher;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UpdateTaskCommandHandler(
-            ITaskRepository taskRepository,
-            IUserNotificationService userNotificationService,
-            IUnitOfWork unitOfWork)
+        public UpdateTaskCommandHandler(ITaskRepository taskRepository, IPublisher publisher, ICurrentUserService currentUserService, IUnitOfWork unitOfWork)
         {
             _taskRepository = taskRepository;
-            _userNotificationService = userNotificationService;
+            _publisher = publisher;
+            _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
         }
 
@@ -60,7 +60,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             existingTask.TaskHistories.Add(new TaskHistory
             {
                 TaskId = existingTask.Id,
-                UserId = existingTask.AssigneeId,
+                UserId = _currentUserService.GetUserId().Value,
                 StepId = existingTask.CurrentStepId
             });
 
@@ -69,11 +69,18 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
             if (effectedRow > 0)
             {
-                await _userNotificationService.SendMentionNotificationsAsync(existingTask.Description, existingTask.Id, existingTask.ProjectId);
+                var taskUpdatedEvent = new TaskUpdatedEvent(
+                                            existingTask.Description, 
+                                            existingTask.Id, 
+                                            _currentUserService.GetUserId().Value, 
+                                            existingTask.TaskKey, 
+                                            existingTask.ProjectId);
+
+                await _publisher.Publish(taskUpdatedEvent, cancellationToken);
                 return new Result(ResultStatus.Success, Messages.TaskUpdated);
             }
 
-            return new Result(ResultStatus.Error, Messages.TaskNotFound);
+            return new Result(ResultStatus.Error, Messages.TaskUpdateError);
         } 
     }
 }

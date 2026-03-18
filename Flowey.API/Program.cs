@@ -1,12 +1,8 @@
-
-using AngleSharp;
 using Flowey.API.Extensions;
-using Flowey.API.Hubs;
-using Flowey.API.Services;
 using Flowey.BUSINESS.Services;
-using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
 using Flowey.Infrastructure.DependencyInjection;
+using Flowey.INFRASTRUCTURE.Services.Notifications.Hubs;
 using Flowey.SHARED.Constants;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -98,8 +94,6 @@ namespace Flowey.API
                 builder.Services.AddInfrastructureServices(builder.Configuration);
                 builder.Services.AddFluentValidationAutoValidation();
 
-                builder.Services.AddScoped<IRealTimeNotificationService, SignalRNotificationManager>();
-
                 var app = builder.Build();
 
                 app.UseExceptionHandler(opt => { });
@@ -121,7 +115,7 @@ namespace Flowey.API
 
                 app.MapControllers();
 
-                app.MapHub<NotificationHub>("/hubs/notification");
+                app.MapHub<NotificationHub>("/notification-hub");
 
                 app.Run();
             }

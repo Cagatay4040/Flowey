@@ -33,7 +33,6 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
             serviceCollection.AddScoped<IPermissionService, PermissionManager>();  
-            serviceCollection.AddScoped<IUserNotificationService, UserNotificationManager>();
 
             serviceCollection.AddAutoMapper(typeof(ServiceCollectionExtensions));
             serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));

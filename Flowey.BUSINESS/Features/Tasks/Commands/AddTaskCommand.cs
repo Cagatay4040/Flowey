@@ -1,7 +1,8 @@
 using Flowey.BUSINESS.Extensions;
+using Flowey.BUSINESS.Features.Tasks.Events;
+using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.DTO.Task;
 using Flowey.CORE.Interfaces.Repositories;
-using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -39,20 +40,23 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         private readonly ITaskRepository _taskRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IStepRepository _stepRepository;
-        private readonly IUserNotificationService _userNotificationService;
+        private readonly IPublisher _publisher;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
 
         public AddTaskCommandHandler(
             ITaskRepository taskRepository,
             IProjectRepository projectRepository,
             IStepRepository stepRepository,
-            IUserNotificationService userNotificationService,
-            IUnitOfWork unitOfWork)
+            IPublisher publisher,
+            IUnitOfWork unitOfWork,
+            ICurrentUserService currentUserService)
         {
             _taskRepository = taskRepository;
             _projectRepository = projectRepository;
             _stepRepository = stepRepository;
-            _userNotificationService = userNotificationService;
+            _publisher = publisher;
+            _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
         }
 
@@ -107,7 +111,14 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
             if (effectedRow > 0)
             {
-                await _userNotificationService.SendMentionNotificationsAsync(task.Description, task.Id, task.ProjectId);
+                var taskAddedEvent = new TaskAddedEvent(
+                                        task.Description,
+                                        task.Id, 
+                                        _currentUserService.GetUserId().Value, 
+                                        task.TaskKey, 
+                                        task.ProjectId);
+
+                await _publisher.Publish(taskAddedEvent, cancellationToken);
                 return new Result(ResultStatus.Success, string.Format(Messages.TaskAdded, newTaskKey));
             }
 
