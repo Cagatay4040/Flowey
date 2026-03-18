@@ -1,9 +1,5 @@
 ﻿using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Task = Flowey.DOMAIN.Model.Concrete.Task;
 
 namespace Flowey.DATACCESS.Concrete.EntityFramework.Contexts

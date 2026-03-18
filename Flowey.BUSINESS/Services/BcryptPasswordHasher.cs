@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using BCrypt.Net;
 
 public class BcryptPasswordHasher<TUser> : IPasswordHasher<TUser> where TUser : class
 {

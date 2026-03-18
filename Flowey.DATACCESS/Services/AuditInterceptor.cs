@@ -3,11 +3,6 @@ using Flowey.DOMAIN.Model.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flowey.DATACCESS.Services
 {

@@ -1,12 +1,10 @@
-﻿using Flowey.CORE.DTO.User;
-using Flowey.BUSINESS.Features.Users.Commands;
+﻿using Flowey.BUSINESS.Features.Users.Commands;
 using Flowey.BUSINESS.Features.Users.Queries;
+using Flowey.CORE.DTO.User;
 using Flowey.CORE.Result.Concrete;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 
 namespace Flowey.API.Controllers
 {

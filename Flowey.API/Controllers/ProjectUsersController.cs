@@ -1,12 +1,11 @@
 ﻿using Flowey.API.Attributes;
-using Flowey.CORE.DTO.ProjectUser;
 using Flowey.BUSINESS.Features.ProjectUsers.Commands;
 using Flowey.BUSINESS.Features.ProjectUsers.Queries;
-using Flowey.SHARED.Enums;
+using Flowey.CORE.DTO.ProjectUser;
 using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Flowey.API.Controllers

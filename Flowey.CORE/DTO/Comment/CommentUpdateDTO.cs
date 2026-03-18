@@ -1,5 +1,3 @@
-using System;
-
 namespace Flowey.CORE.DTO.Comment
 {
     public class CommentUpdateDTO

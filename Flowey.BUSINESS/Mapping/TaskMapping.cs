@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using AutoMapper;
+﻿using AutoMapper;
 using Flowey.CORE.DTO.Task;
 
 namespace Flowey.BUSINESS.Mapping

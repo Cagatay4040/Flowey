@@ -1,11 +1,6 @@
 ﻿using Flowey.CORE.DTO.Project;
-using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Flowey.SHARED.Constants;
+using FluentValidation;
 
 namespace Flowey.BUSINESS.ValidationRules.FluentValidation.ProjectValidators
 {

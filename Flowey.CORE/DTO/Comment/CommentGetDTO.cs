@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Flowey.CORE.DTO.Comment
 {
     public class CommentGetDTO

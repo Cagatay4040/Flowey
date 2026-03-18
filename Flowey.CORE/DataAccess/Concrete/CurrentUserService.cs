@@ -1,12 +1,7 @@
 ﻿using Flowey.CORE.DataAccess.Abstract;
 using Flowey.SHARED.Constants;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flowey.CORE.DataAccess.Concrete
 {

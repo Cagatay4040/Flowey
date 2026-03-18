@@ -1,10 +1,5 @@
 ﻿using Flowey.CORE.DTO.Task;
 using Flowey.SHARED.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Flowey.CORE.DTO.Step
 {

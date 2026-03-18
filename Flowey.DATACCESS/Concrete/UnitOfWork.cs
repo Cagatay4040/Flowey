@@ -1,7 +1,5 @@
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
-using System;
-using System.Threading.Tasks;
 
 namespace Flowey.DATACCESS.Concrete
 {

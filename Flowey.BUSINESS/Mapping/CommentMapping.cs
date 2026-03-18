@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AutoMapper;
 using Flowey.CORE.DTO.Comment;
 using Flowey.DOMAIN.Model.Concrete;

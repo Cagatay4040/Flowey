@@ -1,5 +1,3 @@
-using System;
-
 namespace Flowey.CORE.DTO.Step
 {
     public class StepDeleteDTO
