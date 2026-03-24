@@ -3,6 +3,7 @@ using Flowey.BUSINESS.Features.Tasks.Events;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.DTO.Task;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -13,7 +14,7 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
-    public class AddTaskCommand : IRequest<IResult>
+    public class AddTaskCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public string Title { get; set; }
         public string Description { get; set; }
@@ -22,6 +23,8 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
         public Guid ProjectId { get; set; }
         public Guid? UserId { get; set; }
         public List<TaskAddLinkItemDTO> Links { get; set; } = new List<TaskAddLinkItemDTO>();
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public AddTaskCommand(string title, string description, PriorityType priority, DateTime? deadline, Guid projectId, Guid? userId, List<TaskAddLinkItemDTO> links)
         {

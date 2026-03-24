@@ -1,4 +1,5 @@
 ﻿using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -10,15 +11,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
-    public class LinkTasksCommand : IRequest<IResult>
+    public class LinkTasksCommand : IRequest<IResult>, IRequireTaskAuthorization
     {
-        public Guid SourceTaskId { get; set; }
+        public Guid TaskId { get; set; }
         public Guid TargetTaskId { get; set; }
         public LinkType LinkType { get; set; }
 
-        public LinkTasksCommand(Guid sourceTaskId, Guid targetTaskId, LinkType linkType)
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
+
+        public LinkTasksCommand(Guid taskId, Guid targetTaskId, LinkType linkType)
         {
-            SourceTaskId = sourceTaskId;
+            TaskId = taskId;
             TargetTaskId = targetTaskId;
             LinkType = linkType;
         }
@@ -41,17 +44,17 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
             public async Task<IResult> Handle(LinkTasksCommand request, CancellationToken cancellationToken)
             {
-                if (request.SourceTaskId == request.TargetTaskId)
+                if (request.TaskId == request.TargetTaskId)
                     return new Result(ResultStatus.Error, Messages.CannotLinkTaskToItself);
 
-                var sourceExists = await _taskRepository.AnyAsync(x => x.Id == request.SourceTaskId);
+                var sourceExists = await _taskRepository.AnyAsync(x => x.Id == request.TaskId);
                 var targetExists = await _taskRepository.AnyAsync(x => x.Id == request.TargetTaskId);
 
                 if (!sourceExists || !targetExists)
                     return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
                 var existingLink = await _taskLinkRepository.GetQueryable(x =>
-                    x.SourceTaskId == request.SourceTaskId &&
+                    x.SourceTaskId == request.TaskId &&
                     x.TargetTaskId == request.TargetTaskId &&
                     x.LinkType == request.LinkType)
                     .IgnoreQueryFilters()
@@ -69,7 +72,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
                 {
                     var taskLink = new TaskLink
                     {
-                        SourceTaskId = request.SourceTaskId,
+                        SourceTaskId = request.TaskId,
                         TargetTaskId = request.TargetTaskId,
                         LinkType = request.LinkType
                     };

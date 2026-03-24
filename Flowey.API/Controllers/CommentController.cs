@@ -1,9 +1,7 @@
-using Flowey.API.Attributes;
 using Flowey.BUSINESS.Features.Comments.Commands;
 using Flowey.BUSINESS.Features.Comments.Queries;
 using Flowey.CORE.DTO.Comment;
 using Flowey.CORE.Result.Concrete;
-using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +21,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpGet("task/{taskId}")]
-        [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetByTaskId(Guid taskId)
         {
             var result = await _sender.Send(new GetCommentsByTaskIdQuery(taskId));
@@ -32,7 +29,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddComment")]
-        [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> AddComment([FromBody] CommentAddDTO dto)
         {
             var result = await _sender.Send(new AddCommentCommand(dto.Content, dto.TaskId, dto.UserId));
@@ -41,7 +37,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateComment")]
-        [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateDTO dto)
         {
             var result = await _sender.Send(new UpdateCommentCommand(dto.CommentId, dto.Content));
@@ -50,7 +45,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpDelete("DeleteComment/{commentId}")]
-        [CommentAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> DeleteComment(Guid commentId)
         {
             var result = await _sender.Send(new DeleteCommentCommand(commentId));

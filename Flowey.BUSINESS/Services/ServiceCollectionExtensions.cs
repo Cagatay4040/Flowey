@@ -1,6 +1,7 @@
-﻿using Flowey.BUSINESS.Concrete;
+﻿using Flowey.BUSINESS.Pipelines;
+using Flowey.BUSINESS.Services.Security;
 using Flowey.CORE.Interfaces.Repositories;
-using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.DATACCESS.Concrete;
 using Flowey.DATACCESS.Services;
@@ -32,10 +33,18 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IUserNotificationRepository, UserNotificationRepository>();
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            serviceCollection.AddScoped<IPermissionService, PermissionManager>();  
+            serviceCollection.AddScoped<IPermissionService, PermissionService>();  
 
             serviceCollection.AddAutoMapper(typeof(ServiceCollectionExtensions));
-            serviceCollection.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            serviceCollection.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+
+                cfg.AddOpenBehavior(typeof(TaskAuthorizationBehavior<,>));
+                cfg.AddOpenBehavior(typeof(CommentAuthorizationBehavior<,>));
+                cfg.AddOpenBehavior(typeof(ProjectAuthorizationBehavior<,>));
+                cfg.AddOpenBehavior(typeof(StepAuthorizationBehavior<,>));
+            });
 
             serviceCollection.AddScoped<IPasswordHasher<User>, BcryptPasswordHasher<User>>();
 

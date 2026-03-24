@@ -1,6 +1,7 @@
 using AutoMapper;
 using Flowey.CORE.DTO.Step;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
@@ -9,12 +10,14 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Steps.Queries
 {
-    public class GetBoardDataQuery : IRequest<IDataResult<List<StepGetDTO>>>
+    public class GetBoardDataQuery : IRequest<IDataResult<List<StepGetDTO>>>, IRequireProjectAuthorization
     {
         public Guid ProjectId { get; set; }
         public List<Guid> UserIds { get; set; }
         public bool IncludeUnassigned { get; set; }
         public List<PriorityType>? Priorities { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public GetBoardDataQuery(Guid projectId, List<Guid> userIds, bool includeUnassigned, List<PriorityType>? priorities)
         {

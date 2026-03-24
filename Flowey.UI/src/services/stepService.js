@@ -13,8 +13,8 @@ export const stepService = {
         const response = await api.put('/Step/UpdateStep', step);
         return response.data;
     },
-    updateSteps: async (steps) => {
-        const response = await api.put('/Step/UpdateSteps', steps);
+    updateSteps: async (projectId, steps) => {
+        const response = await api.put(`/Step/${projectId}/UpdateSteps`, steps);
         return response.data;
     },
     deleteStep: async (dto) => {

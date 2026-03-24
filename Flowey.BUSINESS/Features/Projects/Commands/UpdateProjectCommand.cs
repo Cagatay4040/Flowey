@@ -1,17 +1,21 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Projects.Commands
 {
-    public class UpdateProjectCommand : IRequest<IResult>
+    public class UpdateProjectCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public Guid ProjectId { get; set; }
         public string Name { get; set; }
         public string ProjectKey { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin };
 
         public UpdateProjectCommand(Guid projectId, string name, string projectKey)
         {

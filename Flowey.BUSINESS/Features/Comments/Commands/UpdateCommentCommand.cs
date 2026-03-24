@@ -1,17 +1,21 @@
 using Flowey.BUSINESS.Extensions;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Comments.Commands
 {
-    public class UpdateCommentCommand : IRequest<IResult>
+    public class UpdateCommentCommand : IRequest<IResult>, IRequireCommentAuthorization
     {
         public Guid CommentId { get; set; }
         public string Content { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public UpdateCommentCommand(Guid commentId, string content)
         {

@@ -1,5 +1,4 @@
-﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.Features.Steps.Commands;
+﻿using Flowey.BUSINESS.Features.Steps.Commands;
 using Flowey.BUSINESS.Features.Steps.Queries;
 using Flowey.CORE.DTO.Step;
 using Flowey.CORE.Result.Concrete;
@@ -23,7 +22,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpGet("GetBoardData")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetBoardData(
             [FromQuery] Guid projectId, 
             [FromQuery] List<Guid> userIds, 
@@ -36,7 +34,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpGet("GetProjectSteps")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor, RoleType.Member)]
         public async Task<IActionResult> GetProjectSteps([FromQuery] Guid projectId)
         {
             var result = await _sender.Send(new GetProjectStepsQuery(projectId));
@@ -45,7 +42,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddStep")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddStep([FromBody] StepAddDTO step)
         {
             var result = await _sender.Send(new AddStepCommand(step.Name, step.Order,step.Category, step.ProjectId));
@@ -54,7 +50,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddSteps")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddSteps([FromBody] List<StepAddDTO> steps)
         {
             var result = await _sender.Send(new AddRangeStepCommand(steps));
@@ -63,7 +58,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateStep")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateStep([FromBody] StepUpdateDTO step)
         {
             var result = await _sender.Send(new UpdateStepCommand(step.StepId, step.Name, step.Order, step.Category));
@@ -71,17 +65,15 @@ namespace Flowey.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPut("UpdateSteps")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
-        public async Task<IActionResult> UpdateSteps([FromBody] List<StepUpdateDTO> steps)
+        [HttpPut("{projectId}/UpdateSteps")]
+        public async Task<IActionResult> UpdateSteps(Guid projectId, [FromBody] List<StepUpdateDTO> steps)
         {
-            var result = await _sender.Send(new UpdateRangeStepCommand(steps));
+            var result = await _sender.Send(new UpdateRangeStepCommand(steps, projectId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
 
         [HttpDelete("DeleteStep")]
-        [StepAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> DeleteStep([FromBody] StepDeleteDTO step)
         {
             var result = await _sender.Send(new SoftDeleteStepCommand(step.StepId, step.TargetStepId));

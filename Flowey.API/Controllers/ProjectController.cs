@@ -1,9 +1,7 @@
-﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.Features.Projects.Commands;
+﻿using Flowey.BUSINESS.Features.Projects.Commands;
 using Flowey.BUSINESS.Features.Projects.Queries;
 using Flowey.CORE.DTO.Project;
 using Flowey.CORE.Result.Concrete;
-using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -48,7 +46,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("Update")]
-        [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectUpdateDTO project)
         {
             var result = await _sender.Send(new UpdateProjectCommand(project.ProjectId, project.Name, project.ProjectKey));
@@ -57,7 +54,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpDelete("Delete")]
-        [ProjectAuthorize(RoleType.Admin)]
         public async Task<IActionResult> DeleteProject([FromBody] Guid projectId)
         {
             var result = await _sender.Send(new SoftDeleteProjectCommand(projectId));

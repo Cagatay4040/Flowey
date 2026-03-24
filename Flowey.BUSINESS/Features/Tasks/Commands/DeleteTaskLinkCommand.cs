@@ -1,19 +1,24 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
-    public class DeleteTaskLinkCommand : IRequest<IResult>
+    public class DeleteTaskLinkCommand : IRequest<IResult>, IRequireTaskAuthorization
     {
-        public Guid SourceTaskId { get; set; }
+        public Guid TaskId { get; set; }
         public Guid TargetTaskId { get; set; }
 
-        public DeleteTaskLinkCommand(Guid sourceTaskId, Guid targetTaskId)
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
+
+        public DeleteTaskLinkCommand(Guid taskId, Guid targetTaskId)
         {
-            SourceTaskId = sourceTaskId;
+            TaskId = taskId;
             TargetTaskId = targetTaskId;
         }
 
@@ -33,20 +38,20 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
             public async Task<IResult> Handle(DeleteTaskLinkCommand request, CancellationToken cancellationToken)
             {
                 var link = await _taskLinkRepository.FirstOrDefaultAsync(x => 
-                    (x.SourceTaskId == request.SourceTaskId && x.TargetTaskId == request.TargetTaskId) ||
-                    (x.SourceTaskId == request.TargetTaskId && x.TargetTaskId == request.SourceTaskId));
+                    (x.SourceTaskId == request.TaskId && x.TargetTaskId == request.TargetTaskId) ||
+                    (x.SourceTaskId == request.TargetTaskId && x.TargetTaskId == request.TaskId));
 
                 if (link == null)
-                    return new Result(ResultStatus.Error, "Task link not found.");
+                    return new Result(ResultStatus.Error, Messages.TaskLinkNotFound);
 
                 await _taskLinkRepository.DeleteAsync(link);
 
                 int effectedRows = await _unitOfWork.SaveChangesAsync();
 
                 if (effectedRows > 0)
-                    return new Result(ResultStatus.Success, "Task link deleted successfully.");
+                    return new Result(ResultStatus.Success, Messages.TaskLinkDeleted);
 
-                return new Result(ResultStatus.Error, "Failed to delete task link.");
+                return new Result(ResultStatus.Error, Messages.TaskLinkDeleteError);
             }
         }
     }

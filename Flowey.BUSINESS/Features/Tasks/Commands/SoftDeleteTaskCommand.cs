@@ -1,19 +1,23 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
-    public class SoftDeleteTaskCommand : IRequest<IResult>
+    public class SoftDeleteTaskCommand : IRequest<IResult>, IRequireTaskAuthorization
     {
-        public Guid Id { get; set; }
+        public Guid TaskId { get; set; }
 
-        public SoftDeleteTaskCommand(Guid id)
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
+
+        public SoftDeleteTaskCommand(Guid taskId)
         {
-            Id = id;
+            TaskId = taskId;
         }
     }
 
@@ -30,7 +34,7 @@ namespace Flowey.BUSINESS.Features.Tasks.Commands
 
         public async Task<IResult> Handle(SoftDeleteTaskCommand request, CancellationToken cancellationToken)
         {
-            var existingTask = await _taskRepository.FirstOrDefaultAsync(x => x.Id == request.Id);
+            var existingTask = await _taskRepository.FirstOrDefaultAsync(x => x.Id == request.TaskId);
 
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);

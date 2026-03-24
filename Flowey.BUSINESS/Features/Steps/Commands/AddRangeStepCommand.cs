@@ -1,22 +1,35 @@
 ﻿using AutoMapper;
 using Flowey.CORE.DTO.Step;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DOMAIN.Model.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Steps.Commands
 {
-    public class AddRangeStepCommand : IRequest<IResult>
+    public class AddRangeStepCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public List<StepAddDTO> StepAddDTOs { get; set; }
 
+        public Guid ProjectId { get; set; }
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor };
+
         public AddRangeStepCommand(List<StepAddDTO> stepAddDTOs)
         {
+            if (stepAddDTOs == null) throw new ArgumentNullException(nameof(stepAddDTOs));
+            if (!stepAddDTOs.Any()) throw new ArgumentException(Messages.StepListEmpty, nameof(stepAddDTOs));
+
+            var firstProjectId = stepAddDTOs.First().ProjectId;
+            if (stepAddDTOs.Any(dto => dto.ProjectId != firstProjectId))
+                throw new ArgumentException(Messages.StepsMustBelongToSameProject);
+
             StepAddDTOs = stepAddDTOs;
+            ProjectId = stepAddDTOs.First().ProjectId;
         }
     }
 
@@ -41,17 +54,7 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
 
         public async Task<IResult> Handle(AddRangeStepCommand request, CancellationToken cancellationToken)
         {
-            if (request.StepAddDTOs == null || !request.StepAddDTOs.Any())
-                return new Result(ResultStatus.Error, Messages.StepListEmpty);
-
-            var firstProjectId = request.StepAddDTOs.First().ProjectId;
-
-            if (request.StepAddDTOs.Any(x => x.ProjectId != firstProjectId))
-            {
-                return new Result(ResultStatus.Error, Messages.BulkStepProjectMismatch);
-            }
-
-            var existingProject = await _projectRepository.AnyAsync(x => x.Id == firstProjectId);
+            var existingProject = await _projectRepository.AnyAsync(x => x.Id == request.ProjectId);
 
             if (!existingProject)
                 return new Result(ResultStatus.Error, Messages.ProjectNotFound);

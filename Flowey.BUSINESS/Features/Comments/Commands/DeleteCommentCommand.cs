@@ -1,19 +1,23 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Comments.Commands
 {
-    public class DeleteCommentCommand : IRequest<IResult>
+    public class DeleteCommentCommand : IRequest<IResult>, IRequireCommentAuthorization
     {
-        public Guid Id { get; set; }
+        public Guid CommentId { get; set; }
 
-        public DeleteCommentCommand(Guid id)
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
+
+        public DeleteCommentCommand(Guid commentId)
         {
-            Id = id;
+            CommentId = commentId;
         }
     }
 
@@ -30,7 +34,7 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
 
         public async Task<IResult> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
-            var existingComment = await _commentRepository.GetByIdAsync(request.Id);
+            var existingComment = await _commentRepository.GetByIdAsync(request.CommentId);
 
             if (existingComment == null) 
                 return new Result(ResultStatus.Error, Messages.CommentNotFound);

@@ -1,6 +1,7 @@
 using Flowey.BUSINESS.Features.Tasks.Events;
 using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -11,10 +12,12 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Tasks.Commands
 {
-    public class ChangeStepTaskCommand : IRequest<IResult>
+    public class ChangeStepTaskCommand : IRequest<IResult>, IRequireTaskAuthorization
     {
         public Guid TaskId { get; set; }
         public Guid NewStepId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public ChangeStepTaskCommand(Guid taskId, Guid newStepId)
         {

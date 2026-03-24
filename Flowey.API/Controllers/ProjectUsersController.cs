@@ -1,9 +1,7 @@
-﻿using Flowey.API.Attributes;
-using Flowey.BUSINESS.Features.ProjectUsers.Commands;
+﻿using Flowey.BUSINESS.Features.ProjectUsers.Commands;
 using Flowey.BUSINESS.Features.ProjectUsers.Queries;
 using Flowey.CORE.DTO.ProjectUser;
 using Flowey.CORE.Result.Concrete;
-using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +29,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("AddUserToProject")]
-        [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> AddUserToProject([FromBody] ProjectUserAddDTO projectUser)
         {
             var result = await _sender.Send(new AddUserToProjectCommand(projectUser.UserId, projectUser.ProjectId, projectUser.RoleId));
@@ -40,7 +37,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPost("Transfer-ownership")]
-        [ProjectAuthorize(RoleType.Admin)]
         public async Task<IActionResult> TransferOwnership([FromBody] TransferOwnershipDTO dto)
         {
             var result = await _sender.Send(new TransferOwnershipCommand(dto.ProjectId, dto.NewOwnerId));
@@ -49,7 +45,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpPut("UpdateRole")]
-        [ProjectAuthorize(RoleType.Admin)]
         public async Task<IActionResult> UpdateRole([FromBody] ProjectUserUpdateRoleDTO dto)
         {
             var result = await _sender.Send(new UpdateRoleCommand(dto.ProjectId, dto.UserId, dto.RoleId));
@@ -58,7 +53,6 @@ namespace Flowey.API.Controllers
         }
 
         [HttpDelete("RemoveUserFromProject")]
-        [ProjectAuthorize(RoleType.Admin, RoleType.Editor)]
         public async Task<IActionResult> RemoveUserFromProject([FromBody] ProjectRemoveUserDTO projectUser)
         {
             var result = await _sender.Send(new RemoveUserFromProjectCommand(projectUser.UserId, projectUser.ProjectId));

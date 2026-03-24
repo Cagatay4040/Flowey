@@ -1,15 +1,19 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Projects.Commands
 {
-    public class SoftDeleteProjectCommand : IRequest<IResult>
+    public class SoftDeleteProjectCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public Guid ProjectId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin };
 
         public SoftDeleteProjectCommand(Guid projectId)
         {

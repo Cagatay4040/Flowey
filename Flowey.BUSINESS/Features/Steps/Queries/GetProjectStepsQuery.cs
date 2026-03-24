@@ -1,16 +1,20 @@
 using AutoMapper;
 using Flowey.CORE.DTO.Step;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Steps.Queries
 {
-    public class GetProjectStepsQuery : IRequest<IDataResult<List<StepGetDTO>>>
+    public class GetProjectStepsQuery : IRequest<IDataResult<List<StepGetDTO>>>, IRequireProjectAuthorization
     {
         public Guid ProjectId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public GetProjectStepsQuery(Guid projectId)
         {

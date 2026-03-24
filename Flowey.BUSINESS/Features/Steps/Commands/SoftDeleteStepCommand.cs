@@ -1,4 +1,5 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -8,10 +9,12 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Steps.Commands
 {
-    public class SoftDeleteStepCommand : IRequest<IResult>
+    public class SoftDeleteStepCommand : IRequest<IResult>, IRequireStepAuthorization
     {
         public Guid StepId { get; set; }
         public Guid? TargetStepId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor };
 
         public SoftDeleteStepCommand(Guid stepId, Guid? targetStepId)
         {

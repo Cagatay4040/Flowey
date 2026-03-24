@@ -293,7 +293,7 @@ const ProjectUpdate = () => {
         setSteps(newSteps);
 
         try {
-            await stepService.updateSteps([
+            await stepService.updateSteps(projectId, [
                 { stepId: current.id, name: current.name, order: current.order, category: current.category || 1 },
                 { stepId: swap.id, name: swap.name, order: swap.order, category: swap.category || 1 }
             ]);

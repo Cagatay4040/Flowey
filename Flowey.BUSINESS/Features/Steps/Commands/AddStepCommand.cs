@@ -1,4 +1,5 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -9,12 +10,14 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Steps.Commands
 {
-    public class AddStepCommand : IRequest<IResult>
+    public class AddStepCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public string Name { get; set; }
         public int Order { get; set; }
         public StepCategory Category { get; set; }
         public Guid ProjectId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor };
 
         public AddStepCommand(string name, int order, StepCategory category, Guid projectId)
         {

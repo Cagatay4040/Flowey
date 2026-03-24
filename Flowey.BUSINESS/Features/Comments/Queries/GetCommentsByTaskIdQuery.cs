@@ -1,16 +1,20 @@
 using AutoMapper;
 using Flowey.CORE.DTO.Comment;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Comments.Queries
 {
-    public class GetCommentsByTaskIdQuery : IRequest<IDataResult<List<CommentGetDTO>>>
+    public class GetCommentsByTaskIdQuery : IRequest<IDataResult<List<CommentGetDTO>>>, IRequireTaskAuthorization
     {
         public Guid TaskId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public GetCommentsByTaskIdQuery(Guid taskId)
         {

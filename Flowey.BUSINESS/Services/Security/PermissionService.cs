@@ -1,18 +1,18 @@
 ﻿using Flowey.CORE.Interfaces.Repositories;
-using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.DOMAIN.Model.Concrete;
 using Flowey.SHARED.Enums;
 
-namespace Flowey.BUSINESS.Concrete
+namespace Flowey.BUSINESS.Services.Security
 {
-    public class PermissionManager : IPermissionService
+    public class PermissionService : IPermissionService
     {
         private readonly IEntityRepository<ProjectUserRole> _projectUserRoleRepository;
         private readonly ITaskRepository _taskRepository;
         private readonly IStepRepository _stepRepository;
         private readonly ICommentRepository _commentRepository;
 
-        public PermissionManager(IEntityRepository<ProjectUserRole> projectUserRoleRepository, ITaskRepository taskRepository, IStepRepository stepRepository, ICommentRepository commentRepository)
+        public PermissionService(IEntityRepository<ProjectUserRole> projectUserRoleRepository, ITaskRepository taskRepository, IStepRepository stepRepository, ICommentRepository commentRepository)
         {
             _projectUserRoleRepository = projectUserRoleRepository;
             _taskRepository = taskRepository;

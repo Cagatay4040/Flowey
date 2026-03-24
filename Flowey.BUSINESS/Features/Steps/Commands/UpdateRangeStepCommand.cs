@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Flowey.CORE.DTO.Step;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -10,13 +11,17 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Steps.Commands
 {
-    public class UpdateRangeStepCommand : IRequest<IResult>
+    public class UpdateRangeStepCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public List<StepUpdateDTO> StepUpdateDTOs { get; set; }
 
-        public UpdateRangeStepCommand(List<StepUpdateDTO> stepUpdateDTOs)
+        public Guid ProjectId { get; set; }
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor };
+
+        public UpdateRangeStepCommand(List<StepUpdateDTO> stepUpdateDTOs, Guid projectId)
         {
             StepUpdateDTOs = stepUpdateDTOs;
+            ProjectId = projectId;
         }
     }
 
@@ -44,10 +49,11 @@ namespace Flowey.BUSINESS.Features.Steps.Commands
             var ids = request.StepUpdateDTOs.Select(x => x.StepId).ToList();
             var existingSteps = await _stepRepository.GetList(x => ids.Contains(x.Id));
 
+            if (existingSteps.Any(x => x.ProjectId != request.ProjectId))
+                return new Result(ResultStatus.Error, Messages.StepsProjectMismatch);
+
             if (existingSteps.Count != request.StepUpdateDTOs.Count)
-            {
                 return new Result(ResultStatus.Error, Messages.BulkUpdateAborted);
-            }
 
             var affectedProjectIds = existingSteps.Select(x => x.ProjectId).Distinct().ToList();
 

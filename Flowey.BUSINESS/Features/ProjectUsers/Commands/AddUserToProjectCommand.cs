@@ -1,4 +1,5 @@
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -9,11 +10,13 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
 {
-    public class AddUserToProjectCommand : IRequest<IResult>
+    public class AddUserToProjectCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public Guid UserId { get; set; }
         public Guid ProjectId { get; set; }
         public RoleType RoleId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor };
 
         public AddUserToProjectCommand(Guid userId, Guid projectId, RoleType role)
         {

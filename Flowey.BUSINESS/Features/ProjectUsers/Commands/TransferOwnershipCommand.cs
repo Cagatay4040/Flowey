@@ -1,5 +1,6 @@
 ﻿using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
@@ -10,10 +11,12 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.ProjectUsers.Commands
 {
-    public class TransferOwnershipCommand : IRequest<IResult>
+    public class TransferOwnershipCommand : IRequest<IResult>, IRequireProjectAuthorization
     {
         public Guid ProjectId { get; set; }
         public Guid NewOwnerId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin };
 
         public TransferOwnershipCommand(Guid projectId, Guid newOwnerId)
         {

@@ -1,6 +1,6 @@
 ﻿using Flowey.SHARED.Enums;
 
-namespace Flowey.CORE.Interfaces.Services
+namespace Flowey.CORE.Interfaces.Security
 {
     public interface IPermissionService
     {

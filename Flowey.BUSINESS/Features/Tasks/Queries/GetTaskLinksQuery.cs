@@ -1,5 +1,6 @@
 using Flowey.CORE.DTO.Task;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Enums;
@@ -8,9 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Flowey.BUSINESS.Features.Tasks.Queries
 {
-    public class GetTaskLinksQuery : IRequest<IDataResult<List<RelatedTaskDTO>>>
+    public class GetTaskLinksQuery : IRequest<IDataResult<List<RelatedTaskDTO>>>, IRequireTaskAuthorization
     {
         public Guid TaskId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public GetTaskLinksQuery(Guid taskId)
         {

@@ -31,6 +31,9 @@ namespace Flowey.SHARED.Constants
         public const string TaskLinkAlreadyExists = "This exact link between the tasks already exists.";
         public const string TasksLinkedSuccessfully = "Tasks have been linked successfully.";
         public const string TaskLinkFailed = "An error occurred while linking the tasks.";
+        public const string TaskLinkNotFound = "Task link not found.";
+        public const string TaskLinkDeleteError = "Could not delete task link";
+        public const string TaskLinkDeleted= "Task link deleted successfully.";
 
         public const string ProjectAdded = "Project added successfully";
         public const string ProjectUpdated = "Project updated successfully";
@@ -117,6 +120,8 @@ namespace Flowey.SHARED.Constants
         public const string CannotDeleteLastRequiredCategoryStep = "This step cannot be deleted because a project must have at least one starting (To Do) and one completing (Done) step.";
         public const string MustSelectTargetStep = "This step contains active tasks. A target step must be selected.";
         public const string CannotDeleteLastRequiredCategoryStepBulk = "Bulk update aborted: The requested changes would leave a project without at least one 'To Do' and one 'Done' step.";
+        public const string StepsMustBelongToSameProject = "All steps in the batch operation must belong to the same project.";
+        public const string StepsProjectMismatch = "One or more steps do not belong to the specified project.";
 
         public const string UnauthorizedAccess = "Unauthorized";
         public const string ProjectIdMissing = "ProjectId could not be found in request parameters or body";

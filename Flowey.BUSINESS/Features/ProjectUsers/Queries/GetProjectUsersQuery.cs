@@ -1,15 +1,20 @@
 using Flowey.CORE.DTO.User;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.ProjectUsers.Queries
 {
-    public class GetProjectUsersQuery : IRequest<IDataResult<List<UserSelectDTO>>>
+    public class GetProjectUsersQuery : IRequest<IDataResult<List<UserSelectDTO>>>, IRequireProjectAuthorization
     {
         public Guid ProjectId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
+
 
         public GetProjectUsersQuery(Guid projectId)
         {

@@ -1,5 +1,6 @@
 using Flowey.CORE.DTO.Task;
 using Flowey.CORE.Interfaces.Repositories;
+using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DOMAIN.Model.Concrete;
@@ -9,9 +10,11 @@ using MediatR;
 
 namespace Flowey.BUSINESS.Features.Tasks.Queries
 {
-    public class GetTaskHistoryQuery : IRequest<IDataResult<List<TaskHistoryGetDTO>>>
+    public class GetTaskHistoryQuery : IRequest<IDataResult<List<TaskHistoryGetDTO>>>, IRequireTaskAuthorization
     {
         public Guid TaskId { get; set; }
+
+        public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
         public GetTaskHistoryQuery(Guid taskId)
         {
