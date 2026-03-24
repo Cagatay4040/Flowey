@@ -46,5 +46,13 @@ namespace Flowey.API.Controllers
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }
+
+        [HttpDelete("DeleteProfileImage")]
+        public async Task<IActionResult> DeleteProfileImage()
+        {
+            var result = await _sender.Send(new DeleteProfileImageCommand());
+            if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+            return BadRequest(result);
+        }
     }
 }

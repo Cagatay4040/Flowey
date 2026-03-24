@@ -85,6 +85,9 @@ namespace Flowey.SHARED.Constants
         public const string FileSizeExceeded = "The file size cannot exceed the maximum allowed limit of 5MB.";
         public const string ImageUploadFailed = "An error occurred while uploading the image. Please try again.";
         public const string ProfileImageUpdated = "Your profile image has been successfully updated.";
+        public const string ProfileImageDeleted = "Your profile image has been successfully deleted.";
+        public const string ProfileImageDeleteFailed = "Failed to delete profile image";
+        public const string NoProfileImageToDelete = "There is no profile image to delete.";
 
         public const string UserNotificationAdded = "User notification added successfully";
         public const string UserNotificationCreateError = "Could not create user notification";
