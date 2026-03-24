@@ -29,7 +29,8 @@ export const AuthProvider = ({ children }) => {
             email: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || decoded.email,
             name: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || decoded.unique_name || decoded.name,
             surname: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'] || decoded.surname,
-            premiumExpireDate: decoded['PremiumExpireDate'] || decoded.premiumExpireDate
+            premiumExpireDate: decoded['PremiumExpireDate'] || decoded.premiumExpireDate,
+            profileImageUrl: decoded['ProfileImageUrl'] || decoded.profileImageUrl
         };
     };
 

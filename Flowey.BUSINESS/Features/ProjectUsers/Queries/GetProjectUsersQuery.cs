@@ -41,6 +41,7 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Queries
             var data = entities.ProjectUserRoles.Select(role => new UserSelectDTO
             {
                 Id = role.User.Id,
+                ProfileImageUrl = role.User.ProfileImageUrl,
                 FullName = $"{role.User.Name} {role.User.Surname}",
                 Email = role.User.Email,
                 RoleId = (int)role.RoleId,

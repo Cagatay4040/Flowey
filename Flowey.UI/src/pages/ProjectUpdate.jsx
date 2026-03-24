@@ -578,9 +578,13 @@ const ProjectUpdate = () => {
                                                         className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-blue-50 text-gray-900"
                                                     >
                                                         <div className="flex items-center">
-                                                            <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-2">
-                                                                {user.fullName ? user.fullName.charAt(0).toUpperCase() : '?'}
-                                                            </div>
+                                                            {user.profileImageUrl ? (
+                                                                <img src={user.profileImageUrl} alt="Profile" className="h-6 w-6 rounded-full object-cover mr-2 shadow-sm" />
+                                                            ) : (
+                                                                <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-2 border border-blue-200">
+                                                                    {user.fullName ? user.fullName.charAt(0).toUpperCase() : '?'}
+                                                                </div>
+                                                            )}
                                                             <span className="font-normal block truncate">{user.fullName} <span className="text-gray-500 text-sm">({user.email})</span></span>
                                                         </div>
                                                     </li>
@@ -615,9 +619,13 @@ const ProjectUpdate = () => {
                                         {projectUsers.map((user) => (
                                             <li key={user.id} className="flex items-center justify-between p-4 bg-white hover:bg-gray-50">
                                                 <div className="flex items-center space-x-4">
-                                                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                                                        {user.fullName ? user.fullName.charAt(0).toUpperCase() : '?'}
-                                                    </div>
+                                                    {user.profileImageUrl ? (
+                                                        <img src={user.profileImageUrl} alt="Profile" className="h-10 w-10 rounded-full object-cover shadow-sm border border-gray-200" />
+                                                    ) : (
+                                                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200 shadow-sm">
+                                                            {user.fullName ? user.fullName.charAt(0).toUpperCase() : '?'}
+                                                        </div>
+                                                    )}
                                                     <div>
                                                         <div className="font-medium text-gray-900">{user.fullName || 'Unknown User'}</div>
                                                         <div className="text-sm text-gray-500">{user.email}</div>

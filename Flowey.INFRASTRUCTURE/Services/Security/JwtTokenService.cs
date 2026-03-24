@@ -1,4 +1,4 @@
-﻿using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.DOMAIN.Model.Concrete;
 using Flowey.INFRASTRUCTURE.Settings;
 using Microsoft.Extensions.Options;
@@ -30,6 +30,9 @@ namespace Flowey.Infrastructure.Services.Security
 
             if (user.PremiumExpirationDate.HasValue)
                 claims.Add(new Claim("PremiumExpireDate", user.PremiumExpirationDate.Value.ToString("o")));
+
+            if (!string.IsNullOrEmpty(user.ProfileImageUrl))
+                claims.Add(new Claim("ProfileImageUrl", user.ProfileImageUrl));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

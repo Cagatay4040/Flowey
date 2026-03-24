@@ -25,6 +25,9 @@ const Profile = () => {
     const [billingHistory, setBillingHistory] = useState([]);
     const [billingLoading, setBillingLoading] = useState(false);
 
+    const [profileImagePreview, setProfileImagePreview] = useState(null);
+    const [uploadLoading, setUploadLoading] = useState(false);
+
     const [infoMessage, setInfoMessage] = useState({ type: '', text: '' });
     const [passwordMessage, setPasswordMessage] = useState({ type: '', text: '' });
 
@@ -36,6 +39,8 @@ const Profile = () => {
                 email: user.email || '',
                 premiumExpireDate: user.premiumExpireDate
             });
+            
+            setProfileImagePreview(user.profileImageUrl || null);
 
             // Fetch billing history if user exists
             fetchBillingHistory(user.id || user.nameid || user.sub);
@@ -61,6 +66,59 @@ const Profile = () => {
 
     const handlePasswordChange = (e) => {
         setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
+    };
+
+    const handleProfileImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setProfileImagePreview(URL.createObjectURL(file));
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        setUploadLoading(true);
+        setInfoMessage({ type: '', text: '' });
+
+        try {
+            const response = await api.put('/User/ProfileImage', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            
+            if (response.data && response.data.data) {
+                updateToken(response.data.data);
+            }
+            
+            setInfoMessage({ type: 'success', text: 'Profile image updated successfully.' });
+        } catch (error) {
+            setInfoMessage({ type: 'error', text: error.response?.data?.message || 'Error uploading image.' });
+            // Revert on error
+            setProfileImagePreview(user?.profileImageUrl || null);
+        } finally {
+            setUploadLoading(false);
+        }
+    };
+
+    const handleDeleteProfileImage = async () => {
+        setUploadLoading(true);
+        setInfoMessage({ type: '', text: '' });
+
+        try {
+            const response = await api.delete('/User/DeleteProfileImage');
+            
+            if (response.data && response.data.data) {
+                updateToken(response.data.data);
+            }
+
+            setProfileImagePreview(null);
+            setInfoMessage({ type: 'success', text: 'Profile image deleted successfully.' });
+        } catch (error) {
+            setInfoMessage({ type: 'error', text: error.response?.data?.message || 'Error deleting image.' });
+        } finally {
+            setUploadLoading(false);
+        }
     };
 
     const handleUpdateInfo = async (e) => {
@@ -167,6 +225,46 @@ const Profile = () => {
                                     {infoMessage.text}
                                 </div>
                             )}
+
+                            {/* Profile Image Section */}
+                            <div className="mt-8 mb-6">
+                                <label className="block text-sm font-medium text-gray-700 mb-4">Profile Picture</label>
+                                <div className="flex items-center space-x-6">
+                                    <div className="flex-shrink-0 h-24 w-24 relative rounded-full overflow-hidden bg-gray-100 border border-gray-200">
+                                        {profileImagePreview ? (
+                                            <img src={profileImagePreview} alt="Profile" className="h-full w-full object-cover" />
+                                        ) : (
+                                            <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+                                            </svg>
+                                        )}
+                                        {uploadLoading && (
+                                            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col space-y-3">
+                                        <div className="flex space-x-3">
+                                            <label className="relative cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500 transition-colors">
+                                                <span>Change</span>
+                                                <input id="profile-image-upload" name="profile-image-upload" type="file" className="sr-only" accept="image/jpeg, image/png, image/jpg" onChange={handleProfileImageChange} disabled={uploadLoading} />
+                                            </label>
+                                            {profileImagePreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleDeleteProfileImage}
+                                                    disabled={uploadLoading}
+                                                    className="bg-white py-2 px-3 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                                >
+                                                    Remove
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500">JPG, JPEG or PNG. Max 5MB.</p>
+                                    </div>
+                                </div>
+                            </div>
 
                             <form onSubmit={handleUpdateInfo} className="mt-8 space-y-6">
                                 <div className="w-full">

@@ -40,9 +40,17 @@ const ProfileDropdown = () => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center space-x-2 focus:outline-none hover:opacity-80 transition-opacity"
             >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
-                    {user?.name?.[0]?.toUpperCase() || 'U'}
-                </div>
+                {user?.profileImageUrl ? (
+                    <img
+                        src={user.profileImageUrl}
+                        alt="Profile"
+                        className="w-9 h-9 rounded-full object-cover shadow-md border border-gray-200"
+                    />
+                ) : (
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                        {user?.name?.[0]?.toUpperCase() || 'U'}
+                    </div>
+                )}
             </button>
 
             {isOpen && (

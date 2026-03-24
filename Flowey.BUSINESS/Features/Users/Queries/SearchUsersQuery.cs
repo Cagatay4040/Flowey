@@ -26,6 +26,9 @@ namespace Flowey.BUSINESS.Features.Users.Queries
 
         public async Task<List<UserSelectDTO>> Handle(SearchUsersQuery request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.SearchTerm))
+                return new List<UserSelectDTO>();
+
             var term = request.SearchTerm.Trim().ToLower();
 
             var users = await _userRepository.
@@ -41,6 +44,7 @@ namespace Flowey.BUSINESS.Features.Users.Queries
                     Id = u.Id,
                     FullName = $"{u.Name} {u.Surname}",
                     Email = u.Email,
+                    ProfileImageUrl = u.ProfileImageUrl
                 })
                 .Take(10)
                 .ToListAsync();
