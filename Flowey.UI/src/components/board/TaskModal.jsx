@@ -429,8 +429,21 @@ const TaskModal = ({ task, onClose, onUpdate, onDelete, onTaskClick }) => {
                                 )}
                                 {comments.map(c => (
                                     <div key={c.id} className="bg-white p-3 rounded shadow-sm border border-gray-100">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className="font-semibold text-xs text-gray-800">{c.userName || 'User'}</span>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <div className="flex items-center space-x-2">
+                                                {c.profileImageUrl ? (
+                                                    <img
+                                                        src={c.profileImageUrl}
+                                                        alt="Profile"
+                                                        className="w-6 h-6 rounded-full object-cover shadow-sm border border-gray-200"
+                                                    />
+                                                ) : (
+                                                    <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                                                        {c.userName?.[0]?.toUpperCase() || 'U'}
+                                                    </div>
+                                                )}
+                                                <span className="font-semibold text-xs text-gray-800">{c.userName || 'User'}</span>
+                                            </div>
                                             <span className="text-xs text-gray-400">{new Date(c.createdDate).toLocaleDateString()} {new Date(c.createdDate).toLocaleTimeString()}</span>
                                         </div>
                                         {c.content.includes('<p>') || c.content.includes('<img') || c.content.includes('<') ? (
