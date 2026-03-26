@@ -16,7 +16,8 @@ namespace Flowey.BUSINESS.Mapping
 
             CreateMap<CommentGetDTO, Comment>();
             CreateMap<Comment, CommentGetDTO>()
-                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name + " " + src.User.Surname : ""));
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.Name + " " + src.User.Surname : ""))
+                .ForMember(dest => dest.ProfileImageUrl, opt => opt.MapFrom(src => src.User != null ? src.User.ProfileImageUrl : null));
         }
     }
 }
