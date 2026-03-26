@@ -31,7 +31,7 @@ namespace Flowey.API.Controllers
         [HttpPost("AddComment")]
         public async Task<IActionResult> AddComment([FromBody] CommentAddDTO dto)
         {
-            var result = await _sender.Send(new AddCommentCommand(dto.Content, dto.TaskId, dto.UserId));
+            var result = await _sender.Send(new AddCommentCommand(dto.Content, dto.TaskId));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

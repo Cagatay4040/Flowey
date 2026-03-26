@@ -1,5 +1,6 @@
 using Flowey.BUSINESS.Extensions;
 using Flowey.BUSINESS.Features.Comments.Events;
+using Flowey.CORE.DataAccess.Abstract;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
@@ -16,15 +17,13 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
     {
         public string Content { get; set; }
         public Guid TaskId { get; set; }
-        public Guid UserId { get; set; }
 
         public RoleType[] RequiredRoles => new[] { RoleType.Admin, RoleType.Editor, RoleType.Member };
 
-        public AddCommentCommand(string content, Guid taskId, Guid userId)
+        public AddCommentCommand(string content, Guid taskId)
         {
             Content = content;
             TaskId = taskId;
-            UserId = userId;
         }
     }
 
@@ -32,17 +31,20 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
     {
         private readonly ICommentRepository _commentRepository;
         private readonly ITaskRepository _taskRepository;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPublisher _publisher;
 
         public AddCommentCommandHandler(
             ICommentRepository commentRepository,
             ITaskRepository taskRepository,
+            ICurrentUserService currentUserService,
             IUnitOfWork unitOfWork,
             IPublisher publisher)
         {
             _commentRepository = commentRepository;
             _taskRepository = taskRepository;
+            _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
             _publisher = publisher;
         }
@@ -54,13 +56,15 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
             if (existingTask == null)
                 return new Result(ResultStatus.Error, Messages.TaskNotFound);
 
+            var currentUserId = _currentUserService.GetUserId().Value;
+
             var cleanContent = request.Content.ToSafeRichText();
 
             var comment = new Comment
             {
                 Content = cleanContent,
                 TaskId = request.TaskId,
-                UserId = request.UserId
+                UserId = currentUserId
             };
 
             await _commentRepository.AddAsync(comment);
@@ -70,8 +74,8 @@ namespace Flowey.BUSINESS.Features.Comments.Commands
             {
                 var commentEvent = new CommentAddedEvent(
                                         cleanContent, 
-                                        request.TaskId, 
-                                        request.UserId,
+                                        request.TaskId,
+                                        currentUserId,
                                         existingTask.TaskKey,
                                         existingTask.ProjectId);
 
