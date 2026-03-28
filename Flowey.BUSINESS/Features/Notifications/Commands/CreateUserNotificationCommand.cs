@@ -1,4 +1,4 @@
-﻿using Flowey.BUSINESS.Features.Notifications.Events;
+﻿using Flowey.CORE.Events.Notification;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.CORE.Result.Abstract;

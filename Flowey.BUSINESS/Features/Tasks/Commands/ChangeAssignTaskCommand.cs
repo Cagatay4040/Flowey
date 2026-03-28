@@ -1,5 +1,5 @@
-using Flowey.BUSINESS.Features.Tasks.Events;
 using Flowey.CORE.DataAccess.Abstract;
+using Flowey.CORE.Events.Task;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;

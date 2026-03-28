@@ -1,4 +1,4 @@
-﻿using Flowey.BUSINESS.Features.Tasks.Events;
+﻿using Flowey.CORE.Events.Task;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Interfaces.UnitOfWork;
 using Flowey.DOMAIN.Model.Concrete;

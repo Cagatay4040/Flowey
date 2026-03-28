@@ -1,7 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Flowey.CORE.Interfaces.Services;
-using Flowey.INFRASTRUCTURE.Settings;
+using Flowey.CORE.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 

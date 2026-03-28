@@ -1,5 +1,5 @@
-﻿using Flowey.BUSINESS.Features.Notifications.Events;
-using Flowey.CORE.DTO.Notification;
+﻿using Flowey.CORE.DTO.Notification;
+using Flowey.CORE.Events.Notification;
 using Flowey.CORE.Interfaces.Services;
 using MediatR;
 

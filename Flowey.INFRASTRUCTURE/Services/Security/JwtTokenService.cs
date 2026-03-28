@@ -1,6 +1,6 @@
 using Flowey.CORE.Interfaces.Services;
+using Flowey.CORE.Settings;
 using Flowey.DOMAIN.Model.Concrete;
-using Flowey.INFRASTRUCTURE.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

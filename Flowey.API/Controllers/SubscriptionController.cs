@@ -28,10 +28,10 @@ namespace Flowey.API.Controllers
             return BadRequest(result);
         }
 
-        [HttpPost("Checkout")]
-        public async Task<IActionResult> Checkout([FromBody] UserCheckoutRequestDTO request)
+        [HttpPost("CheckoutSession")]
+        public async Task<IActionResult> CheckoutSession([FromBody] UserCheckoutRequestDTO request)
         {
-            var result = await _sender.Send(new CheckoutCommand(request.MonthsToPurchase));
+            var result = await _sender.Send(new CreateCheckoutSessionCommand(request.MonthsToPurchase));
             if (result.ResultStatus == ResultStatus.Success) return Ok(result);
             return BadRequest(result);
         }

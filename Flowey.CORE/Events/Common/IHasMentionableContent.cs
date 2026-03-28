@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Flowey.BUSINESS.Features.Common
+namespace Flowey.CORE.Events.Common
 {
     public interface IHasMentionableContent : INotification
     {

@@ -152,5 +152,9 @@ namespace Flowey.SHARED.Constants
         public const string SubscriptionFailed = "Failed to process the subscription. Please try again.";
         public const string PaymentSuccessful = "Payment successful. Premium activated.";
         public const string NoInvoicesFound = "No invoices found for this account.";
+        public const string CheckoutSessionCreated = "Payment checkout session created successfully.";
+        public const string PaymentGatewayCommunicationError = "Could not communicate with the payment gateway to initialize the session.";
+        public const string WebhookDatabaseCommitFailed = "Webhook processed successfully, but database commit failed. The payment gateway should retry the operation.";
+        public const string InvalidWebhookSignature= "Invalid webhook signature.";
     }
 }

@@ -3,6 +3,7 @@ using Flowey.BUSINESS.Services.Security;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Interfaces.Security;
 using Flowey.CORE.Interfaces.UnitOfWork;
+using Flowey.CORE.Settings;
 using Flowey.DATACCESS.Concrete;
 using Flowey.DATACCESS.Services;
 using Flowey.DOMAIN.Model.Concrete;
@@ -49,6 +50,9 @@ namespace Flowey.BUSINESS.Services
             serviceCollection.AddScoped<IPasswordHasher<User>, BcryptPasswordHasher<User>>();
 
             serviceCollection.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+            serviceCollection.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+            serviceCollection.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
             return serviceCollection;
         }

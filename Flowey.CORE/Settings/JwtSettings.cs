@@ -1,4 +1,4 @@
-﻿namespace Flowey.INFRASTRUCTURE.Settings
+﻿namespace Flowey.CORE.Settings
 {
     public class JwtSettings
     {

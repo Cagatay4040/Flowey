@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Flowey.BUSINESS.Features.Tasks.Events
+namespace Flowey.CORE.Events.Task
 {
     public class TaskCompletedEvent : INotification
     {

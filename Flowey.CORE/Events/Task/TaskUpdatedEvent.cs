@@ -1,6 +1,6 @@
-﻿using Flowey.BUSINESS.Features.Common;
+﻿using Flowey.CORE.Events.Common;
 
-namespace Flowey.BUSINESS.Features.Tasks.Events
+namespace Flowey.CORE.Events.Task
 {
     public class TaskUpdatedEvent : IHasMentionableContent
     {

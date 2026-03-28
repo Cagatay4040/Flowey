@@ -1,5 +1,5 @@
-﻿using Flowey.BUSINESS.Features.Common;
-using Flowey.BUSINESS.Features.Notifications.Commands;
+﻿using Flowey.BUSINESS.Features.Notifications.Commands;
+using Flowey.CORE.Events.Common;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.SHARED.Constants;
 using MediatR;

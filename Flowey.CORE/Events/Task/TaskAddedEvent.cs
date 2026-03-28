@@ -1,8 +1,8 @@
-﻿using Flowey.BUSINESS.Features.Common;
+﻿using Flowey.CORE.Events.Common;
 
-namespace Flowey.BUSINESS.Features.Comments.Events
+namespace Flowey.CORE.Events.Task
 {
-    public class CommentAddedEvent : IHasMentionableContent
+    public class TaskAddedEvent : IHasMentionableContent
     {
         public string Content { get; set; }
         public Guid TaskId { get; set; }
@@ -10,7 +10,7 @@ namespace Flowey.BUSINESS.Features.Comments.Events
         public string TaskKey { get; set; }
         public Guid ProjectId { get; set; }
 
-        public CommentAddedEvent(string content, Guid taskId, Guid userId, string taskKey, Guid projectId)
+        public TaskAddedEvent(string content, Guid taskId, Guid userId, string taskKey, Guid projectId)
         {
             Content = content;
             TaskId = taskId;

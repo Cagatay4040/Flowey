@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Flowey.BUSINESS.Features.Notifications.Events
+namespace Flowey.CORE.Events.Notification
 {
     public class UserNotificationCreatedEvent : INotification
     {
