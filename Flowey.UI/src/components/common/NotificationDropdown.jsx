@@ -34,7 +34,7 @@ const NotificationDropdown = () => {
         // SignalR connection
         const token = localStorage.getItem('token');
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7125/hubs/notification", {
+            .withUrl("https://localhost:7125/notification-hub", {
                 accessTokenFactory: () => token
             })
             .withAutomaticReconnect()
