@@ -1,4 +1,4 @@
-﻿namespace Flowey.CORE.DataAccess.Abstract
+﻿namespace Flowey.CORE.Interfaces.Services
 {
     public interface ICurrentUserService
     {

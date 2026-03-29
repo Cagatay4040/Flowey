@@ -1,5 +1,7 @@
 using Flowey.API.Extensions;
+using Flowey.API.Services;
 using Flowey.BUSINESS.Services;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
 using Flowey.Infrastructure.DependencyInjection;
 using Flowey.INFRASTRUCTURE.Services.Notifications.Hubs;
@@ -88,6 +90,8 @@ namespace Flowey.API
                 });
 
                 builder.Services.AddSignalR();
+
+                builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
                 builder.Services.ConfigureAuth(builder.Configuration);
                 builder.Services.AddMyServices(builder.Configuration);

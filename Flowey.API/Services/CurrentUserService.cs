@@ -1,9 +1,8 @@
-﻿using Flowey.CORE.DataAccess.Abstract;
+﻿using Flowey.CORE.Interfaces.Services;
 using Flowey.SHARED.Constants;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
-namespace Flowey.CORE.DataAccess.Concrete
+namespace Flowey.API.Services
 {
     public class CurrentUserService : ICurrentUserService
     {

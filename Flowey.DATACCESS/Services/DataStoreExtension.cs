@@ -1,6 +1,4 @@
-﻿using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.DataAccess.Concrete;
-using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
+﻿using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +10,6 @@ namespace Flowey.DATACCESS.Services
         public static IServiceCollection DataStore(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<AuditInterceptor>();
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             services.AddDbContext<FloweyDbContext>((serviceProvider, options) =>
             {

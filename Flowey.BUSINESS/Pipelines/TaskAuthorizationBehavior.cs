@@ -1,5 +1,5 @@
-﻿using Flowey.CORE.DataAccess.Abstract;
-using Flowey.CORE.Interfaces.Security;
+﻿using Flowey.CORE.Interfaces.Security;
+using Flowey.CORE.Interfaces.Services;
 using Flowey.SHARED.Constants;
 using MediatR;
 

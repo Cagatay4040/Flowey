@@ -1,4 +1,4 @@
-﻿using Flowey.CORE.DataAccess.Abstract;
+﻿using Flowey.CORE.Interfaces.Services;
 using Flowey.DOMAIN.Model.Abstract;
 using Flowey.DOMAIN.Model.Concrete;
 using Microsoft.EntityFrameworkCore;
