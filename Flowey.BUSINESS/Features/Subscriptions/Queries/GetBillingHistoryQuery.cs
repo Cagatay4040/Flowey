@@ -38,12 +38,12 @@ namespace Flowey.BUSINESS.Features.Subscriptions.Queries
             var userExists = await _userRepository.AnyAsync(x => x.Id == request.UserId);
 
             if (!userExists)
-                return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Error, Messages.UserNotFound, null);
+                return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Error, null, Messages.UserNotFound);
 
             var entityList = await _userSubscriptionRepository.GetList(x => x.UserId == request.UserId, true, query => query.OrderByDescending(o => o.CreatedDate));
 
             if (entityList == null || !entityList.Any())
-                return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Success, Messages.NoInvoicesFound, new List<UserSubscriptionGetDTO>());
+                return new DataResult<List<UserSubscriptionGetDTO>>(ResultStatus.Success, new List<UserSubscriptionGetDTO>(), Messages.NoInvoicesFound);
 
             var data = _mapper.Map<List<UserSubscriptionGetDTO>>(entityList);
 

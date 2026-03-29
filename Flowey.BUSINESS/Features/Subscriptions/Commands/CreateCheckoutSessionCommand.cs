@@ -36,9 +36,9 @@ namespace Flowey.BUSINESS.Features.Subscriptions.Commands
             string checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(userId, request.MonthsToPurchase);
 
             if (string.IsNullOrEmpty(checkoutUrl))
-                return new DataResult<string>(ResultStatus.Error, Messages.PaymentGatewayCommunicationError, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.PaymentGatewayCommunicationError);
 
-            return new DataResult<string>(ResultStatus.Success, Messages.CheckoutSessionCreated, checkoutUrl);
+            return new DataResult<string>(ResultStatus.Success, checkoutUrl, Messages.CheckoutSessionCreated);
         }
     }
 }

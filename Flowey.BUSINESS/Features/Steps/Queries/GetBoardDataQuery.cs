@@ -49,7 +49,7 @@ namespace Flowey.BUSINESS.Features.Steps.Queries
             var existingProject = await _projectRepository.AnyAsync(x => x.Id == request.ProjectId);
 
             if (!existingProject)
-                return new DataResult<List<StepGetDTO>>(ResultStatus.Error, Messages.ProjectNotFound, new List<StepGetDTO>());
+                return new DataResult<List<StepGetDTO>>(ResultStatus.Error, new List<StepGetDTO>(), Messages.ProjectNotFound);
 
             var steps = await _stepRepository.GetStepsWithFilteredTasksAsync(request.ProjectId, request.UserIds, request.IncludeUnassigned, request.Priorities);
 

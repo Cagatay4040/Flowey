@@ -36,10 +36,10 @@ namespace Flowey.BUSINESS.Features.Users.Commands
             var user = await _userRepository.GetByIdAsync(_currentUserService.GetUserId().Value);
 
             if (user == null)
-                return new DataResult<string>(ResultStatus.Error, Messages.UserNotFound, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.UserNotFound);
 
             if (string.IsNullOrEmpty(user.ProfileImageUrl))
-                return new DataResult<string>(ResultStatus.Error, Messages.NoProfileImageToDelete, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.NoProfileImageToDelete);
 
             var isDeleted = await _imageService.DeleteImageAsync(user.ProfileImageUrl);
 
@@ -52,11 +52,11 @@ namespace Flowey.BUSINESS.Features.Users.Commands
                 if (effectedRow > 0)
                 {
                     var newToken = _tokenService.GenerateToken(user);
-                    return new DataResult<string>(ResultStatus.Success, Messages.ProfileImageDeleted, newToken);
+                    return new DataResult<string>(ResultStatus.Success, newToken, Messages.ProfileImageDeleted);
                 }
             }
 
-            return new DataResult<string>(ResultStatus.Error, Messages.ProfileImageDeleteFailed, null);
+            return new DataResult<string>(ResultStatus.Error, null, Messages.ProfileImageDeleteFailed);
         }
     }
 }

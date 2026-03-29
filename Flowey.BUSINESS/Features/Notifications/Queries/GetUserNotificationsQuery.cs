@@ -37,7 +37,7 @@ namespace Flowey.BUSINESS.Features.Notifications.Queries
             var user = await _userRepository.GetByIdAsync(request.UserId);
 
             if (user == null)
-                return new DataResult<List<UserNotificationGetDTO>>(ResultStatus.Error, Messages.UserNotFound, new List<UserNotificationGetDTO>());
+                return new DataResult<List<UserNotificationGetDTO>>(ResultStatus.Error, new List<UserNotificationGetDTO>(), Messages.UserNotFound);
 
             var entityList = await _userNotificationRepository.GetUserNotifications(request.UserId);
             var data = _mapper.Map<List<UserNotificationGetDTO>>(entityList);

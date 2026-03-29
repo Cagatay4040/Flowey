@@ -41,24 +41,24 @@ namespace Flowey.BUSINESS.Features.Users.Commands
         public async Task<IDataResult<string>> Handle(UpdateProfileImageCommand request, CancellationToken cancellationToken)
         {
             if (request.File == null || request.File.Length == 0)
-                return new DataResult<string>(ResultStatus.Error, Messages.ImageNotSelected, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.ImageNotSelected);
 
             var extension = Path.GetExtension(request.File.FileName).ToLowerInvariant();
 
             if (!FileSettings.AllowedProfileImageExtensions.Contains(extension))
-                return new DataResult<string>(ResultStatus.Error, Messages.InvalidImageFormat, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.InvalidImageFormat);
 
             if (request.File.Length > FileSettings.MaxFileSystemBytes)
-                return new DataResult<string>(ResultStatus.Error, Messages.FileSizeExceeded, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.FileSizeExceeded);
 
             var user = await _userRepository.GetByIdAsync(_currentUserService.GetUserId().Value);
 
             if (user == null) 
-                return new DataResult<string>(ResultStatus.Error, Messages.UserNotFound, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.UserNotFound);
 
             var imageUrl = await _imageService.UploadImageAsync(request.File);
             if (string.IsNullOrEmpty(imageUrl))
-                return new DataResult<string>(ResultStatus.Error, Messages.ImageUploadFailed, null);
+                return new DataResult<string>(ResultStatus.Error, null, Messages.ImageUploadFailed);
 
             if (!string.IsNullOrEmpty(user.ProfileImageUrl))
                 await _imageService.DeleteImageAsync(user.ProfileImageUrl);
@@ -70,10 +70,10 @@ namespace Flowey.BUSINESS.Features.Users.Commands
             if (effectedRow > 0)
             {
                 var newToken = _tokenService.GenerateToken(user);
-                return new DataResult<string>(ResultStatus.Success, Messages.ProfileImageUpdated, newToken);
+                return new DataResult<string>(ResultStatus.Success, newToken, Messages.ProfileImageUpdated);
             }
 
-            return new DataResult<string>(ResultStatus.Error, Messages.ProfileImageUpdateFailed, null);
+            return new DataResult<string>(ResultStatus.Error, null, Messages.ProfileImageUpdateFailed);
         }
     }
 }

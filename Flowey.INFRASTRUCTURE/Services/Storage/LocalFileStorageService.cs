@@ -40,7 +40,7 @@ namespace Flowey.INFRASTRUCTURE.Services.Storage
             var baseUrl = $"{request.Scheme}://{request.Host}{request.PathBase}";
             var fileUrl = $"{baseUrl}/uploads/{uniqueFileName}";
 
-            return new DataResult<string>(ResultStatus.Success, Messages.FileUploadSuccessfull, fileUrl);
+            return new DataResult<string>(ResultStatus.Success, fileUrl, Messages.FileUploadSuccessfull);
         }
     }
 }

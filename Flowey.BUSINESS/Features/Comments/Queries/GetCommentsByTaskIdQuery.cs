@@ -37,7 +37,7 @@ namespace Flowey.BUSINESS.Features.Comments.Queries
         {
             var comments = await _commentRepository.GetList(c => c.TaskId == request.TaskId && c.IsActive, includes: x => x.User);
             var commentDtos = _mapper.Map<List<CommentGetDTO>>(comments).OrderByDescending(c => c.CreatedDate).ToList();
-            return new DataResult<List<CommentGetDTO>>(ResultStatus.Success, Messages.CommentListed, commentDtos);
+            return new DataResult<List<CommentGetDTO>>(ResultStatus.Success, commentDtos, Messages.CommentListed);
         }
     }
 }

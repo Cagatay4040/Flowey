@@ -36,7 +36,7 @@ namespace Flowey.BUSINESS.Features.ProjectUsers.Queries
             var entities = await _projectRepository.GetProjectWithUsersAsync(request.ProjectId);
 
             if(entities == null)
-                return new DataResult<List<UserSelectDTO>>(ResultStatus.Error, Messages.ProjectNotFound, new List<UserSelectDTO>());
+                return new DataResult<List<UserSelectDTO>>(ResultStatus.Error, new List<UserSelectDTO>(), Messages.ProjectNotFound);
 
             var data = entities.ProjectUserRoles.Select(role => new UserSelectDTO
             {

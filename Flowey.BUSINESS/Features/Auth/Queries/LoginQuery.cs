@@ -40,15 +40,15 @@ namespace Flowey.BUSINESS.Features.Auth.Queries
             var user = await _userRepository.FirstOrDefaultAsync(x => x.Email == request.Email);
 
             if (user == null)
-                return new DataResult<string>(ResultStatus.Error, Messages.InvalidCredentials, string.Empty);
+                return new DataResult<string>(ResultStatus.Error, string.Empty, Messages.InvalidCredentials);
 
             var verificationResult = _passwordHasher.VerifyHashedPassword(user, user.Password, request.Password);
 
             if (verificationResult != PasswordVerificationResult.Success)
-                return new DataResult<string>(ResultStatus.Error, Messages.InvalidCredentials, string.Empty);
+                return new DataResult<string>(ResultStatus.Error, string.Empty, Messages.InvalidCredentials);
 
             string token = _tokenService.GenerateToken(user);
-            return new DataResult<string>(ResultStatus.Success, Messages.LoginSuccessful, token);
+            return new DataResult<string>(ResultStatus.Success, token, Messages.LoginSuccessful);
         }
     }
 }

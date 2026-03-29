@@ -15,13 +15,13 @@ namespace Flowey.CORE.Result.Concrete
             ResultStatus = resultStatus;
             Data = data;
         }
-        public DataResult(ResultStatus resultStatus, string message, T data)
+        public DataResult(ResultStatus resultStatus, T data, string message)
         {
             ResultStatus = resultStatus;
             Data = data;
             Message = message;
         }
-        public DataResult(ResultStatus resultStatus, string message, T data, Exception exception)
+        public DataResult(ResultStatus resultStatus, T data, string message, Exception exception)
         {
             ResultStatus = resultStatus;
             Data = data;
