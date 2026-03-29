@@ -4,6 +4,7 @@ using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
 using Flowey.DOMAIN.Model.Concrete;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 

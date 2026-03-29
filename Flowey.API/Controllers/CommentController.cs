@@ -1,7 +1,7 @@
 using Flowey.BUSINESS.Features.Comments.Commands;
 using Flowey.BUSINESS.Features.Comments.Queries;
 using Flowey.CORE.DTO.Comment;
-using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

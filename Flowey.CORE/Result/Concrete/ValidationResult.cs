@@ -1,4 +1,5 @@
 ﻿using Flowey.CORE.Result.Abstract;
+using Flowey.SHARED.Enums;
 
 namespace Flowey.CORE.Result.Concrete
 {

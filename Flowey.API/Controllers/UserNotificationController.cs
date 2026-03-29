@@ -1,7 +1,7 @@
 ﻿using Flowey.BUSINESS.Features.Notifications.Commands;
 using Flowey.BUSINESS.Features.Notifications.Queries;
 using Flowey.CORE.DTO.Notification;
-using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,7 @@
 ﻿using Flowey.BUSINESS.Features.Users.Commands;
 using Flowey.BUSINESS.Features.Users.Queries;
 using Flowey.CORE.DTO.User;
-using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

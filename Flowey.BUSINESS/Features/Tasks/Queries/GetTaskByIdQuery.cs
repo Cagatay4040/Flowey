@@ -3,6 +3,7 @@ using Flowey.CORE.DTO.Task;
 using Flowey.CORE.Interfaces.Repositories;
 using Flowey.CORE.Result.Abstract;
 using Flowey.CORE.Result.Concrete;
+using Flowey.SHARED.Enums;
 using MediatR;
 
 namespace Flowey.BUSINESS.Features.Tasks.Queries

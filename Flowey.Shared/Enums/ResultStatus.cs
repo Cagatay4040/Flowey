@@ -1,4 +1,4 @@
-﻿namespace Flowey.CORE.Result.Concrete
+﻿namespace Flowey.SHARED.Enums
 {
     public enum ResultStatus
     {

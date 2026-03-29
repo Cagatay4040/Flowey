@@ -1,6 +1,7 @@
 ﻿using Flowey.CORE.Result.Concrete;
 using Flowey.CORE.Settings;
 using Flowey.SHARED.Constants;
+using Flowey.SHARED.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
