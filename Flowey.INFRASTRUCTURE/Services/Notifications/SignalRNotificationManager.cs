@@ -1,6 +1,7 @@
 ﻿using Flowey.CORE.DTO.Notification;
 using Flowey.CORE.Interfaces.Services;
 using Flowey.INFRASTRUCTURE.Services.Notifications.Hubs;
+using Flowey.SHARED.Constants;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Flowey.INFRASTRUCTURE.Services.Notifications
@@ -18,6 +19,12 @@ namespace Flowey.INFRASTRUCTURE.Services.Notifications
         {
             await _hubContext.Clients.User(notification.UserId.ToString())
                 .SendAsync("ReceiveNotification", notification.Title, notification.Message, notification.ActionUrl, notification.IsRead);
+        }
+
+        public async Task SendPaymentSuccessAsync(Guid userId)
+        {
+            await _hubContext.Clients.User(userId.ToString())
+                .SendAsync("ReceiveSubscriptionUpdate", Messages.PaymentSuccessful);
         }
     }
 }

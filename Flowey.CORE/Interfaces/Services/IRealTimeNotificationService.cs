@@ -5,5 +5,6 @@ namespace Flowey.CORE.Interfaces.Services
     public interface IRealTimeNotificationService
     {
         Task SendNotificationAsync(UserNotificationAddDTO notification);
+        Task SendPaymentSuccessAsync(Guid userId);
     }
 }

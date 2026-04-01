@@ -13,12 +13,18 @@ namespace Flowey.BUSINESS.Features.Subscriptions.EventHandlers
         private readonly IUserRepository _userRepository;
         private readonly IEntityRepository<UserSubscription> _userSubscriptionRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPublisher _publisher;
 
-        public SubscriptionPaidEventHandler(IUserRepository userRepository, IEntityRepository<UserSubscription> userSubscriptionRepository, IUnitOfWork unitOfWork)
+        public SubscriptionPaidEventHandler(
+            IUserRepository userRepository, 
+            IEntityRepository<UserSubscription> userSubscriptionRepository, 
+            IUnitOfWork unitOfWork, 
+            IPublisher publisher)
         {
             _userRepository = userRepository;
             _userSubscriptionRepository = userSubscriptionRepository;
             _unitOfWork = unitOfWork;
+            _publisher = publisher;
         }
 
         public async Task Handle(SubscriptionPaidEvent notification, CancellationToken cancellationToken)
@@ -51,6 +57,8 @@ namespace Flowey.BUSINESS.Features.Subscriptions.EventHandlers
 
             if (effectedRow == 0)
                 throw new Exception(Messages.WebhookDatabaseCommitFailed);
+
+            await _publisher.Publish(new SubscriptionActivatedEvent(user.Id), cancellationToken);
         }
     }
 }
