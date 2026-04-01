@@ -41,4 +41,13 @@ public class AuthController : ControllerBase
         if (result.ResultStatus == ResultStatus.Success) return Ok(result);
         return BadRequest(result);
     }
+
+    [Authorize]
+    [HttpPost("RefreshToken")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var result = await _sender.Send(new RefreshTokenCommand());
+        if (result.ResultStatus == ResultStatus.Success) return Ok(result);
+        return BadRequest(result);
+    }
 }
