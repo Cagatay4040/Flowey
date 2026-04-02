@@ -10,6 +10,7 @@ import ProfilePage from './pages/Profile';
 import PremiumPage from './pages/Premium';
 import ProjectUpdate from './pages/ProjectUpdate';
 import PaymentSuccessPage from './pages/PaymentSuccess';
+import PaymentCancelPage from './pages/PaymentCancel';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -36,6 +37,7 @@ const App = () => {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="premium" element={<PremiumPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="payment-cancelled" element={<PaymentCancelPage />} />
           <Route path="project-update/:projectId" element={<ProjectUpdate />} />
         </Route>
       </Routes>
