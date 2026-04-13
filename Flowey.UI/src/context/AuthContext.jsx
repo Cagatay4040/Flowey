@@ -23,6 +23,15 @@ export const AuthProvider = ({ children }) => {
     const getUserFromToken = (token) => {
         const decoded = parseJwt(token);
         if (!decoded) return null;
+
+        // Check token expiration if exp claim is present
+        if (decoded.exp) {
+            const currentTime = Date.now() / 1000;
+            if (decoded.exp < currentTime) {
+                return null; // Token is expired
+            }
+        }
+
         // Adjust these keys based on your actual JWT claims
         return {
             id: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'] || decoded.sub || decoded.nameid || decoded.id,

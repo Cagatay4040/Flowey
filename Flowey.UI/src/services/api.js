@@ -29,7 +29,14 @@ api.interceptors.response.use(
         return response;
     },
     (error) => {
-        // Check for HTTP errors
+        // Check for 401 Unauthorized
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            return Promise.reject(error);
+        }
+
+        // Check for other HTTP errors
         if (error.response && error.response.data) {
             const data = error.response.data;
             let errorMessage = data.messages ? data.messages.join('\n') : data.message || 'An error occurred';
