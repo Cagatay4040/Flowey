@@ -1,6 +1,6 @@
 using Flowey.API.Extensions;
 using Flowey.API.Services;
-using Flowey.BUSINESS.Services;
+using Flowey.BUSINESS.DependencyInjection;
 using Flowey.CORE.Interfaces.Services;
 using Flowey.CORE.Result.Concrete;
 using Flowey.Infrastructure.DependencyInjection;

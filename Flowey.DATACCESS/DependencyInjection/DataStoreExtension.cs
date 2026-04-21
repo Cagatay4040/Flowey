@@ -1,9 +1,10 @@
 ﻿using Flowey.DATACCESS.Concrete.EntityFramework.Contexts;
+using Flowey.DATACCESS.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Flowey.DATACCESS.Services
+namespace Flowey.DATACCESS.DependencyInjection
 {
     public static class DataStoreExtension
     {
